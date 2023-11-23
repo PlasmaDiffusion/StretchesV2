@@ -8,9 +8,10 @@ return <BouncyCheckbox
   fillColor={color}
   unfillColor="#FFFFFF"
   text={name}
+  style={{minWidth: 150}}
   iconStyle={{ borderColor: "red" }}
   innerIconStyle={{ borderWidth: 2 }}
-  textStyle={{ fontFamily: "JosefinSans-Regular", textDecorationLine: 'none' }}
+  textStyle={{  textDecorationLine: 'none' }}
   onPress={(isChecked) => {}}
 />
 }
