@@ -18,27 +18,24 @@ export function StartButtonAndTimer({
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (!paused) {
-      setInterval(() => {
-        if (!paused && currentStretch) {
+    setInterval(() => {
+      if (!paused && currentStretch) {
+        if (currentTime === 0) {
+          setPaused(true);
+          goToNextStretch();
+        } else {
           incrementTime();
-          if (currentTime >= currentStretch.totalStretchTime) {
-            setPaused(true);
-          }
         }
-      }, 1000);
-    }
-  }, [paused, currentTime]);
+      }
+    }, 1000);
+  }, []);
 
   return (
     <>
       <Button
         onPress={() => {
           setPaused(!paused);
-          if (
-            !currentStretch ||
-            currentTime >= currentStretch.totalStretchTime
-          ) {
+          if (!currentStretch || currentTime === 0) {
             goToNextStretch();
           }
         }}

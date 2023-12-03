@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, SafeAreaView } from "react-native";
 import { StretchCheckbox } from "./components/StretchCheckbox";
 import Slider from "react-native-a11y-slider";
 import { StartButtonAndTimer } from "./components/StartButtonAndTimer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CurrentStretchData } from "./components/CurrentStretchData";
 
 export interface Stretch {
@@ -30,9 +30,9 @@ const stretches: Stretch[] = [
 ];
 
 export default function App() {
-  const [time, setTime] = useState(-1);
+  const [time, setTime] = useState(stretches[0].totalStretchTime);
   const [currentStretchIndex, setCurrentStretchIndex] = useState(-1);
-
+  const [isStretching, setIsStretching] = useState(false);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -40,14 +40,20 @@ export default function App() {
         currentTime={time}
         currentStretch={stretches[currentStretchIndex]}
         incrementTime={() => {
-          setTime(time + 1);
+          setTime(time - 1);
         }}
         goToNextStretch={() => {
-          setCurrentStretchIndex(currentStretchIndex + 1);
-          setTime(0);
+          if (currentStretchIndex + 1 >= stretches.length) {
+            setIsStretching(false);
+          } else {
+            setIsStretching(true);
+            console.log("*goToNextStretch", currentStretchIndex);
+            setTime(stretches[currentStretchIndex + 1].totalStretchTime);
+            setCurrentStretchIndex(currentStretchIndex + 1);
+          }
         }}
       />
-      {time === -1 ? (
+      {!isStretching ? (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <Text>Select Stretches</Text>
           {stretches.map((stretch, index) => (
@@ -66,7 +72,13 @@ export default function App() {
           <StatusBar style="auto" />
         </ScrollView>
       ) : (
-        <CurrentStretchData stretch={stretches[currentStretchIndex]} time={0} />
+        <View>
+          <Text>{time}</Text>
+          <CurrentStretchData
+            stretch={stretches[currentStretchIndex]}
+            time={time}
+          />
+        </View>
       )}
     </SafeAreaView>
   );
