@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { Button } from "react-native";
 import { Stretch } from "../App";
 
 interface Props {

@@ -1,9 +1,10 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, ScrollView, SafeAreaView } from "react-native";
-import { StretchItem } from "./components/StretchItem";
+import { StretchCheckbox } from "./components/StretchCheckbox";
 import Slider from "react-native-a11y-slider";
 import { StartButtonAndTimer } from "./components/StartButtonAndTimer";
 import { useState } from "react";
+import { CurrentStretchData } from "./components/CurrentStretchData";
 
 export interface Stretch {
   name: string;
@@ -32,6 +33,7 @@ export default function App() {
   const [time, setTime] = useState(-1);
   const [currentStretchIndex, setCurrentStretchIndex] = useState(-1);
 
+
   return (
     <SafeAreaView style={styles.container}>
       <StartButtonAndTimer
@@ -42,14 +44,15 @@ export default function App() {
         }}
         goToNextStretch={() => {
           setCurrentStretchIndex(currentStretchIndex + 1);
+          setTime(0);
         }}
       />
-      {time == -1 ? (
+      {time === -1 ? (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <Text>Select Stretches</Text>
           {stretches.map((stretch, index) => (
-            <View style={styles.row}>
-              <StretchItem name={stretch.name} color={stretch.color} />
+            <View style={styles.row} key={"s" + index}>
+              <StretchCheckbox name={stretch.name} color={stretch.color} />
               <Slider
                 style={styles.slider}
                 min={0}
@@ -63,19 +66,7 @@ export default function App() {
           <StatusBar style="auto" />
         </ScrollView>
       ) : (
-        <>
-          {/* Dummy slider used as timer */}
-          <Slider
-            style={styles.slider}
-            min={0}
-            max={100}
-            values={[
-              (time / stretches[currentStretchIndex].totalStretchTime) * 100,
-            ]}
-            increment={1}
-            labelStyle={{ marginTop: 15 }}
-          />
-        </>
+        <CurrentStretchData stretch={stretches[currentStretchIndex]} time={0} />
       )}
     </SafeAreaView>
   );

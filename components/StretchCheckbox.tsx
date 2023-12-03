@@ -1,7 +1,7 @@
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 
 
-export function StretchItem({color="red", name="unnanmed",})
+export function StretchCheckbox({color="red", name="unnanmed",})
 {
 return <BouncyCheckbox
   size={25}
