@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Button } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { Button, StyleSheet, View } from "react-native";
 import { Stretch } from "../App";
 
 interface Props {
@@ -18,7 +18,9 @@ export function StartButtonAndTimer({
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    setInterval(() => {
+    console.log("*intervalStarted");
+    const interval = setInterval(() => {
+      console.log("*interval", currentStretch, paused, currentTime);
       if (!paused && currentStretch) {
         if (currentTime === 0) {
           setPaused(true);
@@ -28,10 +30,18 @@ export function StartButtonAndTimer({
         }
       }
     }, 1000);
-  }, []);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [currentStretch, currentTime, paused]);
+
+  function getButtonPauseText() {
+    return paused ? "Unpause" : "Pause";
+  }
 
   return (
-    <>
+    <View style={styles.buttonContainer}>
       <Button
         onPress={() => {
           setPaused(!paused);
@@ -39,8 +49,14 @@ export function StartButtonAndTimer({
             goToNextStretch();
           }
         }}
-        title="Start"
+        title={currentStretch ? getButtonPauseText() : "Start"}
       />
-    </>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  buttonContainer: {
+    width: 200,
+  },
+});

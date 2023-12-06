@@ -1,6 +1,7 @@
 import Slider from "react-native-a11y-slider";
-import { Text, StyleSheet, View } from "react-native";
+import { Text, StyleSheet, View, Button, DimensionValue } from "react-native";
 import { Stretch } from "../App";
+import { useEffect, useState } from "react";
 
 interface Props {
   stretch: Stretch;
@@ -8,19 +9,25 @@ interface Props {
 }
 
 export function CurrentStretchData({ stretch, time }: Props) {
+  const [stretchPercentage, setStretchPercentage] =
+    useState<DimensionValue>("100%");
+
+  useEffect(() => {
+    setStretchPercentage(`${(time / stretch.totalStretchTime) * 100}%`);
+  }, [stretch, time]);
+
   return (
     <View style={styles.container}>
       <Text style={[styles.name, { color: stretch.color }]}>
         {stretch.name}
       </Text>
-      {/* Dummy slider used as timer */}
-      <Slider
-        min={0}
-        max={stretch.totalStretchTime}
-        values={[(time / stretch.totalStretchTime) * 100]}
-        increment={1}
-        labelStyle={{ marginTop: 15 }}
-      />
+      <Text style={styles.name}>{time}</Text>
+      <Text
+        style={[
+          { width: stretchPercentage, backgroundColor: stretch.color },
+          styles.timerBar,
+        ]}
+      ></Text>
     </View>
   );
 }
@@ -32,8 +39,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: "center",
   },
-  slider: {
-    width: "50%",
-    height: "150%",
+  timerBar: {
+    maxHeight: "5%",
   },
 });

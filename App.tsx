@@ -30,7 +30,7 @@ const stretches: Stretch[] = [
 ];
 
 export default function App() {
-  const [time, setTime] = useState(stretches[0].totalStretchTime);
+  const [time, setTime] = useState(60);
   const [currentStretchIndex, setCurrentStretchIndex] = useState(-1);
   const [isStretching, setIsStretching] = useState(false);
 
@@ -47,7 +47,6 @@ export default function App() {
             setIsStretching(false);
           } else {
             setIsStretching(true);
-            console.log("*goToNextStretch", currentStretchIndex);
             setTime(stretches[currentStretchIndex + 1].totalStretchTime);
             setCurrentStretchIndex(currentStretchIndex + 1);
           }
@@ -73,7 +72,6 @@ export default function App() {
         </ScrollView>
       ) : (
         <View>
-          <Text>{time}</Text>
           <CurrentStretchData
             stretch={stretches[currentStretchIndex]}
             time={time}
