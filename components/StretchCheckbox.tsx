@@ -1,17 +1,26 @@
-import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { Stretch } from "../App";
+import { useState } from "react";
+
+interface Props {
+  stretch: Stretch;
+  setCheckbox: (checked:boolean) => any;
+}
+
+export function StretchCheckbox({ stretch, setCheckbox }: Props) {
 
 
-export function StretchCheckbox({color="red", name="unnanmed",})
-{
-return <BouncyCheckbox
-  size={25}
-  fillColor={color}
-  unfillColor="#FFFFFF"
-  text={name}
-  style={{minWidth: 150}}
-  iconStyle={{ borderColor: "red" }}
-  innerIconStyle={{ borderWidth: 2 }}
-  textStyle={{  textDecorationLine: 'none' }}
-  onPress={(isChecked) => {}}
-/>
+  return (
+    <BouncyCheckbox
+      size={25}
+      fillColor={stretch.color}
+      unfillColor="#FFFFFF"
+      text={stretch.name}
+      style={{ minWidth: 150 }}
+      iconStyle={{ borderColor: "red" }}
+      innerIconStyle={{ borderWidth: 2 }}
+      textStyle={{ textDecorationLine: "none" }}
+      onPress={(isChecked) => {setCheckbox(!stretch.enabled)}}
+    />
+  );
 }

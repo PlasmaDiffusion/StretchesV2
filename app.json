@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "StretchesV2",
-    "slug": "StretchesV2",
+    "slug": "stretches",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,10 +21,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.plasmadiffusion.stretches"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5963bd8b-f61b-4bd8-98e3-2b51802d5c48"
+      }
+    },
+    "owner": "plasmadiffusion"
   }
 }

@@ -10,9 +10,10 @@ export interface Stretch {
   name: string;
   color: string;
   totalStretchTime: number;
+  enabled?: boolean;
 }
 
-const stretches: Stretch[] = [
+const defaultStretches: Stretch[] = [
   { name: "Hooklying Pos 1", color: "lightcoral", totalStretchTime: 60 },
   { name: "Hooklying Pos 2", color: "salmon", totalStretchTime: 60 },
   { name: "Knee-Chest 1", color: "pink", totalStretchTime: 60 },
@@ -33,6 +34,7 @@ export default function App() {
   const [time, setTime] = useState(60);
   const [currentStretchIndex, setCurrentStretchIndex] = useState(-1);
   const [isStretching, setIsStretching] = useState(false);
+  const [stretches, setStretches] = useState<Stretch[]>(defaultStretches);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -46,9 +48,14 @@ export default function App() {
           if (currentStretchIndex + 1 >= stretches.length) {
             setIsStretching(false);
           } else {
-            setIsStretching(true);
-            setTime(stretches[currentStretchIndex + 1].totalStretchTime);
-            setCurrentStretchIndex(currentStretchIndex + 1);
+            for (let i = currentStretchIndex + 1; i < stretches.length; i++) {
+              if (stretches[i].enabled) {
+                setIsStretching(true);
+                setTime(stretches[i].totalStretchTime);
+                setCurrentStretchIndex(i);
+                break;
+              }
+            }
           }
         }}
       />
@@ -57,7 +64,14 @@ export default function App() {
           <Text>Select Stretches</Text>
           {stretches.map((stretch, index) => (
             <View style={styles.row} key={"s" + index}>
-              <StretchCheckbox name={stretch.name} color={stretch.color} />
+              <StretchCheckbox
+                stretch={stretch}
+                setCheckbox={(isChecked) => {
+                  const updatedStretchArray = stretches;
+                  updatedStretchArray[index].enabled = isChecked;
+                  setStretches([...updatedStretchArray]);
+                }}
+              />
               <Slider
                 style={styles.slider}
                 min={0}
