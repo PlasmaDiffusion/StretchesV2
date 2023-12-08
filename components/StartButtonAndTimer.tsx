@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button, StyleSheet, View } from "react-native";
-import { Stretch } from "../App";
+import { Stretch } from "../utilities/stretchList";
 
 interface Props {
   currentStretch: Stretch | undefined;
@@ -17,12 +17,11 @@ export function StartButtonAndTimer({
   goToNextStretch,
   started,
 }: Props) {
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState(true);
 
   useEffect(() => {
     if (started) {
       const interval = setInterval(() => {
-        console.log("*interval", currentStretch, paused, currentTime);
         if (!paused && currentStretch) {
           if (currentTime === 0) {
             setPaused(true);
