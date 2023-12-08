@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Linking,
 } from "react-native";
-import { Stretch } from "../App";
+import { Stretch } from "../utilities/stretchList";
 import { useEffect, useState } from "react";
 
 interface Props {

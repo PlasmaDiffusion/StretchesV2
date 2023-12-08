@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, StyleSheet, View } from "react-native";
 import { Stretch } from "../utilities/stretchList";
 

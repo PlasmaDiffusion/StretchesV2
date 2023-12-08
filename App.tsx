@@ -6,12 +6,19 @@ import { StartButtonAndTimer } from "./components/StartButtonAndTimer";
 import { useState } from "react";
 import { CurrentStretchData } from "./components/CurrentStretchData";
 import { Stretch, stretchList } from "./utilities/stretchList";
+import { EndButton } from "./components/EndButton";
 
 export default function App() {
   const [time, setTime] = useState(60);
   const [currentStretchIndex, setCurrentStretchIndex] = useState(-1);
   const [isStretching, setIsStretching] = useState(false);
   const [stretches, setStretches] = useState<Stretch[]>(stretchList);
+
+  function endStretchSession() {
+    setTime(0);
+    setIsStretching(false);
+    setCurrentStretchIndex(-1);
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,6 +54,7 @@ export default function App() {
         </ScrollView>
       ) : (
         <View>
+          <EndButton onPress={endStretchSession} />
           <CurrentStretchData
             stretch={stretches[currentStretchIndex]}
             time={time}
@@ -62,15 +70,21 @@ export default function App() {
         }}
         goToNextStretch={() => {
           if (currentStretchIndex + 1 >= stretches.length) {
-            setIsStretching(false);
+            endStretchSession();
           } else {
+            // Go to next enabled stretch
+            let continuing = false;
             for (let i = currentStretchIndex + 1; i < stretches.length; i++) {
               if (stretches[i].enabled) {
                 setIsStretching(true);
                 setTime(stretches[i].totalStretchTime);
                 setCurrentStretchIndex(i);
+                continuing = true;
                 break;
               }
+            }
+            if (!continuing) {
+              endStretchSession();
             }
           }
         }}
