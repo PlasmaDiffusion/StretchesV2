@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, ScrollView, SafeAreaView } from "react-native";
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, Vibration } from "react-native";
 import { StretchCheckbox } from "./components/StretchCheckbox";
 import Slider from "react-native-a11y-slider";
 import { StartButtonAndTimer } from "./components/StartButtonAndTimer";
@@ -69,6 +69,7 @@ export default function App() {
           setTime(time - 1);
         }}
         goToNextStretch={() => {
+          Vibration.vibrate();
           if (currentStretchIndex + 1 >= stretches.length) {
             endStretchSession();
           } else {
