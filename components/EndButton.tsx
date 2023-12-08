@@ -37,6 +37,9 @@ const styles = StyleSheet.create({
     height: 32,
     display: "flex",
     alignSelf: "flex-end",
-    top: -190,
+    top: -120,
   },
+  modalContainer: {
+    width: 128,
+  }
 });
