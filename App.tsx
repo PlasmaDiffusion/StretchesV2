@@ -3,42 +3,58 @@ import { StyleSheet, Text, View, ScrollView, SafeAreaView } from "react-native";
 import { StretchCheckbox } from "./components/StretchCheckbox";
 import Slider from "react-native-a11y-slider";
 import { StartButtonAndTimer } from "./components/StartButtonAndTimer";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CurrentStretchData } from "./components/CurrentStretchData";
-
-export interface Stretch {
-  name: string;
-  color: string;
-  totalStretchTime: number;
-  enabled?: boolean;
-}
-
-const defaultStretches: Stretch[] = [
-  { name: "Hooklying Pos 1", color: "lightcoral", totalStretchTime: 60 },
-  { name: "Hooklying Pos 2", color: "salmon", totalStretchTime: 60 },
-  { name: "Knee-Chest 1", color: "pink", totalStretchTime: 60 },
-  { name: "Knee-Chest 2", color: "lightseagreen", totalStretchTime: 60 },
-  { name: "Figure Four 1", color: "aqua", totalStretchTime: 60 },
-  { name: "Figure Four 2", color: "limegreen", totalStretchTime: 60 },
-  { name: "Stir Pot", color: "green", totalStretchTime: 60 },
-  { name: "Frog Stretch", color: "#58D68D", totalStretchTime: 60 },
-  { name: "Windshield", color: "yellow", totalStretchTime: 60 },
-  { name: "Heard-Knee 1", color: "orange", totalStretchTime: 60 },
-  { name: "Head-Knee 2", color: "#990F02", totalStretchTime: 60 },
-  { name: "Butterfly", color: "orange", totalStretchTime: 60 },
-  { name: "Wipers Sitting", color: "violet", totalStretchTime: 60 },
-  { name: "Child Pose", color: "purple", totalStretchTime: 60 },
-];
+import { Stretch, stretchList } from "./utilities/stretchList";
 
 export default function App() {
   const [time, setTime] = useState(60);
   const [currentStretchIndex, setCurrentStretchIndex] = useState(-1);
   const [isStretching, setIsStretching] = useState(false);
-  const [stretches, setStretches] = useState<Stretch[]>(defaultStretches);
+  const [stretches, setStretches] = useState<Stretch[]>(stretchList);
 
   return (
     <SafeAreaView style={styles.container}>
+      {!isStretching ? (
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <Text>Select Stretches</Text>
+          {stretches.map((stretch, index) => (
+            <View style={styles.row} key={"s" + index}>
+              <StretchCheckbox
+                stretch={stretch}
+                setCheckbox={(isChecked) => {
+                  const updatedStretchArray = stretches;
+                  updatedStretchArray[index].enabled = isChecked;
+                  setStretches([...updatedStretchArray]);
+                }}
+              />
+              <Slider
+                style={styles.slider}
+                min={0}
+                max={240}
+                values={[stretch.totalStretchTime]}
+                increment={30}
+                labelStyle={{ marginTop: 15 }}
+                onChange={(values: number[]) => {
+                  const updatedStretchArray = stretches;
+                  updatedStretchArray[index].totalStretchTime = values[0];
+                  setStretches([...updatedStretchArray]);
+                }}
+              />
+            </View>
+          ))}
+          <StatusBar style="auto" />
+        </ScrollView>
+      ) : (
+        <View>
+          <CurrentStretchData
+            stretch={stretches[currentStretchIndex]}
+            time={time}
+          />
+        </View>
+      )}
       <StartButtonAndTimer
+        started={isStretching}
         currentTime={time}
         currentStretch={stretches[currentStretchIndex]}
         incrementTime={() => {
@@ -59,39 +75,6 @@ export default function App() {
           }
         }}
       />
-      {!isStretching ? (
-        <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Text>Select Stretches</Text>
-          {stretches.map((stretch, index) => (
-            <View style={styles.row} key={"s" + index}>
-              <StretchCheckbox
-                stretch={stretch}
-                setCheckbox={(isChecked) => {
-                  const updatedStretchArray = stretches;
-                  updatedStretchArray[index].enabled = isChecked;
-                  setStretches([...updatedStretchArray]);
-                }}
-              />
-              <Slider
-                style={styles.slider}
-                min={0}
-                max={240}
-                values={[60]}
-                increment={30}
-                labelStyle={{ marginTop: 15 }}
-              />
-            </View>
-          ))}
-          <StatusBar style="auto" />
-        </ScrollView>
-      ) : (
-        <View>
-          <CurrentStretchData
-            stretch={stretches[currentStretchIndex]}
-            time={time}
-          />
-        </View>
-      )}
     </SafeAreaView>
   );
 }

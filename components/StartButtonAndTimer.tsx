@@ -5,6 +5,7 @@ import { Stretch } from "../App";
 interface Props {
   currentStretch: Stretch | undefined;
   currentTime: number;
+  started: boolean;
   incrementTime: () => void;
   goToNextStretch: () => void;
 }
@@ -14,27 +15,29 @@ export function StartButtonAndTimer({
   currentTime,
   incrementTime,
   goToNextStretch,
+  started,
 }: Props) {
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    console.log("*intervalStarted");
-    const interval = setInterval(() => {
-      console.log("*interval", currentStretch, paused, currentTime);
-      if (!paused && currentStretch) {
-        if (currentTime === 0) {
-          setPaused(true);
-          goToNextStretch();
-        } else {
-          incrementTime();
+    if (started) {
+      const interval = setInterval(() => {
+        console.log("*interval", currentStretch, paused, currentTime);
+        if (!paused && currentStretch) {
+          if (currentTime === 0) {
+            setPaused(true);
+            goToNextStretch();
+          } else {
+            incrementTime();
+          }
         }
-      }
-    }, 1000);
+      }, 1000);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [currentStretch, currentTime, paused]);
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [started, currentStretch, currentTime, paused]);
 
   function getButtonPauseText() {
     return paused ? "Unpause" : "Pause";

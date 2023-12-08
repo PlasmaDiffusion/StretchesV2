@@ -1,6 +1,5 @@
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { Stretch } from "../App";
-import { useState } from "react";
 
 interface Props {
   stretch: Stretch;
@@ -8,7 +7,6 @@ interface Props {
 }
 
 export function StretchCheckbox({ stretch, setCheckbox }: Props) {
-
 
   return (
     <BouncyCheckbox

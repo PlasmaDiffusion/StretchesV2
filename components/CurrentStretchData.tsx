@@ -1,5 +1,11 @@
-import Slider from "react-native-a11y-slider";
-import { Text, StyleSheet, View, Button, DimensionValue } from "react-native";
+import {
+  Text,
+  StyleSheet,
+  View,
+  DimensionValue,
+  TouchableOpacity,
+  Linking,
+} from "react-native";
 import { Stretch } from "../App";
 import { useEffect, useState } from "react";
 
@@ -28,6 +34,24 @@ export function CurrentStretchData({ stretch, time }: Props) {
           styles.timerBar,
         ]}
       ></Text>
+
+      {stretch.links && (
+        <View style={styles.linkContainer}>
+          {stretch.links.map((link, index) => (
+            <TouchableOpacity
+              onPress={async () => {
+                if (await Linking.canOpenURL(link)) {
+                  await Linking.openURL(link);
+                }
+              }}
+            >
+              <Text style={styles.link}>
+                Reference {index > 0 && index + 1}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
     </View>
   );
 }
@@ -41,5 +65,13 @@ const styles = StyleSheet.create({
   },
   timerBar: {
     maxHeight: "5%",
+  },
+  linkContainer: {
+    marginTop: 32,
+  },
+  link: {
+    fontSize: 24,
+    color: "light-blue",
+    textDecorationLine: "underline",
   },
 });
