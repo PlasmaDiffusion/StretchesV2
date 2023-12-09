@@ -1,5 +1,13 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, Vibration } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  SafeAreaView,
+  Vibration,
+  Button,
+} from "react-native";
 import { StretchCheckbox } from "./components/StretchCheckbox";
 import Slider from "react-native-a11y-slider";
 import { StartButtonAndTimer } from "./components/StartButtonAndTimer";
@@ -7,6 +15,7 @@ import { useState } from "react";
 import { CurrentStretchData } from "./components/CurrentStretchData";
 import { Stretch, stretchList } from "./utilities/stretchList";
 import { EndButton } from "./components/EndButton";
+import SaveAndLoad from "./components/SaveAndLoad";
 
 export default function App() {
   const [time, setTime] = useState(60);
@@ -25,6 +34,10 @@ export default function App() {
       {!isStretching ? (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <Text>Select Stretches</Text>
+          <SaveAndLoad
+            currentStretches={stretches}
+            setStretches={setStretches}
+          />
           {stretches.map((stretch, index) => (
             <View style={styles.row} key={"s" + index}>
               <StretchCheckbox
