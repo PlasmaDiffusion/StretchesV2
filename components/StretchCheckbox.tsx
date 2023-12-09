@@ -3,11 +3,10 @@ import { Stretch } from "../utilities/stretchList";
 
 interface Props {
   stretch: Stretch;
-  setCheckbox: (checked:boolean) => any;
+  setCheckbox: (checked: boolean) => any;
 }
 
 export function StretchCheckbox({ stretch, setCheckbox }: Props) {
-
   return (
     <BouncyCheckbox
       size={25}
@@ -18,7 +17,10 @@ export function StretchCheckbox({ stretch, setCheckbox }: Props) {
       iconStyle={{ borderColor: "red" }}
       innerIconStyle={{ borderWidth: 2 }}
       textStyle={{ textDecorationLine: "none" }}
-      onPress={(isChecked) => {setCheckbox(!stretch.enabled)}}
+      isChecked={stretch.enabled}
+      onPress={(isChecked) => {
+        setCheckbox(!stretch.enabled);
+      }}
     />
   );
 }
