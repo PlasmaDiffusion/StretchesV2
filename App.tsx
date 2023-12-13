@@ -22,6 +22,7 @@ export default function App() {
   const [currentStretchIndex, setCurrentStretchIndex] = useState(-1);
   const [isStretching, setIsStretching] = useState(false);
   const [stretches, setStretches] = useState<Stretch[]>(stretchList);
+  const [buttonEnablesAll, setButtonEnablesAll] = useState(false);
 
   function endStretchSession() {
     setTime(0);
@@ -65,6 +66,19 @@ export default function App() {
               />
             </View>
           ))}
+          <View style={styles.enableAll}>
+          <Button
+            title={buttonEnablesAll ? "Enable All" : "Disable All"}
+            onPress={() => {
+              const stretchCopy = [...stretches];
+              stretchCopy.forEach((stretch) => {
+                stretch.enabled = buttonEnablesAll;
+              });
+              setStretches([...stretchCopy]);
+              setButtonEnablesAll(!buttonEnablesAll);
+            }}
+          />
+          </View>
           <StatusBar style="auto" />
         </ScrollView>
       ) : (
@@ -132,7 +146,13 @@ const styles = StyleSheet.create({
     height: "150%",
   },
   prompt: {
+    textAlign: "center",
+    fontWeight: "700",
+  },
+  enableAll: {
+    width: 100,
     textAlign: 'center',
-    fontWeight: '700',
+    alignSelf: 'center',
+    marginBottom: 8,
   }
 });

@@ -9,7 +9,7 @@ export interface Stretch {
 export const stretchList: Stretch[] = [
     { name: "Hooklying Pos 1", color: "lightcoral", totalStretchTime: 60 },
     { name: "Hooklying Pos 2", color: "salmon", totalStretchTime: 60 },
-    { name: "Knee-Chest 1", color: "pink", totalStretchTime: 60 },
+    { name: "Knee-Chest 1", color: "#DC143C", totalStretchTime: 60 },
     { name: "Knee-Chest 2", color: "#DE3163", totalStretchTime: 60 },
     { name: "Figure Four 1", color: "#66b2b2", totalStretchTime: 60 },
     { name: "Figure Four 2", color: "#008080", totalStretchTime: 60 },
