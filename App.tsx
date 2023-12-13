@@ -15,7 +15,7 @@ import { useState } from "react";
 import { CurrentStretchData } from "./components/CurrentStretchData";
 import { Stretch, stretchList } from "./utilities/stretchList";
 import { EndButton } from "./components/EndButton";
-import SaveAndLoad from "./components/SaveAndLoad";
+import SaveAndLoad from "./components/saving/SaveAndLoad";
 
 export default function App() {
   const [time, setTime] = useState(60);
@@ -36,7 +36,10 @@ export default function App() {
           <Text>Select Stretches</Text>
           <SaveAndLoad
             currentStretches={stretches}
-            setStretches={setStretches}
+            setStretches={(loadedStretches) => {
+              setStretches([...loadedStretches]);
+              console.log(loadedStretches);
+            }}
           />
           {stretches.map((stretch, index) => (
             <View style={styles.row} key={"s" + index}>

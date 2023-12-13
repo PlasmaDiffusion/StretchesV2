@@ -1,17 +1,23 @@
-import { useCallback, useState } from "react";
-import { View, Button, TouchableOpacity, Text, TextInput } from "react-native";
-import { Stretch } from "../utilities/stretchList";
-import storage from "../utilities/Storage";
+import { useCallback, useEffect, useState } from "react";
+import {
+  View,
+  Button,
+  Text,
+  TextInput,
+  StyleSheet,
+} from "react-native";
+import { Stretch } from "../../utilities/stretchList";
+import storage from "../../utilities/Storage";
 
 interface Props {
   currentStretches: Stretch[];
   setStretches: (newStretches: Stretch[]) => any;
 }
 
-export default function SaveAndLoad({ currentStretches }: Props) {
+//Unused component with manual save file name entry
+export default function SaveAndLoadWithNameInput({ currentStretches, setStretches }: Props) {
   const [key, setKey] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
-
 
   const savePressed = useCallback(async () => {
     if (key.includes("_")) {
@@ -43,10 +49,19 @@ export default function SaveAndLoad({ currentStretches }: Props) {
             saveNames: [...prevSaves, key],
           },
         });
-        setStatusMessage('Saved!');
+        setStatusMessage("Saved!");
       })
-      .catch((err) => {
-        setStatusMessage(err);
+      .catch(async (error: Error) => {
+        if (error.name === "NotFoundError") {
+          await storage.save({
+            key: "Save Names",
+            data: {
+              saveNames: [key],
+            },
+          });
+          setStatusMessage("Saved!");
+        }
+        setStatusMessage(error.message);
       });
   }, [currentStretches]);
 
@@ -71,14 +86,15 @@ export default function SaveAndLoad({ currentStretches }: Props) {
         syncInBackground: true,
       })
       .then((ret) => {
-        setStretches(ret.stretches)
-        setStatusMessage('Loaded!');
+        console.log(ret.stretches);
+        setStretches(ret.stretches);
+        setStatusMessage("Loaded!");
       })
-      .catch((err) => {
+      .catch((error: Error) => {
         // any exception including data not found
         // goes to catch()
-        console.warn(err.message);
-        switch (err.name) {
+        console.warn(error.message);
+        switch (error.name) {
           case "NotFoundError":
             setStatusMessage("The save was not found.");
             break;
@@ -86,18 +102,42 @@ export default function SaveAndLoad({ currentStretches }: Props) {
             setStatusMessage("The save expired.");
             break;
           default:
-            setStatusMessage(err);
+            setStatusMessage(error.message);
             break;
         }
       });
   }, [currentStretches]);
 
+  //Load prev saves in to list them out when load is pressed
+  useEffect(() => {}, []);
+
   return (
     <View>
       <Text>{statusMessage}</Text>
-      <TextInput onChangeText={setKey} placeholder="Save name" />
-      <Button title="Save" onPress={savePressed} />
-      <Button title="Load" onPress={loadPressed} />
+      <TextInput
+        style={styles.input}
+        onChangeText={setKey}
+        placeholder="Save name"
+      />
+      <View style={styles.buttonContainer}>
+        <Button title="Save" onPress={savePressed} />
+        <Button title="Load" onPress={loadPressed} />
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  buttonContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignSelf: "center",
+    gap: 32,
+  },
+  input: {
+    textAlign: "center",
+    borderWidth: 1,
+    height: 48,
+    marginBottom: 4,
+  },
+});

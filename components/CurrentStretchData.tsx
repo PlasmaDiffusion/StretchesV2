@@ -27,7 +27,7 @@ export function CurrentStretchData({ stretch, time }: Props) {
       <Text style={[styles.name, { color: stretch.color }]}>
         {stretch.name}
       </Text>
-      <Text style={styles.name}>{time}</Text>
+      <Text style={styles.timeText}>{time}</Text>
       <Text
         style={[
           { width: stretchPercentage, backgroundColor: stretch.color },
@@ -68,6 +68,11 @@ const styles = StyleSheet.create({
   },
   linkContainer: {
     marginTop: 32,
+  },
+  timeText:
+  {
+    fontSize:48,
+    textAlign:'center'
   },
   link: {
     fontSize: 24,
