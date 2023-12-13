@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
-  const [key, setKey] = useState("");
+  const [key, setKey] = useState("save1");
   const [statusMessage, setStatusMessage] = useState("");
 
   const savePressed = useCallback(async () => {
@@ -31,7 +31,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
       .catch(async (error: Error) => {
         setStatusMessage(error.message);
       });
-  }, [currentStretches]);
+  }, [currentStretches, key]);
 
   const loadPressed = useCallback(() => {
     if (key.includes("_")) {
@@ -46,8 +46,9 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
       })
       .then((ret) => {
         console.log(ret.stretches);
+        //Load stretches through prop
         setStretches(ret.stretches);
-        setStatusMessage("Loaded!");
+        setStatusMessage(`Loaded ${key}`);
       })
       .catch((error: Error) => {
         console.warn(error.message);
@@ -63,7 +64,16 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
             break;
         }
       });
-  }, [currentStretches]);
+  }, [currentStretches, key]);
+
+  //Hide load after a moment
+  useEffect(() => {
+    if (statusMessage.includes("Loaded")) {
+      setTimeout(() => {
+        setStatusMessage("");
+      }, 2000);
+    }
+  }, [statusMessage]);
 
   const slots = [1, 2, 3];
 
@@ -72,14 +82,20 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
       <Text>{statusMessage}</Text>
 
       <View style={styles.buttonContainer}>
-        {slots.map((slot, index) => (
+        {slots.map((slot) => (
           <TouchableOpacity
             onPress={() => {
-              setKey(`save${index}`);
+              setKey(`save${slot}`);
             }}
             style={styles.slotButton}
           >
-            <Text style={key === `save${index}` ? styles.selectSlot : styles.unSelectedSlot}>
+            <Text
+              style={
+                key === `save${slot}`
+                  ? styles.selectSlot
+                  : styles.unSelectedSlot
+              }
+            >
               {slot}
             </Text>
           </TouchableOpacity>
@@ -100,6 +116,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "center",
     gap: 32,
+    marginVertical: 8,
   },
   input: {
     textAlign: "center",
@@ -109,15 +126,16 @@ const styles = StyleSheet.create({
   },
   slotButton: {
     width: 32,
-    height: 32,
+    height: 24,
     borderWidth: 1,
+    borderRadius: 4,
   },
   selectSlot: {
     color: "red",
-    textAlign:'center',
+    textAlign: "center",
   },
   unSelectedSlot: {
     color: "blue",
-    textAlign:'center',
+    textAlign: "center",
   },
 });

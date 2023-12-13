@@ -1,5 +1,8 @@
-import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { CheckBox } from '@rneui/themed';
+
+
 import { Stretch } from "../utilities/stretchList";
+import { StyleSheet } from "react-native";
 
 interface Props {
   stretch: Stretch;
@@ -7,20 +10,27 @@ interface Props {
 }
 
 export function StretchCheckbox({ stretch, setCheckbox }: Props) {
+
   return (
-    <BouncyCheckbox
-      size={25}
-      fillColor={stretch.color}
-      unfillColor="#FFFFFF"
-      text={stretch.name}
-      style={{ minWidth: 150 }}
-      iconStyle={{ borderColor: "red" }}
-      innerIconStyle={{ borderWidth: 2 }}
-      textStyle={{ textDecorationLine: "none" }}
-      isChecked={stretch.enabled}
-      onPress={(isChecked) => {
-        setCheckbox(!stretch.enabled);
-      }}
+    <CheckBox 
+    disabled={false}
+    checked={stretch.enabled || false}
+    title={stretch.name}
+    checkedColor={stretch.color}
+    uncheckedColor={stretch.color}
+    containerStyle={styles.checkboxContainer}
+    onPress={(isChecked) => {
+      setCheckbox(!stretch.enabled);
+    }}
     />
+   
   );
 }
+
+const styles = StyleSheet.create({
+  checkboxContainer:{
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    minWidth: 170,
+  }
+});

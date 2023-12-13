@@ -11,7 +11,7 @@ import {
 import { StretchCheckbox } from "./components/StretchCheckbox";
 import Slider from "react-native-a11y-slider";
 import { StartButtonAndTimer } from "./components/StartButtonAndTimer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CurrentStretchData } from "./components/CurrentStretchData";
 import { Stretch, stretchList } from "./utilities/stretchList";
 import { EndButton } from "./components/EndButton";
@@ -33,12 +33,11 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       {!isStretching ? (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Text>Select Stretches</Text>
+          <Text style={styles.prompt}>Select Stretches</Text>
           <SaveAndLoad
             currentStretches={stretches}
             setStretches={(loadedStretches) => {
               setStretches([...loadedStretches]);
-              console.log(loadedStretches);
             }}
           />
           {stretches.map((stretch, index) => (
@@ -132,4 +131,8 @@ const styles = StyleSheet.create({
     width: "50%",
     height: "150%",
   },
+  prompt: {
+    textAlign: 'center',
+    fontWeight: '700',
+  }
 });
