@@ -57,7 +57,7 @@ export default function App() {
                 max={240}
                 values={[stretch.totalStretchTime]}
                 increment={30}
-                labelStyle={{ marginTop: 15 }}
+                labelStyle={styles.sliderLabel}
                 onChange={(values: number[]) => {
                   const updatedStretchArray = stretches;
                   updatedStretchArray[index].totalStretchTime = values[0];
@@ -67,17 +67,17 @@ export default function App() {
             </View>
           ))}
           <View style={styles.enableAll}>
-          <Button
-            title={buttonEnablesAll ? "Enable All" : "Disable All"}
-            onPress={() => {
-              const stretchCopy = [...stretches];
-              stretchCopy.forEach((stretch) => {
-                stretch.enabled = buttonEnablesAll;
-              });
-              setStretches([...stretchCopy]);
-              setButtonEnablesAll(!buttonEnablesAll);
-            }}
-          />
+            <Button
+              title={buttonEnablesAll ? "Enable All" : "Disable All"}
+              onPress={() => {
+                const stretchCopy = [...stretches];
+                stretchCopy.forEach((stretch) => {
+                  stretch.enabled = buttonEnablesAll;
+                });
+                setStretches([...stretchCopy]);
+                setButtonEnablesAll(!buttonEnablesAll);
+              }}
+            />
           </View>
           <StatusBar style="auto" />
         </ScrollView>
@@ -145,14 +145,19 @@ const styles = StyleSheet.create({
     width: "50%",
     height: "150%",
   },
+  sliderLabel: {
+    marginLeft: 10,
+    marginTop: 60,
+    borderRadius: 16,
+  },
   prompt: {
     textAlign: "center",
     fontWeight: "700",
   },
   enableAll: {
-    width: 100,
-    textAlign: 'center',
-    alignSelf: 'center',
-    marginBottom: 8,
-  }
+    width: 150,
+    textAlign: "center",
+    alignSelf: "center",
+    marginVertical: 24,
+  },
 });
