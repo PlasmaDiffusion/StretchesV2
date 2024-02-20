@@ -45,7 +45,7 @@ export default function StretchEditForm({
           let newStretches = [...prevStretches];
           newStretches[index].name = name;
           newStretches[index].color = color;
-          setStretches(prevStretches);
+          setStretches(newStretches);
         }}
         title="Save Stretch"
       />

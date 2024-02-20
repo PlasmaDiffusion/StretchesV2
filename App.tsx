@@ -16,6 +16,7 @@ import { CurrentStretchData } from "./components/CurrentStretchData";
 import { Stretch, stretchList } from "./utilities/stretchList";
 import { EndButton } from "./components/EndButton";
 import SaveAndLoad from "./components/saving/SaveAndLoad";
+import StretchEditForm from "./components/saving/StretchEditForm";
 
 export default function App() {
   const [time, setTime] = useState(60);
@@ -24,14 +25,44 @@ export default function App() {
   const [stretches, setStretches] = useState<Stretch[]>(stretchList);
   const [buttonEnablesAll, setButtonEnablesAll] = useState(false);
 
+  const [editMode, setEditMode] = useState(false);
+  const [editingStretchIndex, setEditingStretchIndex] = useState(-1);
+
   function endStretchSession() {
     setTime(0);
     setIsStretching(false);
     setCurrentStretchIndex(-1);
   }
 
+  if (editingStretchIndex >= 0 && stretches.length > 0 && editMode) {
+    return (
+      <>
+        <StretchEditForm
+          stretch={stretches[editingStretchIndex]}
+          index={editingStretchIndex}
+          prevStretches={stretches}
+          setStretches={setStretches}
+        />
+        <Button
+          title="Back"
+          onPress={() => {
+            setEditingStretchIndex(-1);
+          }}
+        />
+      </>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
+      {editingStretchIndex >= 0 && stretches.length > 0 && editMode && (
+        <StretchEditForm
+          stretch={stretches[editingStretchIndex]}
+          index={editingStretchIndex}
+          prevStretches={stretches}
+          setStretches={setStretches}
+        />
+      )}
       {!isStretching ? (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <Text style={styles.prompt}>Select Stretches</Text>
@@ -41,14 +72,21 @@ export default function App() {
               setStretches([...loadedStretches]);
             }}
           />
+          <Button title="Edit" onPress={() => setEditMode(!editMode)} />
           {stretches.map((stretch, index) => (
             <View style={styles.row} key={"s" + index}>
               <StretchCheckbox
                 stretch={stretch}
                 setCheckbox={(isChecked) => {
-                  const updatedStretchArray = stretches;
-                  updatedStretchArray[index].enabled = isChecked;
-                  setStretches([...updatedStretchArray]);
+                  if (editMode) {
+                    // Edit mode turns checkbox into an edit button
+                    setEditingStretchIndex(index);
+                  } else {
+                    // Check
+                    const updatedStretchArray = stretches;
+                    updatedStretchArray[index].enabled = isChecked;
+                    setStretches([...updatedStretchArray]);
+                  }
                 }}
               />
               <Slider
