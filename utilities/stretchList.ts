@@ -19,7 +19,8 @@ export const stretchList: Stretch[] = [
       color: "#58D68D",
       totalStretchTime: 60,
       links: [
-        "https://www.youtube.com/watch?v=0oGtY6TQ3NQ&t=13s&ab_channel=AdisonBriana",
+        "https://youtu.be/0oGtY6TQ3NQ?t=39",
+        "https://youtu.be/KPKfcsDzvXQ?t=16"
       ],
     },
     { name: "Windshield", color: "#FFBF00", totalStretchTime: 60 },
