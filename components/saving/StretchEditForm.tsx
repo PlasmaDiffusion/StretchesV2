@@ -26,19 +26,32 @@ export default function StretchEditForm({
   const [name, onChangeName] = useState(stretch.name);
   const [color, setColor] = useState(stretch.color);
 
-  const possibleColours = ["lightCoral", "salmon"];
+  const possibleColours = [
+    "lightcoral",
+    "salmon",
+    "#DC143C",
+    "#DE3163",
+    "#66b2b2",
+    "#008080",
+    "green",
+  ];
 
   return (
     <>
-      <TextInput onChangeText={onChangeName} value={name} />
+      <TextInput
+        style={[styles.inputText, { color: color }]}
+        onChangeText={onChangeName}
+        value={name}
+      />
+
+      <View style={styles.colorGrid}>
       {possibleColours.map((color) => (
-        <>
           <TouchableOpacity
             style={[styles.colorButton, { backgroundColor: color }]}
             onPress={() => setColor(color)}
           />
-        </>
       ))}
+       </View>
 
       <Button
         onPress={() => {
@@ -56,5 +69,15 @@ export default function StretchEditForm({
 const styles = StyleSheet.create({
   colorButton: {
     borderWidth: 1,
+    height: 32,
+    width: 32,
+    margin: 16,
   },
+  colorGrid: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  inputText: {
+    fontSize: 24,
+  }
 });
