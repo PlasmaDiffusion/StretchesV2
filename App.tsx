@@ -42,10 +42,7 @@ export default function App() {
           index={editingStretchIndex}
           prevStretches={stretches}
           setStretches={setStretches}
-        />
-        <Button
-          title="Back"
-          onPress={() => {
+          onBackPressed={() => {
             setEditingStretchIndex(-1);
           }}
         />
@@ -55,14 +52,6 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {editingStretchIndex >= 0 && stretches.length > 0 && editMode && (
-        <StretchEditForm
-          stretch={stretches[editingStretchIndex]}
-          index={editingStretchIndex}
-          prevStretches={stretches}
-          setStretches={setStretches}
-        />
-      )}
       {!isStretching ? (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <Text style={styles.prompt}>Select Stretches</Text>
@@ -72,7 +61,9 @@ export default function App() {
               setStretches([...loadedStretches]);
             }}
           />
-          <Button title="Edit" onPress={() => setEditMode(!editMode)} />
+          <View style={styles.editButton}>
+            <Button title="Edit Stretches" onPress={() => setEditMode(!editMode)} />
+          </View>
           {stretches.map((stretch, index) => (
             <View style={styles.row} key={"s" + index}>
               <StretchCheckbox
@@ -82,7 +73,7 @@ export default function App() {
                     // Edit mode turns checkbox into an edit button
                     setEditingStretchIndex(index);
                   } else {
-                    // Check
+                    // Regular check box
                     const updatedStretchArray = stretches;
                     updatedStretchArray[index].enabled = isChecked;
                     setStretches([...updatedStretchArray]);
@@ -198,4 +189,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginVertical: 24,
   },
+  editButton: {
+    display: 'flex',
+    alignItems: 'center',
+  }
 });
