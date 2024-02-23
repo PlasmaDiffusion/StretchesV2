@@ -1,36 +1,49 @@
-import { CheckBox } from '@rneui/themed';
-
+import { CheckBox } from "@rneui/themed";
 
 import { Stretch } from "../utilities/stretchList";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Image } from "react-native";
 
 interface Props {
   stretch: Stretch;
+  editing: boolean;
   setCheckbox: (checked: boolean) => any;
 }
 
-export function StretchCheckbox({ stretch, setCheckbox }: Props) {
+const editIcon = require("../assets/pencil.png");
 
+export function StretchCheckbox({ stretch, editing, setCheckbox }: Props) {
   return (
-    <CheckBox 
-    disabled={false}
-    checked={stretch.enabled || false}
-    title={stretch.name}
-    checkedColor={stretch.color}
-    uncheckedColor={stretch.color}
-    containerStyle={styles.checkboxContainer}
-    onPress={(isChecked) => {
-      setCheckbox(!stretch.enabled);
-    }}
-    />
-   
+    <>
+      {editing && (
+        <Image
+          style={styles.pencilIcon}
+          source={require("../assets/pencil.png")}
+        />
+      )}
+      <CheckBox
+        disabled={false}
+        checked={stretch.enabled || false}
+        title={stretch.name}
+        checkedColor={stretch.color}
+        uncheckedColor={stretch.color}
+        containerStyle={styles.checkboxContainer}
+        onPress={(isChecked) => {
+          setCheckbox(!stretch.enabled);
+        }}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  checkboxContainer:{
+  checkboxContainer: {
     borderWidth: 1,
-    borderStyle: 'dashed',
+    borderStyle: "dashed",
     minWidth: 170,
-  }
+  },
+  pencilIcon: {
+    marginLeft: 8,
+    width: 16,
+    height: 16,
+  },
 });

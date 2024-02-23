@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Vibration,
   Button,
+  Image,
 } from "react-native";
 import { StretchCheckbox } from "./components/StretchCheckbox";
 import Slider from "react-native-a11y-slider";
@@ -25,7 +26,7 @@ export default function App() {
   const [stretches, setStretches] = useState<Stretch[]>(stretchList);
   const [buttonEnablesAll, setButtonEnablesAll] = useState(false);
 
-  const [editMode, setEditMode] = useState(false);
+  const [editIsOn, setEditIsOn] = useState(false);
   const [editingStretchIndex, setEditingStretchIndex] = useState(-1);
 
   function endStretchSession() {
@@ -34,7 +35,7 @@ export default function App() {
     setCurrentStretchIndex(-1);
   }
 
-  if (editingStretchIndex >= 0 && stretches.length > 0 && editMode) {
+  if (editingStretchIndex >= 0 && stretches.length > 0 && editIsOn) {
     return (
       <>
         <StretchEditForm
@@ -54,22 +55,27 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       {!isStretching ? (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Text style={styles.prompt}>Select Stretches</Text>
+          <Text style={styles.prompt}>Save Stretches</Text>
           <SaveAndLoad
             currentStretches={stretches}
             setStretches={(loadedStretches) => {
               setStretches([...loadedStretches]);
             }}
           />
+          <Text style={styles.prompt}>{editIsOn ? "Edit Stretches" : "Stretch Select"}</Text>
           <View style={styles.editButton}>
-            <Button title="Edit Stretches" onPress={() => setEditMode(!editMode)} />
+            <Button
+              title={editIsOn ? "Back To Stretch Select" : "Edit Stretches"}
+              onPress={() => setEditIsOn(!editIsOn)}
+            />
           </View>
           {stretches.map((stretch, index) => (
             <View style={styles.row} key={"s" + index}>
               <StretchCheckbox
                 stretch={stretch}
+                editing={editIsOn}
                 setCheckbox={(isChecked) => {
-                  if (editMode) {
+                  if (editIsOn) {
                     // Edit mode turns checkbox into an edit button
                     setEditingStretchIndex(index);
                   } else {
@@ -80,34 +86,39 @@ export default function App() {
                   }
                 }}
               />
-              <Slider
-                style={styles.slider}
-                min={0}
-                max={240}
-                values={[stretch.totalStretchTime]}
-                increment={30}
-                labelStyle={styles.sliderLabel}
-                onChange={(values: number[]) => {
-                  const updatedStretchArray = stretches;
-                  updatedStretchArray[index].totalStretchTime = values[0];
-                  setStretches([...updatedStretchArray]);
+              {!editIsOn && (
+                <Slider
+                  style={styles.slider}
+                  min={0}
+                  max={240}
+                  values={[stretch.totalStretchTime]}
+                  increment={30}
+                  labelStyle={styles.sliderLabel}
+                  onChange={(values: number[]) => {
+                    const updatedStretchArray = stretches;
+                    updatedStretchArray[index].totalStretchTime = values[0];
+                    setStretches([...updatedStretchArray]);
+                  }}
+                />
+              )}
+            </View>
+          ))}
+          {!editIsOn && (
+            <View style={styles.enableAll}>
+              <Button
+                title={buttonEnablesAll ? "Enable All" : "Disable All"}
+                onPress={() => {
+                  const stretchCopy = [...stretches];
+                  stretchCopy.forEach((stretch) => {
+                    stretch.enabled = buttonEnablesAll;
+                  });
+                  setStretches([...stretchCopy]);
+                  setButtonEnablesAll(!buttonEnablesAll);
                 }}
               />
             </View>
-          ))}
-          <View style={styles.enableAll}>
-            <Button
-              title={buttonEnablesAll ? "Enable All" : "Disable All"}
-              onPress={() => {
-                const stretchCopy = [...stretches];
-                stretchCopy.forEach((stretch) => {
-                  stretch.enabled = buttonEnablesAll;
-                });
-                setStretches([...stretchCopy]);
-                setButtonEnablesAll(!buttonEnablesAll);
-              }}
-            />
-          </View>
+          )}
+
           <StatusBar style="auto" />
         </ScrollView>
       ) : (
@@ -182,6 +193,8 @@ const styles = StyleSheet.create({
   prompt: {
     textAlign: "center",
     fontWeight: "700",
+    fontSize: 24,
+    marginTop: 24,
   },
   enableAll: {
     width: 150,
@@ -190,7 +203,7 @@ const styles = StyleSheet.create({
     marginVertical: 24,
   },
   editButton: {
-    display: 'flex',
-    alignItems: 'center',
-  }
+    display: "flex",
+    alignItems: "center",
+  },
 });
