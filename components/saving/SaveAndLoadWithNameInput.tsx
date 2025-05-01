@@ -6,7 +6,7 @@ import {
   TextInput,
   StyleSheet,
 } from "react-native";
-import { Stretch } from "../../utilities/stretchList";
+import { Stretch } from "../../interfaces/stretchList";
 import storage from "../../utilities/Storage";
 
 interface Props {

@@ -1,6 +1,6 @@
 import { CheckBox } from "@rneui/themed";
 
-import { Stretch } from "../utilities/stretchList";
+import { Stretch } from "../interfaces/stretchList";
 import { StyleSheet, Image } from "react-native";
 
 interface Props {

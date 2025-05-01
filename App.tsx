@@ -14,7 +14,7 @@ import Slider from "react-native-a11y-slider";
 import { StartButtonAndTimer } from "./components/StartButtonAndTimer";
 import { useEffect, useState } from "react";
 import { CurrentStretchData } from "./components/CurrentStretchData";
-import { Stretch, stretchList } from "./utilities/stretchList";
+import { Stretch, stretchList } from "./interfaces/stretchList";
 import { EndButton } from "./components/EndButton";
 import SaveAndLoad from "./components/saving/SaveAndLoad";
 import StretchEditForm from "./components/saving/StretchEditForm";
