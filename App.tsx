@@ -18,6 +18,7 @@ import { Stretch, stretchList } from "./interfaces/stretchList";
 import { EndButton } from "./components/EndButton";
 import SaveAndLoad from "./components/saving/SaveAndLoad";
 import StretchEditForm from "./components/saving/StretchEditForm";
+import storage from "./utilities/Storage";
 
 export default function App() {
   const [time, setTime] = useState(60);
@@ -62,7 +63,9 @@ export default function App() {
               setStretches([...loadedStretches]);
             }}
           />
-          <Text style={styles.prompt}>{editIsOn ? "Edit Stretches" : "Stretch Select"}</Text>
+          <Text style={styles.prompt}>
+            {editIsOn ? "Edit Stretches" : "Stretch Select"}
+          </Text>
           <View style={styles.editButton}>
             <Button
               title={editIsOn ? "Back To Stretch Select" : "Edit Stretches"}
@@ -137,7 +140,8 @@ export default function App() {
         incrementTime={() => {
           setTime(time - 1);
         }}
-        goToNextStretch={() => {
+        goToNextStretch={async () => {
+          await saveExerciseLog()
           Vibration.vibrate();
           if (currentStretchIndex + 1 >= stretches.length) {
             endStretchSession();
