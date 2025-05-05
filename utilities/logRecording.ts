@@ -2,21 +2,28 @@ import { ExerciseLog } from "../interfaces/exerciseLog";
 import { Stretch } from "../interfaces/stretchList";
 import storage from "./Storage";
 
-export async function loadExerciseLogForCurrentDay() {
+export function getKeyForCurrentMonth(): string {
   const date = new Date();
+  return `exerciseLog-${date.getMonth()}-${date.getFullYear()}`
+}
+
+/*Logs will be formatted in maps with the day of the month (1-31) as the key
+and an array of ExerciseLog objects as the value */
+export async function loadExerciseLogForCurrentDay(): Promise<Map<string, ExerciseLog[]>> {
 
   const logs = await storage
     .load({
-      key: `exerciseLog-${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`,
+      key: getKeyForCurrentMonth(),
       autoSync: true,
       syncInBackground: true,
     })
     .then((ret) => {
       console.log(ret.logs);
-      return ret.logs;
+      return new Map<string, ExerciseLog[]>(Object.entries(ret.logs));
     });
 
-    return logs || [];
+  //Get an array of stretch logs for the current day or an empty array if none exist
+  return logs;
 }
 
 export async function saveExercisesForCurrentDayToLog(
@@ -25,20 +32,27 @@ export async function saveExercisesForCurrentDayToLog(
 ) {
   const currentStretch = stretches[currentStretchIndex];
   const date = new Date();
-  const existingLogs : ExerciseLog[] = await loadExerciseLogForCurrentDay();
+  const existingLogsForThisMonth: Map<string, ExerciseLog[]> = await loadExerciseLogForCurrentDay();
+  const exercisesDoneToday = existingLogsForThisMonth.get(date.getDate().toString()) || [];
 
   if (currentStretch) {
-    // Save the current stretch to the exercise log
+    const logKeyForCurrentDay = date.getDate().toString();
+
+    // Add the new log to the array and update the map for the current day
+    exercisesDoneToday.push({
+      date: new Date(),
+      timeOfDay: date.getHours() < 12 ? 0 : date.getHours() < 18 ? 1 : 2, // Morning, Afternoon, or Evening
+      stretch: currentStretch.name,
+      secondsSpentDoingStretch: currentStretch.totalStretchTime,
+    });
+
+    existingLogsForThisMonth.set(logKeyForCurrentDay, exercisesDoneToday);
+
+    // Save the updated map back to storage
     await storage.save({
-      key: `exerciseLog-${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`,
+      key: getKeyForCurrentMonth(),
       data: {
-        logs: existingLogs.push({
-          date: date,
-          timeOfDay: date.getHours() < 12 ? 0 : date.getHours() < 18 ? 1 : 2, //Morning, Afternoon, or Evening
-          stretch: currentStretch.name,
-          secondsSpentDoingStretch: currentStretch.totalStretchTime,
-        }),
-        time: currentStretch.totalStretchTime,
+        logs: existingLogsForThisMonth,
       },
     });
   }
