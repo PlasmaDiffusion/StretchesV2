@@ -18,7 +18,8 @@ import { Stretch, stretchList } from "./interfaces/stretchList";
 import { EndButton } from "./components/EndButton";
 import SaveAndLoad from "./components/saving/SaveAndLoad";
 import StretchEditForm from "./components/saving/StretchEditForm";
-import storage from "./utilities/Storage";
+import { loadExerciseLogForCurrentDay, saveExercisesForCurrentDayToLog } from "./utilities/logRecording";
+import { ExerciseLog } from "./interfaces/exerciseLog";
 
 export default function App() {
   const [time, setTime] = useState(60);
@@ -141,7 +142,7 @@ export default function App() {
           setTime(time - 1);
         }}
         goToNextStretch={async () => {
-          await saveExerciseLog()
+          await saveExercisesForCurrentDayToLog(stretches, currentStretchIndex);
           Vibration.vibrate();
           if (currentStretchIndex + 1 >= stretches.length) {
             endStretchSession();

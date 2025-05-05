@@ -3,7 +3,7 @@ export interface ExerciseLog {
   timeOfDay: TimeOfDay;
   stretch: string;
   secondsSpentDoingStretch: number;
-  secondsSpentPausing: number;
+  secondsSpentPausing?: number;
 }
 
 export interface FeelingsDuringDay {
