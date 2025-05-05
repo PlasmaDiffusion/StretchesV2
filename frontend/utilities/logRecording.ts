@@ -55,5 +55,28 @@ export async function saveExercisesForCurrentDayToLog(
         logs: existingLogsForThisMonth,
       },
     });
+    console.log("Saved exercise log for current day:", new Date().getDate().toString());
+    outputExerciseLogForCurrentDay();
   }
+}
+
+export function outputExerciseLogForCurrentDay() {
+  const date = new Date();
+  loadExerciseLogForCurrentDay().then((logs) => {
+    const currentDayLogs = logs.get(date.getDate().toString()) || [];
+
+    currentDayLogs.forEach((log) => {
+      console.log(`Stretch: ${log.stretch}, Time: ${log.secondsSpentDoingStretch} seconds`);
+    });
+  });
+}
+
+export function outputExerciseLogForCurrentMonth() {
+  loadExerciseLogForCurrentDay().then((logs) => {
+    const currentMonthLogs = logs.get(getKeyForCurrentMonth()) || [];
+
+    currentMonthLogs.forEach((log) => {
+      console.log(`Stretch: ${log.stretch}, Time: ${log.secondsSpentDoingStretch} seconds`);
+    });
+  });
 }
