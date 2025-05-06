@@ -1,13 +1,9 @@
 import {
   Text,
-  StyleSheet,
-  View,
-  DimensionValue,
   TouchableOpacity,
-  Linking,
 } from "react-native";
 import { useCallback, useEffect, useState } from "react";
-import storage from "../../utilities/Storage";
+import storage from "../../utilities/storage";
 import { ExerciseLog } from "../../interfaces/exerciseLog";
 
 /** Load in logs of exercises and display them for the current month */
@@ -51,10 +47,12 @@ function ExerciseLogs() {
       >
         <Text>Set Month</Text>
       </TouchableOpacity>
+      
+
       {exerciseLogs.map((log, index) => (
         <>
-          <Text key={index}>{log.stretch}</Text>
-          <Text key={index}>{log.secondsSpentDoingStretch}</Text>
+          <Text key={index+"s"}>{log.stretch}</Text>
+          <Text key={index+"t"}>{log.secondsSpentDoingStretch}</Text>
         </>
       ))}
     </>

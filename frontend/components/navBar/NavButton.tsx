@@ -24,15 +24,15 @@ export default NavButton;
 const styles = StyleSheet.create({
   button: {
     padding: 10,
-    backgroundColor: "#007BFF",
+    backgroundColor: "blue",
     borderRadius: 5,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: "#AAAAFF",
     fontSize: 16,
   },
   buttonTextCurrent: {
-    color: "#FFFFFF",
+    color: "#AAAAFF",
     fontSize: 16,
     textDecorationLine: "underline",
   },

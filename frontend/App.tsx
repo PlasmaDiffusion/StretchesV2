@@ -7,7 +7,6 @@ import {
   SafeAreaView,
   Vibration,
   Button,
-  Image,
 } from "react-native";
 import { StretchCheckbox } from "./components/StretchCheckbox";
 import Slider from "react-native-a11y-slider";
@@ -21,7 +20,7 @@ import StretchEditForm from "./components/saving/StretchEditForm";
 import { saveExercisesForCurrentDayToLog } from "./utilities/logRecording";
 import ExerciseLogs from "./components/exerciseLog/ExerciseLogs";
 import { Views } from "./interfaces/views";
-import NavBar from "./components/navBar/navBar";
+import NavBar from "./components/navBar/NavBar";
 
 export default function App() {
   const [time, setTime] = useState(60);
@@ -43,9 +42,11 @@ export default function App() {
 
   if (currentView === Views.EXERCISE_LOG) {
     return (
-      <SafeAreaView>
+      <SafeAreaView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <NavBar currentView={currentView} setCurrentView={setCurrentView} />
         <ExerciseLogs />
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -70,9 +71,9 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       {!isStretching ? (
         <>
-          <NavBar currentView={currentView} setCurrentView={setCurrentView} />
-
           <ScrollView contentContainerStyle={styles.scrollViewContent}>
+            <NavBar currentView={currentView} setCurrentView={setCurrentView} />
+
             <Text style={styles.prompt}>Save Stretches</Text>
             <SaveAndLoad
               currentStretches={stretches}
@@ -138,8 +139,6 @@ export default function App() {
                 />
               </View>
             )}
-
-            <StatusBar style="auto" />
           </ScrollView>
         </>
       ) : (
@@ -192,8 +191,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    margin: 8,
+    borderColor: "#aaa",
 
-    margin: 24,
     borderWidth: 1,
     borderRadius: 8,
   },

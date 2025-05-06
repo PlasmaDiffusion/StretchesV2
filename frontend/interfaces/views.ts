@@ -1,4 +1,4 @@
 export enum Views {
-    STRETCH_SCREEN = "stretchScreen",
-    EXERCISE_LOG = "exerciseLog",
+    STRETCH_SCREEN = 0,
+    EXERCISE_LOG = 1,
   }

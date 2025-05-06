@@ -1,6 +1,6 @@
 import { ExerciseLog } from "../interfaces/exerciseLog";
 import { Stretch } from "../interfaces/stretchList";
-import storage from "./Storage";
+import storage from "./storage"
 
 export function getKeyForCurrentMonth(): string {
   const date = new Date();
