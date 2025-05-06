@@ -12,13 +12,16 @@ import {
 import { StretchCheckbox } from "./components/StretchCheckbox";
 import Slider from "react-native-a11y-slider";
 import { StartButtonAndTimer } from "./components/StartButtonAndTimer";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CurrentStretchData } from "./components/CurrentStretchData";
 import { Stretch, stretchList } from "./interfaces/stretchList";
 import { EndButton } from "./components/EndButton";
 import SaveAndLoad from "./components/saving/SaveAndLoad";
 import StretchEditForm from "./components/saving/StretchEditForm";
 import { saveExercisesForCurrentDayToLog } from "./utilities/logRecording";
+import ExerciseLogs from "./components/exerciseLog/ExerciseLogs";
+import { Views } from "./interfaces/views";
+import NavBar from "./components/navBar/navBar";
 
 export default function App() {
   const [time, setTime] = useState(60);
@@ -30,10 +33,21 @@ export default function App() {
   const [editIsOn, setEditIsOn] = useState(false);
   const [editingStretchIndex, setEditingStretchIndex] = useState(-1);
 
+  const [currentView, setCurrentView] = useState(Views.STRETCH_SCREEN);
+
   function endStretchSession() {
     setTime(0);
     setIsStretching(false);
     setCurrentStretchIndex(-1);
+  }
+
+  if (currentView === Views.EXERCISE_LOG) {
+    return (
+      <SafeAreaView>
+        <NavBar currentView={currentView} setCurrentView={setCurrentView} />
+        <ExerciseLogs />
+      </SafeAreaView>
+    );
   }
 
   if (editingStretchIndex >= 0 && stretches.length > 0 && editIsOn) {
@@ -55,75 +69,79 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       {!isStretching ? (
-        <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Text style={styles.prompt}>Save Stretches</Text>
-          <SaveAndLoad
-            currentStretches={stretches}
-            setStretches={(loadedStretches) => {
-              setStretches([...loadedStretches]);
-            }}
-          />
-          <Text style={styles.prompt}>
-            {editIsOn ? "Edit Stretches" : "Stretch Select"}
-          </Text>
-          <View style={styles.editButton}>
-            <Button
-              title={editIsOn ? "Back To Stretch Select" : "Edit Stretches"}
-              onPress={() => setEditIsOn(!editIsOn)}
+        <>
+          <NavBar currentView={currentView} setCurrentView={setCurrentView} />
+
+          <ScrollView contentContainerStyle={styles.scrollViewContent}>
+            <Text style={styles.prompt}>Save Stretches</Text>
+            <SaveAndLoad
+              currentStretches={stretches}
+              setStretches={(loadedStretches) => {
+                setStretches([...loadedStretches]);
+              }}
             />
-          </View>
-          {stretches.map((stretch, index) => (
-            <View style={styles.row} key={"s" + index}>
-              <StretchCheckbox
-                stretch={stretch}
-                editing={editIsOn}
-                setCheckbox={(isChecked) => {
-                  if (editIsOn) {
-                    // Edit mode turns checkbox into an edit button
-                    setEditingStretchIndex(index);
-                  } else {
-                    // Regular check box
-                    const updatedStretchArray = stretches;
-                    updatedStretchArray[index].enabled = isChecked;
-                    setStretches([...updatedStretchArray]);
-                  }
-                }}
+            <Text style={styles.prompt}>
+              {editIsOn ? "Edit Stretches" : "Stretch Select"}
+            </Text>
+            <View style={styles.editButton}>
+              <Button
+                title={editIsOn ? "Back To Stretch Select" : "Edit Stretches"}
+                onPress={() => setEditIsOn(!editIsOn)}
               />
-              {!editIsOn && (
-                <Slider
-                  style={styles.slider}
-                  min={0}
-                  max={240}
-                  values={[stretch.totalStretchTime]}
-                  increment={30}
-                  labelStyle={styles.sliderLabel}
-                  onChange={(values: number[]) => {
-                    const updatedStretchArray = stretches;
-                    updatedStretchArray[index].totalStretchTime = values[0];
-                    setStretches([...updatedStretchArray]);
+            </View>
+            {stretches.map((stretch, index) => (
+              <View style={styles.row} key={"s" + index}>
+                <StretchCheckbox
+                  stretch={stretch}
+                  editing={editIsOn}
+                  setCheckbox={(isChecked) => {
+                    if (editIsOn) {
+                      // Edit mode turns checkbox into an edit button
+                      setEditingStretchIndex(index);
+                    } else {
+                      // Regular check box
+                      const updatedStretchArray = stretches;
+                      updatedStretchArray[index].enabled = isChecked;
+                      setStretches([...updatedStretchArray]);
+                    }
                   }}
                 />
-              )}
-            </View>
-          ))}
-          {!editIsOn && (
-            <View style={styles.enableAll}>
-              <Button
-                title={buttonEnablesAll ? "Enable All" : "Disable All"}
-                onPress={() => {
-                  const stretchCopy = [...stretches];
-                  stretchCopy.forEach((stretch) => {
-                    stretch.enabled = buttonEnablesAll;
-                  });
-                  setStretches([...stretchCopy]);
-                  setButtonEnablesAll(!buttonEnablesAll);
-                }}
-              />
-            </View>
-          )}
+                {!editIsOn && (
+                  <Slider
+                    style={styles.slider}
+                    min={0}
+                    max={240}
+                    values={[stretch.totalStretchTime]}
+                    increment={30}
+                    labelStyle={styles.sliderLabel}
+                    onChange={(values: number[]) => {
+                      const updatedStretchArray = stretches;
+                      updatedStretchArray[index].totalStretchTime = values[0];
+                      setStretches([...updatedStretchArray]);
+                    }}
+                  />
+                )}
+              </View>
+            ))}
+            {!editIsOn && (
+              <View style={styles.enableAll}>
+                <Button
+                  title={buttonEnablesAll ? "Enable All" : "Disable All"}
+                  onPress={() => {
+                    const stretchCopy = [...stretches];
+                    stretchCopy.forEach((stretch) => {
+                      stretch.enabled = buttonEnablesAll;
+                    });
+                    setStretches([...stretchCopy]);
+                    setButtonEnablesAll(!buttonEnablesAll);
+                  }}
+                />
+              </View>
+            )}
 
-          <StatusBar style="auto" />
-        </ScrollView>
+            <StatusBar style="auto" />
+          </ScrollView>
+        </>
       ) : (
         <View>
           <EndButton onPress={endStretchSession} />

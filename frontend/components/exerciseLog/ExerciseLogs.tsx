@@ -60,3 +60,5 @@ function ExerciseLogs() {
     </>
   );
 }
+
+export default ExerciseLogs;
