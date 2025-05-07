@@ -76,6 +76,7 @@ function ExerciseLogs() {
         labelField={"label"}
         valueField={"value"}
         placeholder="Select Year"
+        value={year}
       />
 
       <Dropdown
@@ -87,6 +88,7 @@ function ExerciseLogs() {
         labelField={"label"}
         valueField={"value"}
         placeholder="Select Month"
+        value={month}
       />
 
       <PrimaryButton
