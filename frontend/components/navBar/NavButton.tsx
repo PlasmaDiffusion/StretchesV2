@@ -7,7 +7,7 @@ interface Props {
   onPress: () => void;
 }
 
-function NavButton({ text, isCurrentView, icon, onPress }: Props) {
+function NavButton({ text, isCurrentView, onPress }: Props) {
   return (
     <TouchableOpacity onPress={onPress} style={{ padding: 10 }}>
       <Text

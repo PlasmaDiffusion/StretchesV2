@@ -88,6 +88,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
               setKey(`save${slot}`);
             }}
             style={styles.slotButton}
+            key={`saveOpacityKey${slot}`}
           >
             <Text
               style={
