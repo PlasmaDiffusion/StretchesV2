@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, StyleSheet, View } from "react-native";
-import { GeneralModal } from "./sharedComponents/GeneralModal";
+import { GeneralModal } from "./commonComponents/GeneralModal";
 
 interface Props {
   onPress: () => any;
