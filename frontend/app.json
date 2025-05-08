@@ -32,6 +32,12 @@
         "projectId": "5963bd8b-f61b-4bd8-98e3-2b51802d5c48"
       }
     },
-    "owner": "plasmadiffusion"
+    "owner": "plasmadiffusion",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/5963bd8b-f61b-4bd8-98e3-2b51802d5c48"
+    }
   }
 }
