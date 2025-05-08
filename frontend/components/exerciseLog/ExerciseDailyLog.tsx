@@ -1,5 +1,6 @@
 import { Text, StyleSheet, View } from "react-native";
 import { ExerciseLog } from "../../interfaces/exerciseLog";
+import IntensityPicker from "./painAndMentalHealthLogs/IntensityPicker";
 
 interface Props {
   exerciseLogsForDay: ExerciseLog[];
@@ -33,11 +34,28 @@ const daySuffixes = Array.from({ length: 31 }, (_, i) => {
 function ExerciseDailyLog({ numberedDay, month, exerciseLogsForDay }: Props) {
   return (
     <View style={styles.outerContainer}>
-      <Text>
+      <Text style={styles.bold}>
         {months[month]} {numberedDay}
         {daySuffixes[parseInt(numberedDay) - 1]}
       </Text>
-      <Text>Exercises</Text>
+
+      <Text style={styles.heading}>Pain</Text>
+      <View style={styles.innerContainer}>
+        <IntensityPicker
+          type="Pain"
+          pickedValue={0}
+          setPickedValue={() => {}}
+        />
+      </View>
+      <Text style={styles.heading}>Mental Health</Text>
+      <View style={styles.innerContainer}>
+        <IntensityPicker
+          type="Mental Health"
+          pickedValue={3}
+          setPickedValue={() => {}}
+        />
+      </View>
+      <Text style={styles.heading}>Exercises</Text>
       {exerciseLogsForDay.map((log, index) => (
         <View key={index} style={styles.innerContainer}>
           <Text style={{ color: log.color, ...styles.logText }}>
@@ -48,14 +66,6 @@ function ExerciseDailyLog({ numberedDay, month, exerciseLogsForDay }: Props) {
           </Text>
         </View>
       ))}
-      <Text>Pain</Text>
-      <View style={styles.innerContainer}>
-        <Text>s</Text>
-      </View>
-      <Text>Mental Health</Text>
-      <View style={styles.innerContainer}>
-        <Text>s</Text>
-      </View>
     </View>
   );
 }
@@ -70,13 +80,14 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   outerContainer: {
-    backgroundColor: "orange",
+    backgroundColor: "#11ddff",
     borderRadius: 4,
     padding: 5,
     marginVertical: 5,
   },
-
+  bold: { fontWeight: "bold" },
   logText: {},
+  heading: { marginVertical: 5 },
 });
 
 export default ExerciseDailyLog;

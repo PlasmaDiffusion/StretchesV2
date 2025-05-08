@@ -9,7 +9,7 @@ interface Props {
 
 const statusBarColours = [
   '#0000EE', //blue
-  '#FFA500', //orange
+  '#11ddff', //light blue
 ]
 
 function NavBar({ currentView, setCurrentView }: Props) {

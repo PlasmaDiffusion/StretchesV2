@@ -38,7 +38,7 @@ export function SecondaryButton({ text, onPress, color = "#aa00ff" }: Props) {
 }
 
 const styles = StyleSheet.create({
-  button: { padding: 10, marginVertical: 8 },
+  button: { padding: 10, marginVertical: 8, marginHorizontal: 4 },
   text: {fontSize: 24, textAlign: "center"},
   primaryButton: {
     borderRadius: 5,
