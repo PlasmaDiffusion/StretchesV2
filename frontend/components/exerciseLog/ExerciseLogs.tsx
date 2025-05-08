@@ -1,4 +1,4 @@
-import { Text, StyleSheet } from "react-native";
+import { Text, StyleSheet, View } from "react-native";
 import { useCallback, useState } from "react";
 import storage from "../../utilities/storage";
 import { ExerciseLog } from "../../interfaces/exerciseLog";
@@ -7,6 +7,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "../commonComponents/CustomButton";
+import ExerciseDailyLog from "./ExerciseDailyLog";
 
 const yearDropdownData = [
   { label: "2025", value: 2025 },
@@ -40,27 +41,35 @@ function ExerciseLogs() {
   const [notFound, setNotFound] = useState(false);
 
   //Exercise logs for current month
-  const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>([]);
+  const [exerciseLogs, setExerciseLogs] =
+    useState<Map<string, ExerciseLog[]>>();
 
   const loadLogsForMonth = useCallback(() => {
     const loadExerciseLog = async () => {
-      const loadedLogs = await storage
+      await storage
         .load({
           key: `exerciseLog-${month}-${year}`,
           autoSync: true,
           syncInBackground: true,
         })
         .then((ret) => {
-          console.log(ret.logs);
-          setExerciseLogs(ret.logs);
+          const logsMap = new Map<string, ExerciseLog[]>(
+            Object.entries(ret.logs)
+          );
+          setExerciseLogs(logsMap);
+          console.log(logsMap);
           setLoading(false);
         })
         .catch((error: Error) => {
           console.warn(error.message);
           setLoading(false);
+          setExerciseLogs(undefined);
           setNotFound(true);
         });
     };
+
+    setLoading(true);
+    setExerciseLogs(undefined);
     setNotFound(false);
     loadExerciseLog();
   }, [loading, month, year]);
@@ -70,6 +79,8 @@ function ExerciseLogs() {
       <Dropdown
         onChange={(item) => {
           setYear(item.value);
+
+          loadLogsForMonth();
         }}
         style={styles.dateDropdown}
         data={yearDropdownData}
@@ -93,30 +104,29 @@ function ExerciseLogs() {
 
       <PrimaryButton
         onPress={async () => {
-          setLoading(true);
-          loadLogsForMonth();
         }}
-        text="Show Monthly Logs"
+        text="Show Pain Records"
       />
 
       <SecondaryButton
         onPress={async () => {
-          setLoading(true);
-          loadLogsForMonth();
         }}
-        text="Show Monthly Logs"
+        text="Show Mental Health Records"
       />
 
       {loading && <Text>Loading...</Text>}
 
       {notFound && <Text>No logs found for this month</Text>}
-
-      {exerciseLogs.map((log, index) => (
-        <>
-          <Text key={index + "s"}>{log.stretch}</Text>
-          <Text key={index + "t"}>{log.secondsSpentDoingStretch}</Text>
-        </>
-      ))}
+      {exerciseLogs &&
+        Array.from(exerciseLogs.entries()).map(([key, logs]) => (
+          <View key={key}>
+            <ExerciseDailyLog
+              exerciseLogsForDay={logs}
+              numberedDay={key}
+              month={month}
+            />
+          </View>
+        ))}
     </>
   );
 }
