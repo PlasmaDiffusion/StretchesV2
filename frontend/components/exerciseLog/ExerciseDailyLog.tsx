@@ -1,6 +1,8 @@
 import { Text, StyleSheet, View } from "react-native";
 import { ExerciseLog } from "../../interfaces/exerciseLog";
 import IntensityPicker from "./painAndMentalHealthLogs/IntensityPicker";
+import { useState } from "react";
+import { PrimaryButton } from "../commonComponents/CustomButton";
 
 interface Props {
   exerciseLogsForDay: ExerciseLog[];
@@ -32,6 +34,8 @@ const daySuffixes = Array.from({ length: 31 }, (_, i) => {
 });
 
 function ExerciseDailyLog({ numberedDay, month, exerciseLogsForDay }: Props) {
+  const [showExercises, setShowExercises] = useState(false);
+
   return (
     <View style={styles.outerContainer}>
       <Text style={styles.bold}>
@@ -55,8 +59,15 @@ function ExerciseDailyLog({ numberedDay, month, exerciseLogsForDay }: Props) {
           setPickedValue={() => {}}
         />
       </View>
-      <Text style={styles.heading}>Exercises</Text>
-      {exerciseLogsForDay.map((log, index) => (
+      <Text style={styles.heading}>Exercises ({exerciseLogsForDay.length})</Text>
+      <PrimaryButton
+        text={showExercises ? "Hide" : "Show"}
+        onPress={() => {
+          setShowExercises(!showExercises);
+        }}
+        color="#00aaff"
+      />
+      {showExercises && exerciseLogsForDay.map((log, index) => (
         <View key={index} style={styles.innerContainer}>
           <Text style={{ color: log.color, ...styles.logText }}>
             {log.stretch}
