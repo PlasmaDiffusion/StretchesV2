@@ -1,5 +1,5 @@
 import { Text, StyleSheet, View } from "react-native";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import storage from "../../utilities/storage";
 import { ExerciseLog } from "../../interfaces/exerciseLog";
 import { Dropdown } from "react-native-element-dropdown";
@@ -74,12 +74,15 @@ function ExerciseLogs() {
     loadExerciseLog();
   }, [loading, month, year]);
 
+  useEffect(() => {
+    loadLogsForMonth();
+  },[])
+
   return (
     <>
       <Dropdown
         onChange={(item) => {
           setYear(item.value);
-
           loadLogsForMonth();
         }}
         style={styles.dateDropdown}
@@ -93,6 +96,7 @@ function ExerciseLogs() {
       <Dropdown
         onChange={(item) => {
           setMonth(item.value);
+          loadLogsForMonth();
         }}
         style={styles.dateDropdown}
         data={monthDropdownData}
@@ -102,21 +106,9 @@ function ExerciseLogs() {
         value={month}
       />
 
-      <PrimaryButton
-        onPress={async () => {
-        }}
-        text="Show Pain Records"
-      />
-
-      <SecondaryButton
-        onPress={async () => {
-        }}
-        text="Show Mental Health Records"
-      />
-
       {loading && <Text>Loading...</Text>}
 
-      {notFound && <Text>No logs found for this month</Text>}
+      {notFound && <Text>No logs found for this month.</Text>}
       {exerciseLogs &&
         Array.from(exerciseLogs.entries()).map(([key, logs]) => (
           <View key={key}>

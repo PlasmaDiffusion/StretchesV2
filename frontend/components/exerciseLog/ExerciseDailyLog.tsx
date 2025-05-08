@@ -1,12 +1,4 @@
-import {
-  Text,
-  StyleSheet,
-  View,
-  DimensionValue,
-  TouchableOpacity,
-  Linking,
-} from "react-native";
-import { useEffect, useState } from "react";
+import { Text, StyleSheet, View } from "react-native";
 import { ExerciseLog } from "../../interfaces/exerciseLog";
 
 interface Props {
@@ -40,25 +32,47 @@ const daySuffixes = Array.from({ length: 31 }, (_, i) => {
 
 function ExerciseDailyLog({ numberedDay, month, exerciseLogsForDay }: Props) {
   return (
-    <View>
+    <View style={styles.outerContainer}>
+      <Text>
+        {months[month]} {numberedDay}
+        {daySuffixes[parseInt(numberedDay) - 1]}
+      </Text>
+      <Text>Exercises</Text>
       {exerciseLogsForDay.map((log, index) => (
-        <View key={index} style={styles.logContainer}>
-          <Text>
-            {months[month]} {numberedDay}
-            {daySuffixes[parseInt(numberedDay)]}
-          </Text>
+        <View key={index} style={styles.innerContainer}>
           <Text style={styles.logText}>{log.stretch}</Text>
           <Text style={styles.logText}>
             {log.secondsSpentDoingStretch} seconds
           </Text>
         </View>
       ))}
+      <Text>Pain</Text>
+      <View style={styles.innerContainer}>
+        <Text>s</Text>
+      </View>
+      <Text>Mental Health</Text>
+      <View style={styles.innerContainer}>
+        <Text>s</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  logContainer: { borderWidth: 1, borderColor: "black", padding: 10 },
+  innerContainer: {
+    borderWidth: 1,
+    borderColor: "black",
+    borderRadius: 4,
+    borderStyle: "dotted",
+    backgroundColor: "white",
+    padding: 5,
+  },
+  outerContainer: {
+    backgroundColor: "orange",
+    borderRadius: 4,
+    padding: 5,
+  },
+
   logText: {},
 });
 
