@@ -4,6 +4,7 @@ export interface ExerciseLog {
   stretch: string;
   secondsSpentDoingStretch: number;
   secondsSpentPausing?: number;
+  color?: string;
 }
 
 export interface FeelingsDuringDay {

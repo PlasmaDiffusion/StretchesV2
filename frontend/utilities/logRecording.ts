@@ -50,6 +50,7 @@ export async function saveExercisesForCurrentDayToLog(
       timeOfDay: date.getHours() < 12 ? 0 : date.getHours() < 18 ? 1 : 2, // Morning, Afternoon, or Evening
       stretch: currentStretch.name,
       secondsSpentDoingStretch: currentStretch.totalStretchTime,
+      color: currentStretch.color,
     });
 
     existingLogsForThisMonth.set(keyForCurrentDay, exercisesDoneToday);

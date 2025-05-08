@@ -40,7 +40,9 @@ function ExerciseDailyLog({ numberedDay, month, exerciseLogsForDay }: Props) {
       <Text>Exercises</Text>
       {exerciseLogsForDay.map((log, index) => (
         <View key={index} style={styles.innerContainer}>
-          <Text style={styles.logText}>{log.stretch}</Text>
+          <Text style={{ color: log.color, ...styles.logText }}>
+            {log.stretch}
+          </Text>
           <Text style={styles.logText}>
             {log.secondsSpentDoingStretch} seconds
           </Text>
@@ -71,6 +73,7 @@ const styles = StyleSheet.create({
     backgroundColor: "orange",
     borderRadius: 4,
     padding: 5,
+    marginVertical: 5,
   },
 
   logText: {},
