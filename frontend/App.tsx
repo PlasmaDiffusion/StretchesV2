@@ -44,8 +44,8 @@ export default function App() {
     return (
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <NavBar currentView={currentView} setCurrentView={setCurrentView} />
-        <ExerciseLogs />
+          <NavBar currentView={currentView} setCurrentView={setCurrentView} />
+          <ExerciseLogs />
         </ScrollView>
       </SafeAreaView>
     );
@@ -159,7 +159,12 @@ export default function App() {
         }}
         goToNextStretch={async () => {
           // Stretch complete! Save the stretch you just completed to the log.
-          await saveExercisesForCurrentDayToLog(stretches, currentStretchIndex);
+          if (currentStretchIndex >= 0) {
+            await saveExercisesForCurrentDayToLog(
+              stretches,
+              currentStretchIndex
+            );
+          }
           Vibration.vibrate();
           if (currentStretchIndex + 1 >= stretches.length) {
             endStretchSession();

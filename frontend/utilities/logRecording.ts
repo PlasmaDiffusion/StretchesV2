@@ -1,16 +1,17 @@
 import { ExerciseLog } from "../interfaces/exerciseLog";
 import { Stretch } from "../interfaces/stretchList";
-import storage from "./storage"
+import storage from "./storage";
 
 export function getKeyForCurrentMonth(): string {
   const date = new Date();
-  return `exerciseLog-${date.getMonth()}-${date.getFullYear()}`
+  return `exerciseLog-${date.getMonth()}-${date.getFullYear()}`;
 }
 
 /*Logs will be formatted in maps with the day of the month (1-31) as the key
 and an array of ExerciseLog objects as the value */
-export async function loadExerciseLogForCurrentDay(): Promise<Map<string, ExerciseLog[]>> {
-
+export async function loadExerciseLogForCurrentMonth(): Promise<
+  Map<string, ExerciseLog[]>
+> {
   const logs = await storage
     .load({
       key: getKeyForCurrentMonth(),
@@ -20,10 +21,13 @@ export async function loadExerciseLogForCurrentDay(): Promise<Map<string, Exerci
     .then((ret) => {
       console.log(ret.logs);
       return new Map<string, ExerciseLog[]>(Object.entries(ret.logs));
+    })
+    .catch((error) => {
+      console.warn(error);
     });
 
   //Get an array of stretch logs for the current day or an empty array if none exist
-  return logs;
+  return logs || new Map<string, ExerciseLog[]>([]);
 }
 
 export async function saveExercisesForCurrentDayToLog(
@@ -32,11 +36,13 @@ export async function saveExercisesForCurrentDayToLog(
 ) {
   const currentStretch = stretches[currentStretchIndex];
   const date = new Date();
-  const existingLogsForThisMonth: Map<string, ExerciseLog[]> = await loadExerciseLogForCurrentDay();
-  const exercisesDoneToday = existingLogsForThisMonth.get(date.getDate().toString()) || [];
+  const existingLogsForThisMonth: Map<string, ExerciseLog[]> =
+    await loadExerciseLogForCurrentMonth();
+  const exercisesDoneToday =
+    existingLogsForThisMonth.get(date.getDate().toString()) || [];
 
   if (currentStretch) {
-    const logKeyForCurrentDay = date.getDate().toString();
+    const keyForCurrentDay = date.getDate().toString();
 
     // Add the new log to the array and update the map for the current day
     exercisesDoneToday.push({
@@ -46,37 +52,37 @@ export async function saveExercisesForCurrentDayToLog(
       secondsSpentDoingStretch: currentStretch.totalStretchTime,
     });
 
-    existingLogsForThisMonth.set(logKeyForCurrentDay, exercisesDoneToday);
-
+    existingLogsForThisMonth.set(keyForCurrentDay, exercisesDoneToday);
+    console.log(
+      "About to save this",
+      existingLogsForThisMonth.get(keyForCurrentDay)
+    );
     // Save the updated map back to storage
-    await storage.save({
-      key: getKeyForCurrentMonth(),
-      data: {
-        logs: existingLogsForThisMonth,
-      },
-    });
-    console.log("Saved exercise log for current day:", new Date().getDate().toString());
-    outputExerciseLogForCurrentDay();
+    await storage
+      .save({
+        key: getKeyForCurrentMonth(),
+        data: {
+          logs: Object.fromEntries(existingLogsForThisMonth),
+        },
+      })
+      .then(() => {
+        console.log(
+          "Saved exercise log for current day:",
+          new Date().getDate().toString()
+        );
+        outputExerciseLogForCurrentDay();
+      });
   }
 }
 
-export function outputExerciseLogForCurrentDay() {
+export async function outputExerciseLogForCurrentDay() {
   const date = new Date();
-  loadExerciseLogForCurrentDay().then((logs) => {
-    const currentDayLogs = logs.get(date.getDate().toString()) || [];
+  const logsThisMonth = await loadExerciseLogForCurrentMonth();
+  const currentDayLogs = logsThisMonth.get(date.getDate().toString()) || [];
 
-    currentDayLogs.forEach((log) => {
-      console.log(`Stretch: ${log.stretch}, Time: ${log.secondsSpentDoingStretch} seconds`);
-    });
-  });
-}
-
-export function outputExerciseLogForCurrentMonth() {
-  loadExerciseLogForCurrentDay().then((logs) => {
-    const currentMonthLogs = logs.get(getKeyForCurrentMonth()) || [];
-
-    currentMonthLogs.forEach((log) => {
-      console.log(`Stretch: ${log.stretch}, Time: ${log.secondsSpentDoingStretch} seconds`);
-    });
+  currentDayLogs.forEach((log) => {
+    console.log(
+      `Stretch: ${log.stretch}, Time: ${log.secondsSpentDoingStretch} seconds`
+    );
   });
 }
