@@ -59,7 +59,7 @@ function IntensityPicker({ type, pickedValue, setPickedValue }: Props) {
       )}
 
       <View style={styles.rowOfButtons}>
-        {labelsToUse.map((_label, index) =>
+        {labelsToUse.map((label, index) =>
           index !== valueToChangeTo ? (
             <SecondaryButton
               text={(index + 1).toString()}
@@ -67,6 +67,7 @@ function IntensityPicker({ type, pickedValue, setPickedValue }: Props) {
               onPress={() => {
                 setValueToChangeTo(index);
               }}
+              key={label}
             />
           ) : (
             <PrimaryButton
@@ -75,6 +76,7 @@ function IntensityPicker({ type, pickedValue, setPickedValue }: Props) {
               onPress={() => {
                 setValueToChangeTo(index);
               }}
+              key={label}
             />
           )
         )}
