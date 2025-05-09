@@ -1,15 +1,14 @@
 import { Text, StyleSheet, View } from "react-native";
 import { ExerciseLog, HealthLog } from "../../interfaces/exerciseLog";
-import IntensityPicker from "./painAndMentalHealthLogs/IntensityPicker";
 import { useState } from "react";
 import { PrimaryButton } from "../commonComponents/CustomButton";
+import DailyHealthLog from "./painAndMentalHealthLogs/DailyHealthLog";
 
 interface Props {
-  exerciseLogsForDay: ExerciseLog[];
-  numberedDay: string;
+  exercises: ExerciseLog[];
+  dayKey: string;
   month: number;
-  healthLogsForDay?: HealthLog;
-  updateHealthLogsForDay?: (logs: HealthLog) => void;
+  healthLog?: HealthLog;
 }
 
 const months = [
@@ -35,34 +34,20 @@ const daySuffixes = Array.from({ length: 31 }, (_, i) => {
   return "th";
 });
 
-/** Shows exercise, pain, and mental health records for the day */
-function DailyLog({ numberedDay, month, exerciseLogsForDay }: Props) {
+/** Shows exercise, pain, and mental health records for the day. Also lets you set and save pain & mental health records  */
+function DailyLog({ dayKey, month, exercises, healthLog }: Props) {
   const [showExercises, setShowExercises] = useState(false);
 
   return (
     <View style={styles.outerContainer}>
       <Text style={styles.bold}>
-        {months[month]} {numberedDay}
-        {daySuffixes[parseInt(numberedDay) - 1]}
+        {months[month]} {dayKey}
+        {daySuffixes[parseInt(dayKey) - 1]}
       </Text>
 
-      <Text style={styles.heading}>Pain</Text>
-      <View style={styles.innerContainer}>
-        <IntensityPicker
-          type="Pain"
-          pickedValue={0}
-          setPickedValue={() => {}}
-        />
-      </View>
-      <Text style={styles.heading}>Mental Health</Text>
-      <View style={styles.innerContainer}>
-        <IntensityPicker
-          type="Mental Health"
-          pickedValue={3}
-          setPickedValue={() => {}}
-        />
-      </View>
-      <Text style={styles.heading}>Exercises ({exerciseLogsForDay.length})</Text>
+      <DailyHealthLog healthLog={healthLog} dayKey={dayKey} />
+
+      <Text style={styles.heading}>Exercises ({exercises.length})</Text>
       <PrimaryButton
         text={showExercises ? "Hide" : "Show"}
         onPress={() => {
@@ -70,16 +55,17 @@ function DailyLog({ numberedDay, month, exerciseLogsForDay }: Props) {
         }}
         color="#00aaff"
       />
-      {showExercises && exerciseLogsForDay.map((log, index) => (
-        <View key={index} style={styles.innerContainer}>
-          <Text style={{ color: log.color, ...styles.logText }}>
-            {log.stretch}
-          </Text>
-          <Text style={styles.logText}>
-            {log.secondsSpentDoingStretch} seconds
-          </Text>
-        </View>
-      ))}
+      {showExercises &&
+        exercises.map((log, index) => (
+          <View key={index} style={styles.innerContainer}>
+            <Text style={{ color: log.color, ...styles.logText }}>
+              {log.stretch}
+            </Text>
+            <Text style={styles.logText}>
+              {log.secondsSpentDoingStretch} seconds
+            </Text>
+          </View>
+        ))}
     </View>
   );
 }
@@ -102,6 +88,7 @@ const styles = StyleSheet.create({
   bold: { fontWeight: "bold" },
   logText: {},
   heading: { marginVertical: 5 },
+  rowOfButtons: { display: "flex", flexDirection: "row" },
 });
 
 export default DailyLog;

@@ -1,4 +1,4 @@
-import { Text, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import {
   PrimaryButton,
   SecondaryButton,
@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 interface Props {
   type: "Pain" | "Mental Health";
   pickedValue: number;
-  setPickedValue: (value: number) => void;
+  updatePickedValue: (value: number) => void;
 }
 
 const painLabels = [
@@ -37,7 +37,8 @@ const colorsToUse = [
   "#800080", //purple
 ];
 
-function IntensityPicker({ type, pickedValue, setPickedValue }: Props) {
+/** Shows how much in pain you were or your mental health levels, and it can allow you to record it for the day. */
+function IntensityPicker({ type, pickedValue, updatePickedValue }: Props) {
   const [labelsToUse, setLabelsToUse] = useState<string[]>([]);
   const [valueToChangeTo, setValueToChangeTo] = useState<number>(pickedValue);
 
@@ -51,13 +52,6 @@ function IntensityPicker({ type, pickedValue, setPickedValue }: Props) {
 
   return (
     <>
-      {valueToChangeTo !== pickedValue && (
-        <View style={styles.rowOfButtons}>
-          <PrimaryButton text="Confirm Change" onPress={() => {setPickedValue(valueToChangeTo)}} />
-          <SecondaryButton text="Cancel Change" onPress={() => {setValueToChangeTo(pickedValue)}} />
-        </View>
-      )}
-
       <View style={styles.rowOfButtons}>
         {labelsToUse.map((label, index) =>
           index !== valueToChangeTo ? (
@@ -66,6 +60,7 @@ function IntensityPicker({ type, pickedValue, setPickedValue }: Props) {
               color={colorsToUse[index]}
               onPress={() => {
                 setValueToChangeTo(index);
+                updatePickedValue(index);
               }}
               key={label}
             />
@@ -75,6 +70,7 @@ function IntensityPicker({ type, pickedValue, setPickedValue }: Props) {
               color={colorsToUse[index]}
               onPress={() => {
                 setValueToChangeTo(index);
+                updatePickedValue(index);
               }}
               key={label}
             />

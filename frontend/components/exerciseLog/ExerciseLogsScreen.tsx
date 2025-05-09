@@ -135,10 +135,10 @@ function ExerciseLogsScreen() {
         Array.from(exerciseLogs.entries()).map(([key, logs]) => (
           <View key={key}>
             <DailyLog
-              exerciseLogsForDay={logs}
-              numberedDay={key}
+              exercises={logs}
+              dayKey={key}
               month={month}
-              healthLogsForDay={
+              healthLog={
                 healthLogs && healthLogs.get(key)
                   ? healthLogs.get(key)
                   : undefined

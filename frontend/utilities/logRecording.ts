@@ -66,7 +66,7 @@ export async function saveExercisesForCurrentDayToLog(
 
     existingLogsForThisMonth.set(keyForCurrentDay, exercisesDoneToday);
     console.log(
-      "About to save this",
+      "About to save this exercise log for ",
       existingLogsForThisMonth.get(keyForCurrentDay)
     );
     // Save the updated map back to storage
