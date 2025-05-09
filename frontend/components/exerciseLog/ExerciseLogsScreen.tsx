@@ -1,13 +1,9 @@
 import { Text, StyleSheet, View } from "react-native";
 import { useCallback, useEffect, useState } from "react";
 import storage from "../../utilities/storage";
-import { ExerciseLog } from "../../interfaces/exerciseLog";
+import { ExerciseLog, HealthLog } from "../../interfaces/exerciseLog";
 import { Dropdown } from "react-native-element-dropdown";
-import {
-  PrimaryButton,
-  SecondaryButton,
-} from "../commonComponents/CustomButton";
-import ExerciseDailyLog from "./ExerciseDailyLog";
+import DailyLog from "./DailyLog";
 
 const yearDropdownData = [
   { label: "2025", value: 2025 },
@@ -34,15 +30,20 @@ const monthDropdownData = [
 ];
 
 /** Load in logs of exercises and display them for the current month */
-function ExerciseLogs() {
+function ExerciseLogsScreen() {
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
-  //Exercise logs for current month
+  //Maps of logs for the current month, with a key for the day of the month
+
+  //ExerciseLog[] is an array since there can be multiple exercises a day
   const [exerciseLogs, setExerciseLogs] =
     useState<Map<string, ExerciseLog[]>>();
+
+  //HealthLog on the other hand is only about how you feel in general during that day
+  const [healthLogs, setHealthLogs] = useState<Map<string, HealthLog>>();
 
   const loadLogsForMonth = useCallback(() => {
     const loadExerciseLog = async () => {
@@ -53,11 +54,11 @@ function ExerciseLogs() {
           syncInBackground: true,
         })
         .then((ret) => {
-          const logsMap = new Map<string, ExerciseLog[]>(
+          const exerciseLogsMap = new Map<string, ExerciseLog[]>(
             Object.entries(ret.logs)
           );
-          setExerciseLogs(logsMap);
-          console.log(logsMap);
+          setExerciseLogs(exerciseLogsMap);
+          console.log(exerciseLogsMap);
           setLoading(false);
         })
         .catch((error: Error) => {
@@ -68,15 +69,36 @@ function ExerciseLogs() {
         });
     };
 
+    const loadHealthLog = async () => {
+      await storage
+        .load({
+          key: `healthLog-${month}-${year}`,
+          autoSync: true,
+          syncInBackground: true,
+        })
+        .then((ret) => {
+          const healthLogsMap = new Map<string, HealthLog>(
+            Object.entries(ret.logs)
+          );
+          setHealthLogs(healthLogsMap);
+          console.log(healthLogsMap);
+        })
+        .catch((error: Error) => {
+          console.warn(error.message);
+          setHealthLogs(undefined);
+        });
+    };
+
     setLoading(true);
     setExerciseLogs(undefined);
     setNotFound(false);
     loadExerciseLog();
+    loadHealthLog();
   }, [loading, month, year]);
 
   useEffect(() => {
     loadLogsForMonth();
-  },[])
+  }, []);
 
   return (
     <>
@@ -112,10 +134,15 @@ function ExerciseLogs() {
       {exerciseLogs &&
         Array.from(exerciseLogs.entries()).map(([key, logs]) => (
           <View key={key}>
-            <ExerciseDailyLog
+            <DailyLog
               exerciseLogsForDay={logs}
               numberedDay={key}
               month={month}
+              healthLogsForDay={
+                healthLogs && healthLogs.get(key)
+                  ? healthLogs.get(key)
+                  : undefined
+              }
             />
           </View>
         ))}
@@ -131,4 +158,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ExerciseLogs;
+export default ExerciseLogsScreen;

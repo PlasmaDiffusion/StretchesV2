@@ -1,4 +1,4 @@
-import { ExerciseLog } from "../interfaces/exerciseLog";
+import { ExerciseLog, HealthLog } from "../interfaces/exerciseLog";
 import { Stretch } from "../interfaces/stretchList";
 import storage from "./storage";
 
@@ -10,7 +10,7 @@ export function getKeyForCurrentMonth(): string {
 /*Logs will be formatted in maps with the day of the month (1-31) as the key
 and an array of ExerciseLog objects as the value */
 export async function loadExerciseLogForCurrentMonth(): Promise<
-  Map<string, ExerciseLog[]>
+  Map<string, ExerciseLog[]> | Map<string, HealthLog>
 > {
   const logs = await storage
     .load({
@@ -37,7 +37,7 @@ export async function saveExercisesForCurrentDayToLog(
   const currentStretch = stretches[currentStretchIndex];
   const date = new Date();
   const existingLogsForThisMonth: Map<string, ExerciseLog[]> =
-    await loadExerciseLogForCurrentMonth();
+    await loadExerciseLogForCurrentMonth() as Map<string, ExerciseLog[]>;
   const exercisesDoneToday =
     existingLogsForThisMonth.get(date.getDate().toString()) || [];
 
@@ -79,7 +79,7 @@ export async function saveExercisesForCurrentDayToLog(
 export async function outputExerciseLogForCurrentDay() {
   const date = new Date();
   const logsThisMonth = await loadExerciseLogForCurrentMonth();
-  const currentDayLogs = logsThisMonth.get(date.getDate().toString()) || [];
+  const currentDayLogs = logsThisMonth.get(date.getDate().toString()) as ExerciseLog[] || [];
 
   currentDayLogs.forEach((log) => {
     console.log(

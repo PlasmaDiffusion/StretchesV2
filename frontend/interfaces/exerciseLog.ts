@@ -7,7 +7,7 @@ export interface ExerciseLog {
   color?: string;
 }
 
-export interface FeelingsDuringDay {
+export interface HealthLog {
     date: Date;
     painLevel: PainLevel;
     mentalHealthLevel: MentalHealthLevel;

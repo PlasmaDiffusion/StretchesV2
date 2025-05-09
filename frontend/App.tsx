@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import {
   StyleSheet,
   Text,
@@ -18,7 +17,7 @@ import { EndButton } from "./components/EndButton";
 import SaveAndLoad from "./components/saving/SaveAndLoad";
 import StretchEditForm from "./components/saving/StretchEditForm";
 import { saveExercisesForCurrentDayToLog } from "./utilities/logRecording";
-import ExerciseLogs from "./components/exerciseLog/ExerciseLogs";
+import ExerciseLogsScreen from "./components/exerciseLog/ExerciseLogsScreen";
 import { Views } from "./interfaces/views";
 import NavBar from "./components/navBar/NavBar";
 
@@ -45,7 +44,7 @@ export default function App() {
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <NavBar currentView={currentView} setCurrentView={setCurrentView} />
-          <ExerciseLogs />
+          <ExerciseLogsScreen />
         </ScrollView>
       </SafeAreaView>
     );

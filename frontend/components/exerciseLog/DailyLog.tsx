@@ -1,5 +1,5 @@
 import { Text, StyleSheet, View } from "react-native";
-import { ExerciseLog } from "../../interfaces/exerciseLog";
+import { ExerciseLog, HealthLog } from "../../interfaces/exerciseLog";
 import IntensityPicker from "./painAndMentalHealthLogs/IntensityPicker";
 import { useState } from "react";
 import { PrimaryButton } from "../commonComponents/CustomButton";
@@ -8,6 +8,8 @@ interface Props {
   exerciseLogsForDay: ExerciseLog[];
   numberedDay: string;
   month: number;
+  healthLogsForDay?: HealthLog;
+  updateHealthLogsForDay?: (logs: HealthLog) => void;
 }
 
 const months = [
@@ -33,7 +35,8 @@ const daySuffixes = Array.from({ length: 31 }, (_, i) => {
   return "th";
 });
 
-function ExerciseDailyLog({ numberedDay, month, exerciseLogsForDay }: Props) {
+/** Shows exercise, pain, and mental health records for the day */
+function DailyLog({ numberedDay, month, exerciseLogsForDay }: Props) {
   const [showExercises, setShowExercises] = useState(false);
 
   return (
@@ -101,4 +104,4 @@ const styles = StyleSheet.create({
   heading: { marginVertical: 5 },
 });
 
-export default ExerciseDailyLog;
+export default DailyLog;
