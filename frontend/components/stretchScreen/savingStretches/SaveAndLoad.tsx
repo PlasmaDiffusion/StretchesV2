@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { View, Button, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Stretch } from "../../interfaces/stretchList";
-import storage from "../../utilities/storage";
+import { Stretch } from "../../../interfaces/stretchList";
+import storage from "../../../utilities/storage";
 
 interface Props {
   currentStretches: Stretch[];

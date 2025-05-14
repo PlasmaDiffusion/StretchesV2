@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, StyleSheet, View } from "react-native";
-import { Stretch } from "../interfaces/stretchList";
+import { Stretch } from "../../interfaces/stretchList";
 
 interface Props {
   currentStretch: Stretch | undefined;

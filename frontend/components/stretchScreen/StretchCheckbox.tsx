@@ -1,6 +1,6 @@
 import { CheckBox } from "@rneui/themed";
 
-import { Stretch } from "../interfaces/stretchList";
+import { Stretch } from "../../interfaces/stretchList";
 import { StyleSheet, Image } from "react-native";
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
   setCheckbox: (checked: boolean) => any;
 }
 
-const editIcon = require("../assets/pencil.png");
+const editIcon = require("../../assets/pencil.png");
 
 export function StretchCheckbox({ stretch, editing, setCheckbox }: Props) {
   return (
@@ -17,7 +17,7 @@ export function StretchCheckbox({ stretch, editing, setCheckbox }: Props) {
       {editing && (
         <Image
           style={styles.pencilIcon}
-          source={require("../assets/pencil.png")}
+          source={editIcon}
         />
       )}
       <CheckBox

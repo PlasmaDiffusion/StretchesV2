@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Button,
@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TextInput,
 } from "react-native";
-import { Stretch } from "../../interfaces/stretchList";
+import { Stretch } from "../../../interfaces/stretchList";
 
 interface Props {
   stretch: Stretch;
