@@ -9,8 +9,10 @@ interface Props {
   type: "Pain" | "Mental Health";
   previouslyPickedValue: number;
   updatePickedValue: (value: number) => void;
+  parentIsShowingConfirmPrompt: boolean; //When the prompt to change the intensity value is cancelled, change back to defaults
 }
 
+//Labels to show names for each 1-6 pain value. Currently unused.
 const painLabels = [
   "None",
   "Discomfort",
@@ -42,11 +44,10 @@ function IntensityPicker({
   type,
   previouslyPickedValue,
   updatePickedValue,
+  parentIsShowingConfirmPrompt,
 }: Props) {
   const [labelsToUse, setLabelsToUse] = useState<string[]>([]);
-  const [valueToChangeTo, setValueToChangeTo] = useState<number>(
-    previouslyPickedValue
-  );
+  const [valueToChangeTo, setValueToChangeTo] = useState<number>(-1);
 
   useEffect(() => {
     if (type === "Pain") {
@@ -55,6 +56,13 @@ function IntensityPicker({
       setLabelsToUse(mentalHealthLabels);
     }
   }, [type]);
+
+  useEffect(() => {
+    // Set changed value to default previously picked value on initial load or when cancelling a change
+    if (!parentIsShowingConfirmPrompt) {
+      setValueToChangeTo(previouslyPickedValue ?? 0);
+    }
+  }, [previouslyPickedValue, parentIsShowingConfirmPrompt]);
 
   return (
     <>

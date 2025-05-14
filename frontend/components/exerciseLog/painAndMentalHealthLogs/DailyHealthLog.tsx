@@ -14,13 +14,12 @@ interface Props {
 }
 
 //** Displays and lets you modify pain + mental health records  */
-function DailyHealthLog({ healthLog, dayKey }:Props){
+function DailyHealthLog({ healthLog, dayKey }: Props) {
   const [painValueToChangeTo, setPainValueToChangeTo] = useState<number>();
   const [mentalHealthValueToChangeTo, setMentalHealthToChangeTo] =
     useState<number>();
   const [showUpdateHealthLogPrompt, setShowUpdateHealthLogPrompt] =
     useState(false);
-
 
   const updateHealthLog = useCallback(() => {
     let updatedHealthLog = healthLog
@@ -43,7 +42,6 @@ function DailyHealthLog({ healthLog, dayKey }:Props){
   return (
     <View>
       <Text style={styles.heading}>Pain</Text>
-      <Text style={styles.heading}>{healthLog?.painLevel ?? -1}</Text>
       <View style={styles.innerContainer}>
         <IntensityPicker
           type="Pain"
@@ -52,6 +50,7 @@ function DailyHealthLog({ healthLog, dayKey }:Props){
             setPainValueToChangeTo(val);
             setShowUpdateHealthLogPrompt(true);
           }}
+          parentIsShowingConfirmPrompt={showUpdateHealthLogPrompt}
         />
       </View>
       <Text style={styles.heading}>Mental Health</Text>
@@ -59,12 +58,13 @@ function DailyHealthLog({ healthLog, dayKey }:Props){
         <IntensityPicker
           type="Mental Health"
           previouslyPickedValue={
-            mentalHealthValueToChangeTo ?? healthLog?.mentalHealthLevel ?? -1
+            healthLog?.mentalHealthLevel ?? -1
           }
           updatePickedValue={(val: number) => {
             setMentalHealthToChangeTo(val);
             setShowUpdateHealthLogPrompt(true);
           }}
+          parentIsShowingConfirmPrompt={showUpdateHealthLogPrompt}
         />
       </View>
       {showUpdateHealthLogPrompt && (
@@ -82,7 +82,7 @@ function DailyHealthLog({ healthLog, dayKey }:Props){
       )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   innerContainer: {
