@@ -77,11 +77,12 @@ function ExerciseLogsScreen() {
           syncInBackground: true,
         })
         .then((ret) => {
+          console.log("ret healthLog", ret);
           const healthLogsMap = new Map<string, HealthLog>(
             Object.entries(ret.logs)
           );
           setHealthLogs(healthLogsMap);
-          console.log(healthLogsMap);
+          console.log("health logs", healthLogsMap);
         })
         .catch((error: Error) => {
           console.warn(error.message);
@@ -91,6 +92,8 @@ function ExerciseLogsScreen() {
 
     setLoading(true);
     setExerciseLogs(undefined);
+    setHealthLogs(undefined);
+
     setNotFound(false);
     loadExerciseLog();
     loadHealthLog();

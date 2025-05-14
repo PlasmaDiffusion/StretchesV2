@@ -21,6 +21,7 @@ function DailyHealthLog({ healthLog, dayKey }:Props){
   const [showUpdateHealthLogPrompt, setShowUpdateHealthLogPrompt] =
     useState(false);
 
+
   const updateHealthLog = useCallback(() => {
     let updatedHealthLog = healthLog
       ? healthLog
@@ -42,10 +43,11 @@ function DailyHealthLog({ healthLog, dayKey }:Props){
   return (
     <View>
       <Text style={styles.heading}>Pain</Text>
+      <Text style={styles.heading}>{healthLog?.painLevel ?? -1}</Text>
       <View style={styles.innerContainer}>
         <IntensityPicker
           type="Pain"
-          pickedValue={painValueToChangeTo ?? healthLog?.painLevel ?? -1}
+          previouslyPickedValue={healthLog?.painLevel ?? -1}
           updatePickedValue={(val: number) => {
             setPainValueToChangeTo(val);
             setShowUpdateHealthLogPrompt(true);
@@ -56,7 +58,7 @@ function DailyHealthLog({ healthLog, dayKey }:Props){
       <View style={styles.innerContainer}>
         <IntensityPicker
           type="Mental Health"
-          pickedValue={
+          previouslyPickedValue={
             mentalHealthValueToChangeTo ?? healthLog?.mentalHealthLevel ?? -1
           }
           updatePickedValue={(val: number) => {

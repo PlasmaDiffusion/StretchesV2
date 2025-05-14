@@ -31,6 +31,7 @@ export async function loadLogForCurrentMonth(
     })
     .catch((error) => {
       console.warn(error);
+      return undefined;
     });
 
   if (isLoadingExerciseLogs) {
@@ -111,7 +112,7 @@ export async function saveHealthForSpecificDayToLog(
       })
       .then(() => {
         console.log("Saved health log", healthLog);
-        outputExerciseLogForCurrentDay();
+        outputHealthLogForCurrentDay();
       });
   }
 }
@@ -127,4 +128,17 @@ export async function outputExerciseLogForCurrentDay() {
       `Stretch: ${log.stretch}, Time: ${log.secondsSpentDoingStretch} seconds`
     );
   });
+}
+
+export async function outputHealthLogForCurrentDay() {
+  const date = new Date();
+  const logsThisMonth = await loadLogForCurrentMonth(false);
+  const currentDayLogs =
+    (logsThisMonth.get(date.getDate().toString()) as HealthLog) || undefined;
+
+    if (currentDayLogs)
+    {
+      console.log(`Date: ${currentDayLogs.date} Pain: ${currentDayLogs.painLevel} Mental Health: ${currentDayLogs.mentalHealthLevel}`);
+    }
+  
 }

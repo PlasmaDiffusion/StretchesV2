@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 interface Props {
   type: "Pain" | "Mental Health";
-  pickedValue: number;
+  previouslyPickedValue: number;
   updatePickedValue: (value: number) => void;
 }
 
@@ -38,9 +38,15 @@ const colorsToUse = [
 ];
 
 /** Shows how much in pain you were or your mental health levels, and it can allow you to record it for the day. */
-function IntensityPicker({ type, pickedValue, updatePickedValue }: Props) {
+function IntensityPicker({
+  type,
+  previouslyPickedValue,
+  updatePickedValue,
+}: Props) {
   const [labelsToUse, setLabelsToUse] = useState<string[]>([]);
-  const [valueToChangeTo, setValueToChangeTo] = useState<number>(pickedValue);
+  const [valueToChangeTo, setValueToChangeTo] = useState<number>(
+    previouslyPickedValue
+  );
 
   useEffect(() => {
     if (type === "Pain") {
@@ -63,6 +69,7 @@ function IntensityPicker({ type, pickedValue, updatePickedValue }: Props) {
                 updatePickedValue(index);
               }}
               key={label}
+              italics={index === previouslyPickedValue}
             />
           ) : (
             <PrimaryButton
@@ -73,6 +80,7 @@ function IntensityPicker({ type, pickedValue, updatePickedValue }: Props) {
                 updatePickedValue(index);
               }}
               key={label}
+              italics={index === previouslyPickedValue}
             />
           )
         )}
