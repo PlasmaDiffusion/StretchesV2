@@ -16,6 +16,7 @@ import { EndButton } from "./EndButton";
 import SaveAndLoad from "./savingStretches/SaveAndLoad";
 import StretchEditForm from "./savingStretches/StretchEditForm";
 import { saveExercisesForCurrentDayToLog } from "../../utilities/logRecording";
+import { HeadingText } from "../commonComponents/HeadingText";
 
 function StretchScreen() {
   const [time, setTime] = useState(60);
@@ -54,7 +55,7 @@ function StretchScreen() {
       {!isStretching ? (
         <>
           <ScrollView contentContainerStyle={styles.scrollViewContent}>
-            <Text style={styles.prompt}>Save Stretches</Text>
+            <HeadingText>Stretches List</HeadingText>
             <SaveAndLoad
               currentStretches={stretches}
               setStretches={(loadedStretches) => {

@@ -3,7 +3,7 @@ import { useState } from "react";
 import ExerciseLogsScreen from "./components/exerciseLog/ExerciseLogsScreen";
 import { Views } from "./interfaces/views";
 import NavBar from "./components/navBar/NavBar";
-import StretchScreen from "./components/stretchScreen/Stretches";
+import StretchScreen from "./components/stretchScreen/StretchScreen";
 
 export default function App() {
   const [currentView, setCurrentView] = useState(Views.STRETCH_SCREEN);

@@ -4,6 +4,7 @@ import storage from "../../utilities/storage";
 import { ExerciseLog, HealthLog } from "../../interfaces/exerciseLog";
 import { Dropdown } from "react-native-element-dropdown";
 import DailyLog from "./DailyLog";
+import { HeadingText } from "../commonComponents/HeadingText";
 
 const yearDropdownData = [
   { label: "2025", value: 2025 },
@@ -105,6 +106,7 @@ function ExerciseLogsScreen() {
 
   return (
     <>
+      <HeadingText>Daily Log</HeadingText>
       <Dropdown
         onChange={(item) => {
           setYear(item.value);
@@ -117,7 +119,6 @@ function ExerciseLogsScreen() {
         placeholder="Select Year"
         value={year}
       />
-
       <Dropdown
         onChange={(item) => {
           setMonth(item.value);
@@ -130,9 +131,7 @@ function ExerciseLogsScreen() {
         placeholder="Select Month"
         value={month}
       />
-
       {loading && <Text>Loading...</Text>}
-
       {notFound && <Text>No logs found for this month.</Text>}
       {exerciseLogs &&
         Array.from(exerciseLogs.entries()).map(([key, logs]) => (
