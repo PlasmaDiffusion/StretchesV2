@@ -30,10 +30,10 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
   const slots = [1, 2, 3];
   const [currentSlot, setCurrentSlot] = useState(1);
 
-  const [showInput, setShowInput] = useState(false);
+  const [showSaveNameInput, setShowSaveNameInput] = useState(false);
   const lastTapRef = useRef<number | null>(null);
 
-  // Load all saveNames for slots on mount and when a save is made
+  // Load all saveNames for slots on mount
   const refreshSaveNames = useCallback(async () => {
     if (saveNamesToRender.length === 0) {
       const names = await loadAllSaveNames(slots);
@@ -106,7 +106,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
       </HeadingText>
       {statusMessage && <Text>{statusMessage}</Text>}
 
-      {showInput && (
+      {showSaveNameInput && (
         <TextInput
           style={styles.input}
           value={saveName}
@@ -126,16 +126,16 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
         {slots.map((slot) => (
           <TouchableOpacity
             onPress={() => {
-              // Double-tap logic
+              // Double-tap a slot button to rename the save name
               const now = Date.now();
               if (
                 lastTapRef.current &&
                 now - lastTapRef.current < 300 &&
                 currentSlot === slot
               ) {
-                setShowInput(true);
+                setShowSaveNameInput(true);
               } else {
-                setShowInput(false);
+                setShowSaveNameInput(false);
                 setKey(`save${slot}`);
                 setCurrentSlot(slot);
                 setSaveName(saveNamesToRender[slot - 1] || slot.toString());
