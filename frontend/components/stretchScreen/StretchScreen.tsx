@@ -63,7 +63,7 @@ function StretchScreen() {
                 setStretches([...loadedStretches]);
               }}
             />
-            <HeadingText size="small" verticalSpacing>
+            <HeadingText size="small" verticalSpacing={16}>
               {editIsOn ? "Edit Stretches" : "Stretch Select"}
             </HeadingText>
 

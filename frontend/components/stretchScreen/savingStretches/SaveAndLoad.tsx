@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  ScrollView,
 } from "react-native";
 import { Stretch } from "../../../interfaces/stretchList";
 import React from "react";
@@ -27,7 +28,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
   const [saveNamesToRender, setSaveNamesToRender] = useState<string[]>([]);
   const [statusMessage, setStatusMessage] = useState("");
 
-  const slots = [1, 2, 3];
+  const slots = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   const [currentSlot, setCurrentSlot] = useState(1);
 
   const [showSaveNameInput, setShowSaveNameInput] = useState(false);
@@ -100,8 +101,8 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
   }, [currentStretches, key, setStretches, saveNamesToRender, currentSlot]);
 
   return (
-    <View>
-      <HeadingText size="small" verticalSpacing>
+    <View style={styles.roundedBorder}>
+      <HeadingText size="small" verticalSpacing={8}>
         Save Presets
       </HeadingText>
       {statusMessage && <Text>{statusMessage}</Text>}
@@ -122,11 +123,17 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
           autoCapitalize="none"
         />
       )}
-      <View style={styles.buttonContainer}>
+
+      {/* Horizontally scrollable list of slot buttons */}
+      <ScrollView
+        style={styles.scrollList}
+        contentContainerStyle={styles.scrollListContent}
+        horizontal={true}
+        showsHorizontalScrollIndicator={true}
+      >
         {slots.map((slot) => (
           <TouchableOpacity
             onPress={() => {
-              // Double-tap a slot button to rename the save name
               const now = Date.now();
               if (
                 lastTapRef.current &&
@@ -142,21 +149,19 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
               }
               lastTapRef.current = now;
             }}
-            style={styles.slotButton}
+            style={[
+              styles.slotButton,
+              key === `save${slot}` ? styles.selectSlot : styles.unSelectedSlot,
+            ]}
             key={`saveOpacityKey${slot}`}
           >
-            <Text
-              style={
-                key === `save${slot}`
-                  ? styles.selectSlot
-                  : styles.unSelectedSlot
-              }
-            >
-              {saveNamesToRender[slot - 1] || slot}
+            <Text style={styles.slotButtonText}>
+              {saveNamesToRender[slot - 1] || `Slot ${slot}`}
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
+
       <View style={styles.buttonContainer}>
         <Button title="Save" onPress={savePressed} />
         <Button title="Load" onPress={loadPressed} />
@@ -166,6 +171,14 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
 }
 
 const styles = StyleSheet.create({
+  roundedBorder: {
+    borderWidth: 2,
+    borderColor: "#888",
+    borderRadius: 32,
+    borderStyle: "solid", // Use solid for a classic border, or "dotted" if you prefer
+    marginTop: 4,
+    backgroundColor: "#fff",
+  },
   buttonContainer: {
     display: "flex",
     flexDirection: "row",
@@ -178,19 +191,33 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderStyle: "dotted",
     height: 48,
+    marginBottom: 8,
+  },
+  scrollList: {
+    maxHeight: 60,
+  },
+  scrollListContent: {
+    alignItems: "center",
+    flexDirection: "row",
   },
   slotButton: {
-    width: 96,
-    height: 24,
+    width: 100,
+    height: 32,
     borderWidth: 1,
     borderRadius: 4,
+    marginHorizontal: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  slotButtonText: {
+    fontSize: 14,
   },
   selectSlot: {
-    color: "red",
-    textAlign: "center",
+    backgroundColor: "#ffeaea",
+    borderColor: "red",
   },
   unSelectedSlot: {
-    color: "blue",
-    textAlign: "center",
+    backgroundColor: "#eef6ff",
+    borderColor: "blue",
   },
 });

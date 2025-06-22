@@ -4,7 +4,7 @@ import { Text, StyleSheet } from "react-native";
 interface Props {
   children: string;
   size?: "small" | "large";
-  verticalSpacing?: boolean;
+  verticalSpacing?: 0 | 8 | 16;
 }
 
 export function HeadingText({
@@ -18,7 +18,7 @@ export function HeadingText({
       style={[
         styles.heading,
         { fontSize },
-        verticalSpacing && styles.verticalSpacing,
+        { marginVertical: verticalSpacing },
       ]}
     >
       {children}
@@ -34,8 +34,5 @@ const styles = StyleSheet.create({
   },
   heading: {
     textAlign: "center",
-  },
-  verticalSpacing: {
-    marginVertical: 16,
   },
 });
