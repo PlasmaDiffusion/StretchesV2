@@ -17,6 +17,7 @@ import SaveAndLoad from "./savingStretches/SaveAndLoad";
 import StretchEditForm from "./savingStretches/StretchEditForm";
 import { saveExercisesForCurrentDayToLog } from "../../utilities/logRecording";
 import { HeadingText } from "../commonComponents/HeadingText";
+import React from "react";
 
 function StretchScreen() {
   const [time, setTime] = useState(60);

@@ -1,3 +1,4 @@
+import React from "react";
 import { Text, TouchableOpacity, StyleSheet } from "react-native";
 
 interface Props {
@@ -8,7 +9,12 @@ interface Props {
   italics?: boolean;
 }
 
-export function PrimaryButton({ text, onPress, color = "#aaaaee", italics }: Props) {
+export function PrimaryButton({
+  text,
+  onPress,
+  color = "#aaaaee",
+  italics,
+}: Props) {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -18,12 +24,24 @@ export function PrimaryButton({ text, onPress, color = "#aaaaee", italics }: Pro
         ...styles.primaryButton,
       }}
     >
-      <Text style={{ textAlign: "center", fontStyle: italics ? 'italic' : 'normal' }}>{text}</Text>
+      <Text
+        style={{
+          textAlign: "center",
+          fontStyle: italics ? "italic" : "normal",
+        }}
+      >
+        {text}
+      </Text>
     </TouchableOpacity>
   );
 }
 
-export function SecondaryButton({ text, onPress, color = "#aa00ff", italics }: Props) {
+export function SecondaryButton({
+  text,
+  onPress,
+  color = "#aa00ff",
+  italics,
+}: Props) {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -33,7 +51,14 @@ export function SecondaryButton({ text, onPress, color = "#aa00ff", italics }: P
         ...styles.secondaryButton,
       }}
     >
-      <Text style={{ textAlign: "center", fontStyle: italics ? 'italic' : 'normal' }}>{text}</Text>
+      <Text
+        style={{
+          textAlign: "center",
+          fontStyle: italics ? "italic" : "normal",
+        }}
+      >
+        {text}
+      </Text>
     </TouchableOpacity>
   );
 }

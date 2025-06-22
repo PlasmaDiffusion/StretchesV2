@@ -4,6 +4,7 @@ import {
   SecondaryButton,
 } from "../../commonComponents/CustomButton";
 import { useEffect, useState } from "react";
+import React from "react";
 
 interface Props {
   type: "Pain" | "Mental Health";

@@ -5,6 +5,7 @@ import { ExerciseLog, HealthLog } from "../../interfaces/exerciseLog";
 import { Dropdown } from "react-native-element-dropdown";
 import DailyLog from "./DailyLog";
 import { HeadingText } from "../commonComponents/HeadingText";
+import React from "react";
 
 const yearDropdownData = [
   { label: "2025", value: 2025 },

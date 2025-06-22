@@ -1,9 +1,10 @@
-import { StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import { StyleSheet, ScrollView, SafeAreaView, Text } from "react-native";
 import { useState } from "react";
 import ExerciseLogsScreen from "./components/exerciseLog/ExerciseLogsScreen";
 import { Views } from "./interfaces/views";
 import NavBar from "./components/navBar/NavBar";
 import StretchScreen from "./components/stretchScreen/StretchScreen";
+import React from "react";
 
 export default function App() {
   const [currentView, setCurrentView] = useState(Views.STRETCH_SCREEN);

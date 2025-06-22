@@ -1,3 +1,4 @@
+import React from "react";
 import { Text, StyleSheet } from "react-native";
 
 interface Props {
@@ -16,6 +17,6 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 30,
-    textAlign: 'center'
+    textAlign: "center",
   },
 });
