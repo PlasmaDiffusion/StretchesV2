@@ -3,10 +3,27 @@ import { Text, StyleSheet } from "react-native";
 
 interface Props {
   children: string;
+  size?: "small" | "large";
+  verticalSpacing?: boolean;
 }
 
-export function HeadingText({ children }: Props) {
-  return <Text style={styles.heading}>{children}</Text>;
+export function HeadingText({
+  children,
+  size = "large",
+  verticalSpacing,
+}: Props) {
+  const fontSize = size === "large" ? 30 : 20;
+  return (
+    <Text
+      style={[
+        styles.heading,
+        { fontSize },
+        verticalSpacing && styles.verticalSpacing,
+      ]}
+    >
+      {children}
+    </Text>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -16,7 +33,9 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   heading: {
-    fontSize: 30,
     textAlign: "center",
+  },
+  verticalSpacing: {
+    marginVertical: 16,
   },
 });

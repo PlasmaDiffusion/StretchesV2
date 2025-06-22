@@ -1,6 +1,7 @@
 import { Views } from "../../interfaces/views";
 import { View, StyleSheet, StatusBar } from "react-native";
 import NavButton from "./NavButton";
+import React from "react";
 
 interface Props {
   currentView: Views;
@@ -8,14 +9,17 @@ interface Props {
 }
 
 const statusBarColours = [
-  '#0000EE', //blue
-  '#11ddff', //light blue
-]
+  "#0000EE", //blue
+  "#11ddff", //light blue
+];
 
 function NavBar({ currentView, setCurrentView }: Props) {
   return (
     <View style={styles.container}>
-      <StatusBar animated={true} backgroundColor={statusBarColours[currentView]}  />
+      <StatusBar
+        animated={true}
+        backgroundColor={statusBarColours[currentView]}
+      />
       <NavButton
         text={"Stretch Screen"}
         isCurrentView={currentView === Views.STRETCH_SCREEN}

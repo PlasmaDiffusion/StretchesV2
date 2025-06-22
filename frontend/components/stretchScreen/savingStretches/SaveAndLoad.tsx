@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Button,
@@ -10,6 +10,7 @@ import {
 import { Stretch } from "../../../interfaces/stretchList";
 import storage from "../../../utilities/storage";
 import React from "react";
+import { HeadingText } from "../../commonComponents/HeadingText";
 
 interface Props {
   currentStretches: Stretch[];
@@ -23,6 +24,10 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
   const [statusMessage, setStatusMessage] = useState("");
 
   const slots = [1, 2, 3];
+  const [currentSlot, setCurrentSlot] = useState(1);
+
+  const [showInput, setShowInput] = useState(false);
+  const lastTapRef = useRef<number | null>(null);
 
   // Load all saveNames for slots on mount and when a save is made
   const refreshSaveNames = useCallback(async () => {
@@ -40,35 +45,48 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
       }
     }
     setSaveNamesToRender([...names]);
+    setSaveName(names[0] || currentSlot.toString());
   }, [slots.length]);
 
+  //Hide status message after it's shown for a while
   useEffect(() => {
-    if (statusMessage === "" || statusMessage.includes("Saved")) {
+    if (statusMessage) {
+      const timeout = setTimeout(() => {
+        setStatusMessage("");
+      }, 2500); // 2.5 seconds
+      return () => clearTimeout(timeout);
+    }
+  }, [statusMessage]);
+
+  // Load save names on mount or when a new save is made
+  useEffect(() => {
+    if (saveNamesToRender.length === 0) {
       refreshSaveNames();
     }
-  }, [refreshSaveNames, statusMessage]);
+  }, [refreshSaveNames]);
 
   const savePressed = useCallback(async () => {
     if (key.includes("_")) {
       setStatusMessage("Save name should not include underscores.");
       return;
     }
-    //Save stretches
+    const saveNameToUse =
+      saveNamesToRender[currentSlot - 1] || currentSlot.toString();
     await storage
       .save({
         key: key,
         data: {
           stretches: [...currentStretches],
-          saveName: saveName,
+          saveName: saveNameToUse,
         },
       })
       .then(() => {
-        setStatusMessage("Saved!");
+        setStatusMessage(`Saved ${saveNameToUse}!`);
       })
       .catch(async (error: Error) => {
         setStatusMessage(error.message);
       });
-  }, [currentStretches, key]);
+  }, [currentStretches, key, currentSlot, saveNamesToRender]);
 
   const loadPressed = useCallback(() => {
     if (key.includes("_")) {
@@ -85,7 +103,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
         console.log(ret.stretches);
         //Load stretches through prop
         setStretches(ret.stretches);
-        setStatusMessage(`Loaded ${key}`);
+        setStatusMessage(`Loaded ${saveNamesToRender[currentSlot - 1]}`); // (${key})
       })
       .catch((error: Error) => {
         console.warn(error.message);
@@ -103,33 +121,48 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
       });
   }, [currentStretches, key]);
 
-  //Hide load after a moment
-  useEffect(() => {
-    if (statusMessage.includes("Loaded")) {
-      setTimeout(() => {
-        setStatusMessage("");
-      }, 2000);
-    }
-  }, [statusMessage]);
-
   return (
     <View>
-      <Text>{statusMessage}</Text>
+      <HeadingText size="small" verticalSpacing>
+        Save Presets
+      </HeadingText>
+      {statusMessage && <Text>{statusMessage}</Text>}
 
-      <Text>{saveName}</Text>
-      <TextInput
-        style={styles.input}
-        value={saveName}
-        onChangeText={setSaveName}
-        placeholder="Enter save name"
-        autoCapitalize="none"
-      />
-
+      {showInput && (
+        <TextInput
+          style={styles.input}
+          value={saveName}
+          onChangeText={(inputText) => {
+            setSaveName(inputText);
+            setSaveNamesToRender((prev) => {
+              const newNames = [...prev];
+              newNames[currentSlot - 1] = inputText;
+              return newNames;
+            });
+          }}
+          placeholder="Enter save name"
+          autoCapitalize="none"
+        />
+      )}
       <View style={styles.buttonContainer}>
         {slots.map((slot) => (
           <TouchableOpacity
             onPress={() => {
-              setKey(`save${slot}`);
+              // Double-tap logic
+              const now = Date.now();
+              if (
+                lastTapRef.current &&
+                now - lastTapRef.current < 300 &&
+                currentSlot === slot
+              ) {
+                setShowInput(true);
+              } else {
+                setShowInput(false);
+                setKey(`save${slot}`);
+                setCurrentSlot(slot);
+                setSaveName(saveNamesToRender[slot - 1] || slot.toString());
+              }
+              lastTapRef.current = now;
             }}
             style={styles.slotButton}
             key={`saveOpacityKey${slot}`}
@@ -146,7 +179,6 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
           </TouchableOpacity>
         ))}
       </View>
-
       <View style={styles.buttonContainer}>
         <Button title="Save" onPress={savePressed} />
         <Button title="Load" onPress={loadPressed} />
@@ -161,16 +193,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "center",
     gap: 32,
-    marginVertical: 8,
+    marginVertical: 16,
   },
   input: {
     textAlign: "center",
-    borderWidth: 1,
+    borderWidth: 2,
+    borderStyle: "dotted",
     height: 48,
-    marginBottom: 4,
   },
   slotButton: {
-    width: 32,
+    width: 96,
     height: 24,
     borderWidth: 1,
     borderRadius: 4,

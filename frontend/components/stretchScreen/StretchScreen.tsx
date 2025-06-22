@@ -63,9 +63,10 @@ function StretchScreen() {
                 setStretches([...loadedStretches]);
               }}
             />
-            <Text style={styles.prompt}>
+            <HeadingText size="small" verticalSpacing>
               {editIsOn ? "Edit Stretches" : "Stretch Select"}
-            </Text>
+            </HeadingText>
+
             <View style={styles.editButton}>
               <Button
                 title={editIsOn ? "Back To Stretch Select" : "Edit Stretches"}
