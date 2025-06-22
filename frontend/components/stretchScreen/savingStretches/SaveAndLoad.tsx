@@ -8,9 +8,13 @@ import {
   TextInput,
 } from "react-native";
 import { Stretch } from "../../../interfaces/stretchList";
-import storage from "../../../utilities/storage";
 import React from "react";
 import { HeadingText } from "../../commonComponents/HeadingText";
+import {
+  saveStretchesToSlot,
+  loadStretchesFromSlot,
+  loadAllSaveNames,
+} from "../../../utilities/stretchSaving";
 
 interface Props {
   currentStretches: Stretch[];
@@ -31,22 +35,12 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
 
   // Load all saveNames for slots on mount and when a save is made
   const refreshSaveNames = useCallback(async () => {
-    const names: string[] = [];
-    for (let i = 1; i <= slots.length; i++) {
-      try {
-        const ret = await storage.load({
-          key: `save${i}`,
-          autoSync: false,
-          syncInBackground: false,
-        });
-        names.push(ret.saveName || "");
-      } catch {
-        names.push("");
-      }
+    if (saveNamesToRender.length === 0) {
+      const names = await loadAllSaveNames(slots);
+      setSaveNamesToRender([...names]);
+      setSaveName(names[0] || currentSlot.toString());
     }
-    setSaveNamesToRender([...names]);
-    setSaveName(names[0] || currentSlot.toString());
-  }, [slots.length]);
+  }, [currentSlot, slots]);
 
   //Hide status message after it's shown for a while
   useEffect(() => {
@@ -72,54 +66,38 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
     }
     const saveNameToUse =
       saveNamesToRender[currentSlot - 1] || currentSlot.toString();
-    await storage
-      .save({
-        key: key,
-        data: {
-          stretches: [...currentStretches],
-          saveName: saveNameToUse,
-        },
-      })
-      .then(() => {
-        setStatusMessage(`Saved ${saveNameToUse}!`);
-      })
-      .catch(async (error: Error) => {
-        setStatusMessage(error.message);
-      });
-  }, [currentStretches, key, currentSlot, saveNamesToRender]);
+    try {
+      await saveStretchesToSlot(key, currentStretches, saveNameToUse);
+      setStatusMessage(`Saved ${saveNameToUse}!`);
+      refreshSaveNames();
+    } catch (error: any) {
+      setStatusMessage(error.message);
+    }
+  }, [currentStretches, key, currentSlot, saveNamesToRender, refreshSaveNames]);
 
-  const loadPressed = useCallback(() => {
+  const loadPressed = useCallback(async () => {
     if (key.includes("_")) {
       setStatusMessage("Save name should no include underscores.");
       return;
     }
-    storage
-      .load({
-        key: key,
-        autoSync: true,
-        syncInBackground: true,
-      })
-      .then((ret) => {
-        console.log(ret.stretches);
-        //Load stretches through prop
-        setStretches(ret.stretches);
-        setStatusMessage(`Loaded ${saveNamesToRender[currentSlot - 1]}`); // (${key})
-      })
-      .catch((error: Error) => {
-        console.warn(error.message);
-        switch (error.name) {
-          case "NotFoundError":
-            setStatusMessage("The save was not found.");
-            break;
-          case "ExpiredError":
-            setStatusMessage("The save expired.");
-            break;
-          default:
-            setStatusMessage(error.message);
-            break;
-        }
-      });
-  }, [currentStretches, key]);
+    try {
+      const ret = await loadStretchesFromSlot(key);
+      setStretches(ret.stretches);
+      setStatusMessage(`Loaded ${saveNamesToRender[currentSlot - 1]}`); // (${key})
+    } catch (error: any) {
+      switch (error.name) {
+        case "NotFoundError":
+          setStatusMessage("The save was not found.");
+          break;
+        case "ExpiredError":
+          setStatusMessage("The save expired.");
+          break;
+        default:
+          setStatusMessage(error.message);
+          break;
+      }
+    }
+  }, [currentStretches, key, setStretches, saveNamesToRender, currentSlot]);
 
   return (
     <View>
