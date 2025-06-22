@@ -103,7 +103,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
   return (
     <View style={styles.roundedBorder}>
       <HeadingText size="small" verticalSpacing={8}>
-        Save Presets
+        Presets
       </HeadingText>
       {statusMessage && <Text>{statusMessage}</Text>}
 

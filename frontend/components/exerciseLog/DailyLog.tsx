@@ -3,6 +3,7 @@ import { ExerciseLog, HealthLog } from "../../interfaces/exerciseLog";
 import { useState } from "react";
 import { PrimaryButton } from "../commonComponents/CustomButton";
 import DailyHealthLog from "./painAndMentalHealthLogs/DailyHealthLog";
+import React from "react";
 
 interface Props {
   exercises: ExerciseLog[];
