@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Button, StyleSheet, View } from "react-native";
 import { Stretch } from "../../interfaces/stretchList";
 import React from "react";
+import { useNavBarStore } from "../../stores/navBarStore";
 
 interface Props {
   currentStretch: Stretch | undefined;
@@ -19,6 +20,7 @@ export function StartButtonAndTimer({
   started,
 }: Props) {
   const [paused, setPaused] = useState(true);
+  const setShowNavBar = useNavBarStore((state) => state.setShowNavBar);
 
   useEffect(() => {
     if (started) {
@@ -47,6 +49,7 @@ export function StartButtonAndTimer({
     <View style={styles.buttonContainer}>
       <Button
         onPress={() => {
+          setShowNavBar(false);
           setPaused(!paused);
           if (!currentStretch || currentTime === 0) {
             goToNextStretch();

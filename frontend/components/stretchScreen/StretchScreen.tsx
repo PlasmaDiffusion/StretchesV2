@@ -18,6 +18,7 @@ import StretchEditForm from "./savingStretches/StretchEditForm";
 import { saveExercisesForCurrentDayToLog } from "../../utilities/logRecording";
 import { HeadingText } from "../commonComponents/HeadingText";
 import React from "react";
+import { useNavBarStore } from "../../stores/navBarStore";
 
 function StretchScreen() {
   const [time, setTime] = useState(60);
@@ -29,10 +30,13 @@ function StretchScreen() {
   const [editIsOn, setEditIsOn] = useState(false);
   const [editingStretchIndex, setEditingStretchIndex] = useState(-1);
 
+  const setShowNavBar = useNavBarStore((state) => state.setShowNavBar);
+
   function endStretchSession() {
     setTime(0);
     setIsStretching(false);
     setCurrentStretchIndex(-1);
+    setShowNavBar(true);
   }
 
   if (editingStretchIndex >= 0 && stretches.length > 0 && editIsOn) {
