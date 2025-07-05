@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  ScrollView,
 } from "react-native";
 import { Stretch } from "../../../interfaces/stretchList";
 import React from "react";
@@ -45,9 +46,14 @@ export default function StretchEditForm({
     "salmon",
     "#DC143C",
     "#DE3163",
+    "#5555FF",
+    "#AAAAFF",
     "#66b2b2",
     "#008080",
     "green",
+    "yellowgreen",
+    "gold",
+    "orange",
   ];
 
   return (
@@ -60,13 +66,18 @@ export default function StretchEditForm({
       />
 
       <Text style={styles.label}>Colour:</Text>
-      <View style={styles.colorGrid}>
-        {possibleColours.map((color) => (
-          <TouchableOpacity
-            style={[styles.colorButton, { backgroundColor: color }]}
-            onPress={() => setColor(color)}
-          />
-        ))}
+      <View style={{ height: 48 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.colorGrid}>
+            {possibleColours.map((color) => (
+              <TouchableOpacity
+                key={color}
+                style={[styles.colorButton, { backgroundColor: color }]}
+                onPress={() => setColor(color)}
+              />
+            ))}
+          </View>
+        </ScrollView>
       </View>
 
       <Text style={styles.label}>Reference Link 1:</Text>
