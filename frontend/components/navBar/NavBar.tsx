@@ -14,6 +14,7 @@ const statusBarColours = [
   "#11ddff", //light blue
 ];
 
+// NavBar that lists buttons for different screens. Would be good to use the built-in RN navigation as this expands.
 function NavBar({ currentView, setCurrentView }: Props) {
   const showNavBar = useNavBarStore((state) => state.showNavBar);
 
@@ -37,6 +38,13 @@ function NavBar({ currentView, setCurrentView }: Props) {
             isCurrentView={currentView === Views.EXERCISE_LOG}
             onPress={() => {
               setCurrentView(Views.EXERCISE_LOG);
+            }}
+          />
+          <NavButton
+            text={"Export Saves"}
+            isCurrentView={currentView === Views.QR_SAVES}
+            onPress={() => {
+              setCurrentView(Views.QR_SAVES);
             }}
           />
         </>

@@ -16,6 +16,7 @@
     "expo-dev-client": "~5.2.1",
     "expo-status-bar": "~2.2.3",
     "expo-updates": "~0.28.15",
+    "qrcode": "^1.5.4",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.4",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^19.0.0",
     "typescript": "^5.1.3"
   },

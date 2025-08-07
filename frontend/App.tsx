@@ -5,6 +5,7 @@ import ExerciseLogsScreen from "./components/exerciseLog/ExerciseLogsScreen";
 import { Views } from "./interfaces/views";
 import NavBar from "./components/navBar/NavBar";
 import StretchScreen from "./components/stretchScreen/StretchScreen";
+import QrCodeSaveImporterAndExporter from "./components/qrCode/exportQrCode";
 
 export default function App() {
   const [currentView, setCurrentView] = useState(Views.STRETCH_SCREEN);
@@ -16,6 +17,13 @@ export default function App() {
           <NavBar currentView={currentView} setCurrentView={setCurrentView} />
           <ExerciseLogsScreen />
         </ScrollView>
+      </SafeAreaView>
+    );
+  } else if (currentView === Views.QR_SAVES) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <NavBar currentView={currentView} setCurrentView={setCurrentView} />
+        <QrCodeSaveImporterAndExporter />
       </SafeAreaView>
     );
   }
