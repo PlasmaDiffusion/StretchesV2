@@ -15,6 +15,9 @@ $
 ## For a dev build (mac):
 APP_VARIANT=dev eas build --profile development --platform android
 
+## For a prod build (mac):
+APP_VARIANT=prod eas build --profile production --platform android
+
 # Running Project
 > npm install
 
