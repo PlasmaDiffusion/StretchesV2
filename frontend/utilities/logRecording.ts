@@ -1,3 +1,4 @@
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { ExerciseLog, HealthLog, TimeOfDay } from "../interfaces/exerciseLog";
 import { Stretch } from "../interfaces/stretchList";
 import storage from "./storage";
@@ -59,7 +60,7 @@ export async function saveExercisesForCurrentDayToLog(
     // Add the new log to the array and update the map for the current day
     exercisesDoneToday.push({
       date: new Date(),
-      timeOfDay: date.getHours() < 12 ? 0 : date.getHours() < 18 ? 1 : 2, // Morning, Afternoon, or Evening
+      timeOfDay: getCurrentTimeOfDay(),
       stretch: currentStretch.name,
       secondsSpentDoingStretch: currentStretch.totalStretchTime,
       color: currentStretch.color,
@@ -146,7 +147,7 @@ export async function outputHealthLogForCurrentDay() {
 
 export function getCurrentTimeOfDay(): TimeOfDay {
   const hour = new Date().getHours();
-  if (hour > 6 && hour < 12) return 0; // Morning
-  if (hour < 18) return 1; // Afternoon
-  return 2; // Evening
+  if (hour > 6 && hour < 12) return 0; // Morning (6am-12pm)
+  if (hour >= 12 && hour < 18) return 1; // Afternoon (12pm-6pm)
+  return 2; // Evening (6pm-6am)
 }

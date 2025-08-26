@@ -8,9 +8,19 @@ interface Props {
   onConfirm?: () => any;
   onClose: () => any;
   children?: React.ReactNode;
+  confirmText?: string;
+  cancelText?: string;
 }
 
-export function GeneralModal({ text, visible, onConfirm, onClose, children }: Props) {
+export function GeneralModal({
+  text,
+  visible,
+  onConfirm,
+  onClose,
+  confirmText,
+  cancelText,
+  children,
+}: Props) {
   return (
     <Modal style={styles.modal} isVisible={visible} onDismiss={onClose}>
       <View style={styles.container}>
@@ -18,11 +28,13 @@ export function GeneralModal({ text, visible, onConfirm, onClose, children }: Pr
         {children}
         <View style={styles.buttonRow}>
           <View style={styles.button}>
-            {onConfirm && <Button title="Yes" onPress={onConfirm}></Button>}
+            {onConfirm && (
+              <Button title={confirmText || "Yes"} onPress={onConfirm}></Button>
+            )}
           </View>
           <View style={styles.button}>
             <Button
-              title={onConfirm ? "No" : "Okay"}
+              title={onConfirm ? cancelText || "No" : "Okay"}
               onPress={onClose}
             ></Button>
           </View>
@@ -34,7 +46,6 @@ export function GeneralModal({ text, visible, onConfirm, onClose, children }: Pr
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 128,
     position: "absolute",
     alignSelf: "center",
     backgroundColor: "white",
