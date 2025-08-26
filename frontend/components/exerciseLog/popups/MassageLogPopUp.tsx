@@ -24,15 +24,19 @@ function MassageLogPopUp({}) {
     async function checkLogs() {
       const date = new Date();
       const logsForMonth = await loadLogForCurrentMonth(true);
-      const logsForToday =
-        (logsForMonth.get(date.getDate().toString()) as ExerciseLog[]) || [];
 
-      // Check if any log for today matches the current time of day
-      const found = logsForToday.some(
-        (log) =>
-          log.timeOfDay === TimeOfDay.Morning &&
-          log.stretch === "Extra Massages"
-      );
+      if (!logsForMonth) return;
+
+      const logsForToday =
+        (logsForMonth.get?.(date.getDate().toString()) as ExerciseLog[]) || [];
+
+      const found =
+        Array.isArray(logsForToday) &&
+        logsForToday.some(
+          (log) =>
+            log.timeOfDay === TimeOfDay.Morning &&
+            log.stretch === "Extra Massages"
+        );
 
       if (!found && getCurrentTimeOfDay() === TimeOfDay.Morning) {
         setModalVisible(true);
