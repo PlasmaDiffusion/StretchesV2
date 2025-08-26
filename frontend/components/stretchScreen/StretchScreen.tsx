@@ -5,6 +5,7 @@ import {
   ScrollView,
   Vibration,
   Button,
+  TouchableOpacity,
 } from "react-native";
 import { StretchCheckbox } from "./StretchCheckbox";
 import Slider from "react-native-a11y-slider";
@@ -19,6 +20,7 @@ import { saveExercisesForCurrentDayToLog } from "../../utilities/logRecording";
 import { HeadingText } from "../commonComponents/HeadingText";
 import React from "react";
 import { useNavBarStore } from "../../stores/navBarStore";
+import UpDownArrows from "./UpDownArrows";
 
 function StretchScreen() {
   const [time, setTime] = useState(60);
@@ -78,22 +80,31 @@ function StretchScreen() {
               />
             </View>
             {stretches.map((stretch, index) => (
-              <View style={styles.row} key={"s" + index}>
+              <View
+                style={[styles.row, editIsOn && styles.bottomBorder]}
+                key={"s" + index}
+              >
                 <StretchCheckbox
                   stretch={stretch}
                   editing={editIsOn}
                   setCheckbox={(isChecked) => {
                     if (editIsOn) {
-                      // Edit mode turns checkbox into an edit button
                       setEditingStretchIndex(index);
                     } else {
-                      // Regular check box
                       const updatedStretchArray = stretches;
                       updatedStretchArray[index].enabled = isChecked;
                       setStretches([...updatedStretchArray]);
                     }
                   }}
                 />
+                {/* Up/Down arrows for edit mode */}
+                {editIsOn && (
+                  <UpDownArrows
+                    index={index}
+                    stretches={stretches}
+                    setStretches={setStretches}
+                  />
+                )}
                 {!editIsOn && (
                   <Slider
                     style={styles.slider}
@@ -196,6 +207,11 @@ const styles = StyleSheet.create({
     width: "80%",
     alignItems: "center",
   },
+  bottomBorder: {
+    borderBottomWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "#ccc",
+  },
   slider: {
     width: "50%",
     height: "150%",
@@ -220,6 +236,12 @@ const styles = StyleSheet.create({
   editButton: {
     display: "flex",
     alignItems: "center",
+  },
+  arrowsContainer: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 8,
   },
 });
 
