@@ -1,4 +1,4 @@
-import { ExerciseLog, HealthLog } from "../interfaces/exerciseLog";
+import { ExerciseLog, HealthLog, TimeOfDay } from "../interfaces/exerciseLog";
 import { Stretch } from "../interfaces/stretchList";
 import storage from "./storage";
 
@@ -141,4 +141,12 @@ export async function outputHealthLogForCurrentDay() {
       console.log(`Date: ${currentDayLogs.date} Pain: ${currentDayLogs.painLevel} Mental Health: ${currentDayLogs.mentalHealthLevel}`);
     }
   
+}
+
+
+export function getCurrentTimeOfDay(): TimeOfDay {
+  const hour = new Date().getHours();
+  if (hour > 6 && hour < 12) return 0; // Morning
+  if (hour < 18) return 1; // Afternoon
+  return 2; // Evening
 }

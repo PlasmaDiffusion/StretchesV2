@@ -1,3 +1,4 @@
+import React from "react";
 import { Text, StyleSheet, Button, View } from "react-native";
 import Modal from "react-native-modal";
 
@@ -6,13 +7,15 @@ interface Props {
   text: string;
   onConfirm?: () => any;
   onClose: () => any;
+  children?: React.ReactNode;
 }
 
-export function GeneralModal({ text, visible, onConfirm, onClose }: Props) {
+export function GeneralModal({ text, visible, onConfirm, onClose, children }: Props) {
   return (
     <Modal style={styles.modal} isVisible={visible} onDismiss={onClose}>
       <View style={styles.container}>
         <Text style={styles.text}>{text}</Text>
+        {children}
         <View style={styles.buttonRow}>
           <View style={styles.button}>
             {onConfirm && <Button title="Yes" onPress={onConfirm}></Button>}
