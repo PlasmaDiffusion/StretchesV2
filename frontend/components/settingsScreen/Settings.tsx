@@ -19,6 +19,8 @@ export default function Settings() {
   useEffect(() => {
     async function fetchSettings() {
       const settings = await loadSettings();
+      console.log("Loaded settings:", settings);
+      setSettings(settings);
     }
     if (showSettings) {
       fetchSettings();
@@ -28,7 +30,7 @@ export default function Settings() {
   const saveOptions = useCallback(async () => {
     await saveSettings(settings);
     setShowSettings(false);
-  }, []);
+  }, [settings]);
 
   return (
     <>
