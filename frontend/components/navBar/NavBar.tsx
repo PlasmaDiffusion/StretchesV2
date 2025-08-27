@@ -1,8 +1,9 @@
 import React from "react";
 import { Views } from "../../interfaces/views";
-import { View, StyleSheet, StatusBar } from "react-native";
+import { View, StyleSheet, StatusBar, TouchableOpacity } from "react-native";
 import NavButton from "./NavButton";
 import { useNavBarStore } from "../../stores/navBarStore";
+import Settings from "../settingsScreen/Settings";
 
 interface Props {
   currentView: Views;
@@ -16,6 +17,7 @@ const statusBarColours = [
 
 function NavBar({ currentView, setCurrentView }: Props) {
   const showNavBar = useNavBarStore((state) => state.showNavBar);
+
 
   return (
     <View style={styles.container}>
@@ -39,6 +41,7 @@ function NavBar({ currentView, setCurrentView }: Props) {
               setCurrentView(Views.EXERCISE_LOG);
             }}
           />
+        <Settings />
         </>
       )}
     </View>
@@ -49,6 +52,10 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
     flexDirection: "row",
+  },
+  gearButton: {
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
