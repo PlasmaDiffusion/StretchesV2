@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  KeyboardAvoidingView,
-} from "react-native";
+import { KeyboardAvoidingView } from "react-native";
 import {
   getCurrentTimeOfDay,
   loadLogForCurrentMonth,
@@ -11,6 +9,7 @@ import { Stretch } from "../../../interfaces/stretchList";
 import { GeneralModal } from "../../commonComponents/GeneralModal";
 import { ExerciseLog, TimeOfDay } from "../../../interfaces/exerciseLog";
 import { TimeInput } from "../../commonComponents/TimeInput";
+import { loadSettings } from "../../../utilities/settingsStorage";
 
 // Daily pop up for logging massages. Some people manage chronic pain by massaging sore areas or trigger points.
 function MassageLogPopUp({}) {
@@ -23,6 +22,11 @@ function MassageLogPopUp({}) {
 
   useEffect(() => {
     async function checkLogs() {
+      // Check if showMassagePrompt is enabled. It defaults to false.
+      const { showMassagePrompt } = await loadSettings();
+      if (!showMassagePrompt) return;
+
+      // Check if an "Extra Massages" log has already been recorded for today in the morning
       const date = new Date();
       const logsForMonth = await loadLogForCurrentMonth(true);
 
@@ -86,17 +90,15 @@ function MassageLogPopUp({}) {
       confirmText="Yes, Log It"
       cancelText="No"
     >
-      <KeyboardAvoidingView
-        behavior="position"
-        keyboardVerticalOffset={180}>
-          <TimeInput
-            hours={hours}
-            minutes={minutes}
-            setHours={setHours}
-            setMinutes={setMinutes}
-            maxHours={MAX_HOURS}
-            maxMinutes={MAX_MINUTES}
-          />
+      <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={180}>
+        <TimeInput
+          hours={hours}
+          minutes={minutes}
+          setHours={setHours}
+          setMinutes={setMinutes}
+          maxHours={MAX_HOURS}
+          maxMinutes={MAX_MINUTES}
+        />
       </KeyboardAvoidingView>
     </GeneralModal>
   );
