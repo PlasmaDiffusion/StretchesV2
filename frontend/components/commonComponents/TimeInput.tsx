@@ -40,9 +40,10 @@ export function TimeInput({
             }
           }}
           placeholder={`0-${maxHours}`}
-          onSubmitEditing={() =>
-            setTimeout(() => minuteInputRef.current?.focus(), 100)
-          }
+          onSubmitEditing={() => {
+            setTimeout(() => minuteInputRef.current?.focus(), 100);
+          }}
+          returnKeyType="done"
         />
         {hourError ? <Text style={styles.errorText}>{hourError}</Text> : null}
       </View>
@@ -63,6 +64,7 @@ export function TimeInput({
             }
           }}
           placeholder={`0-${maxMinutes}`}
+          returnKeyType="done"
         />
         {minuteError ? (
           <Text style={styles.errorText}>{minuteError}</Text>

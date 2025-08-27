@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, TextInput } from "react-native";
+import {
+  KeyboardAvoidingView,
+} from "react-native";
 import {
   getCurrentTimeOfDay,
   loadLogForCurrentMonth,
@@ -8,7 +10,6 @@ import {
 import { Stretch } from "../../../interfaces/stretchList";
 import { GeneralModal } from "../../commonComponents/GeneralModal";
 import { ExerciseLog, TimeOfDay } from "../../../interfaces/exerciseLog";
-import { useRef as reactUseRef } from "react";
 import { TimeInput } from "../../commonComponents/TimeInput";
 
 // Daily pop up for logging massages. Some people manage chronic pain by massaging sore areas or trigger points.
@@ -18,7 +19,7 @@ function MassageLogPopUp({}) {
   const [minutes, setMinutes] = useState("");
 
   const MAX_HOURS = 10;
-  const MAX_MINUTES = 600;
+  const MAX_MINUTES = 60;
 
   useEffect(() => {
     async function checkLogs() {
@@ -85,46 +86,20 @@ function MassageLogPopUp({}) {
       confirmText="Yes, Log It"
       cancelText="No"
     >
-      <TimeInput
-        hours={hours}
-        minutes={minutes}
-        setHours={setHours}
-        setMinutes={setMinutes}
-        maxHours={MAX_HOURS}
-        maxMinutes={MAX_MINUTES}
-      />
+      <KeyboardAvoidingView
+        behavior="position"
+        keyboardVerticalOffset={180}>
+          <TimeInput
+            hours={hours}
+            minutes={minutes}
+            setHours={setHours}
+            setMinutes={setMinutes}
+            maxHours={MAX_HOURS}
+            maxMinutes={MAX_MINUTES}
+          />
+      </KeyboardAvoidingView>
     </GeneralModal>
   );
 }
-
-const styles = StyleSheet.create({
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    marginTop: 16,
-    marginBottom: 32,
-  },
-  inputGroup: {
-    flexDirection: "column",
-    alignItems: "center",
-    flex: 1,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    width: 50,
-    height: 48,
-    marginHorizontal: 8,
-    paddingHorizontal: 8,
-    textAlign: "center",
-  },
-  errorText: {
-    color: "red",
-    fontSize: 12,
-    marginTop: 4,
-  },
-});
 
 export default MassageLogPopUp;
