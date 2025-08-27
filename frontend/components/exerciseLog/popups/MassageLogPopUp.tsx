@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { KeyboardAvoidingView } from "react-native";
 import {
   getCurrentTimeOfDay,
@@ -11,8 +11,14 @@ import { ExerciseLog, TimeOfDay } from "../../../interfaces/exerciseLog";
 import { TimeInput } from "../../commonComponents/TimeInput";
 import { loadSettings } from "../../../utilities/settingsStorage";
 
+interface MassageLogPopUpProps {
+  showModalAlways?: boolean;
+}
+
 // Daily pop up for logging massages. Some people manage chronic pain by massaging sore areas or trigger points.
-function MassageLogPopUp({}) {
+function MassageLogPopUp({
+  showModalAlways: showEvenIfAlreadyLoggedToday = false,
+}: MassageLogPopUpProps) {
   const [modalVisible, setModalVisible] = useState(false);
   const [hours, setHours] = useState("");
   const [minutes, setMinutes] = useState("");
@@ -22,6 +28,11 @@ function MassageLogPopUp({}) {
 
   useEffect(() => {
     async function checkLogs() {
+      if (showEvenIfAlreadyLoggedToday) {
+        setModalVisible(true);
+        return;
+      }
+
       // Check if showMassagePrompt is enabled. It defaults to false.
       const { showMassagePrompt } = await loadSettings();
       if (!showMassagePrompt) return;
@@ -29,8 +40,6 @@ function MassageLogPopUp({}) {
       // Check if an "Extra Massages" log has already been recorded for today in the morning
       const date = new Date();
       const logsForMonth = await loadLogForCurrentMonth(true);
-
-      if (!logsForMonth) return;
 
       const logsForToday =
         (logsForMonth.get?.(date.getDate().toString()) as ExerciseLog[]) || [];
@@ -48,7 +57,7 @@ function MassageLogPopUp({}) {
       }
     }
     checkLogs();
-  }, []);
+  }, [showEvenIfAlreadyLoggedToday]);
 
   const recordMassages = useCallback((minutes: number, hours: number) => {
     const stretches: Stretch[] = [

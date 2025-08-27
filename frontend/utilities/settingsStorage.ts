@@ -13,7 +13,6 @@ export async function loadSettings(): Promise<AppSettings> {
       autoSync: true,
       syncInBackground: true,
     });
-    console.log("Settings loaded within loadSettings():", ret.settings);
     return ret.settings as AppSettings;
   } catch (error) {
     console.warn("No settings found, using defaults.", error);
