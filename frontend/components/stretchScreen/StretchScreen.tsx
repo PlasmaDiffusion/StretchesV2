@@ -6,6 +6,7 @@ import {
   Vibration,
   Button,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import { StretchCheckbox } from "./StretchCheckbox";
 import Slider from "react-native-a11y-slider";
@@ -28,6 +29,7 @@ function StretchScreen() {
   const [isStretching, setIsStretching] = useState(false);
   const [stretches, setStretches] = useState<Stretch[]>(stretchList);
   const [buttonEnablesAll, setButtonEnablesAll] = useState(false);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
 
   const [editIsOn, setEditIsOn] = useState(false);
   const [editingStretchIndex, setEditingStretchIndex] = useState(-1);
@@ -61,7 +63,10 @@ function StretchScreen() {
     <>
       {!isStretching ? (
         <>
-          <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <ScrollView
+            contentContainerStyle={styles.scrollViewContent}
+            scrollEnabled={scrollEnabled}
+          >
             <HeadingText>Stretches List</HeadingText>
             <SaveAndLoad
               currentStretches={stretches}
@@ -111,12 +116,19 @@ function StretchScreen() {
                     min={0}
                     max={240}
                     values={[stretch.totalStretchTime]}
-                    increment={30}
+                    increment={15}
                     labelStyle={styles.sliderLabel}
-                    onChange={(values: number[]) => {
+                    onChange={async (values: number[]) => {
                       const updatedStretchArray = stretches;
                       updatedStretchArray[index].totalStretchTime = values[0];
                       setStretches([...updatedStretchArray]);
+
+                      // onSlideComplete is inconsistent on iOS, so disable scrolling briefly on any change
+                      if (scrollEnabled && Platform.OS === "ios") {
+                        setScrollEnabled(false);
+                        await new Promise((r) => setTimeout(r, 100));
+                        setScrollEnabled(true);
+                      }
                     }}
                   />
                 )}
