@@ -1,15 +1,32 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { CheckBox } from "@rneui/themed";
 import { GeneralModal } from "../commonComponents/GeneralModal";
+import {
+  AppSettings,
+  loadSettings,
+  saveSettings,
+} from "../../utilities/settingsStorage";
 
 export default function Settings() {
   const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState<AppSettings>({
+    showMassagePrompt: false,
+  });
 
-  const saveOptions = useCallback(() => {
-    // Placeholder: implement saving logic here
-    console.log("Options saved!");
+  // Load settings from storage when modal is shown
+  useEffect(() => {
+    async function fetchSettings() {
+      const settings = await loadSettings();
+    }
+    if (showSettings) {
+      fetchSettings();
+    }
+  }, [showSettings]);
+
+  const saveOptions = useCallback(async () => {
+    await saveSettings(settings);
     setShowSettings(false);
   }, []);
 
@@ -33,7 +50,13 @@ export default function Settings() {
         <View style={styles.container}>
           <CheckBox
             disabled={false}
-            checked={false}
+            checked={settings.showMassagePrompt}
+            onPress={() => {
+              setSettings((prev) => ({
+                ...prev,
+                showMassagePrompt: !prev.showMassagePrompt,
+              }));
+            }}
             title={"Daily prompt to record time spent massaging every morning"}
             checkedColor={"#333"}
             uncheckedColor={"#333"}
