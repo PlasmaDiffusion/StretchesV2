@@ -1,8 +1,9 @@
 import React from "react";
 import { Views } from "../../interfaces/views";
-import { View, StyleSheet, StatusBar } from "react-native";
+import { View, StyleSheet, StatusBar, TouchableOpacity } from "react-native";
 import NavButton from "./NavButton";
 import { useNavBarStore } from "../../stores/navBarStore";
+import { Ionicons } from "@expo/vector-icons"; // or 'react-native-vector-icons/Ionicons'
 
 interface Props {
   currentView: Views;
@@ -39,6 +40,13 @@ function NavBar({ currentView, setCurrentView }: Props) {
               setCurrentView(Views.EXERCISE_LOG);
             }}
           />
+          <TouchableOpacity
+            style={styles.gearButton}
+            onPress={() => setCurrentView(Views.SETTINGS)}
+            accessibilityLabel="Settings"
+          >
+            <Ionicons name="settings-outline" size={28} color="#AAAAFF" />
+          </TouchableOpacity>
         </>
       )}
     </View>
@@ -49,6 +57,13 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
     flexDirection: "row",
+    alignItems: "center",
+  },
+  gearButton: {
+    marginLeft: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 4,
   },
 });
 

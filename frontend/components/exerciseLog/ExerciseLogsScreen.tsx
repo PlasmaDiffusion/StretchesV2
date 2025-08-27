@@ -106,7 +106,7 @@ function ExerciseLogsScreen() {
   }, []);
 
   return (
-    <>
+    <View>
       <HeadingText>Daily Log</HeadingText>
       <Dropdown
         onChange={(item) => {
@@ -149,7 +149,7 @@ function ExerciseLogsScreen() {
             />
           </View>
         ))}
-    </>
+    </View>
   );
 }
 

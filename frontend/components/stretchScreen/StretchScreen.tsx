@@ -58,7 +58,7 @@ function StretchScreen() {
   }
 
   return (
-    <>
+    <View>
       {!isStretching ? (
         <>
           <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -184,7 +184,7 @@ function StretchScreen() {
           }
         }}
       />
-    </>
+    </View>
   );
 }
 
