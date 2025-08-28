@@ -7,18 +7,18 @@ Additionally the logging is used for chronic pain, letting you log how in pain y
 # Building Project
 
 ## For a dev build (windows):
-$env:APP_VARIANT="dev"; eas build --profile development --platform android
+$env:APP_VARIANT="dev"; eas build --profile development --platform android|ios
 $
 
 ## For a prod build (windows):
-$env:APP_VARIANT="prod"; eas build --profile production --platform android
+$env:APP_VARIANT="prod"; eas build --profile production --platform android|ios
 $
 
 ## For a dev build (mac):
-APP_VARIANT=dev eas build --profile development --platform android
+APP_VARIANT=dev eas build --profile development --platform android|ios
 
 ## For a prod build (mac):
-APP_VARIANT=prod eas build --profile production --platform android
+APP_VARIANT=prod eas build --profile production --platform android|ios
 
 # Running Project
 > npm install
