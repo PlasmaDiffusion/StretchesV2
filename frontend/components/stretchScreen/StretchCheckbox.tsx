@@ -23,7 +23,7 @@ export function StretchCheckbox({ stretch, editing, setCheckbox }: Props) {
         checkedColor={stretch.color}
         uncheckedColor={stretch.color}
         containerStyle={styles.checkboxContainer}
-        onPress={(isChecked) => {
+        onPress={() => {
           setCheckbox(!stretch.enabled);
         }}
       />

@@ -22,6 +22,9 @@ import { HeadingText } from "../commonComponents/HeadingText";
 import React from "react";
 import { useNavBarStore } from "../../stores/navBarStore";
 import UpDownArrows from "./UpDownArrows";
+import { ExtraStretchButtons } from "./ExtraStretchButtons";
+
+const MAX_TIME_PER_STRETCH = 240;
 
 function StretchScreen() {
   const [time, setTime] = useState(60);
@@ -78,7 +81,7 @@ function StretchScreen() {
               }}
             />
             <HeadingText size="small" verticalSpacing={16}>
-              {editIsOn ? "Edit Stretches" : 'Select Stretches'}
+              {editIsOn ? "Edit Stretches" : "Select Stretches"}
             </HeadingText>
 
             <View style={styles.editButton}>
@@ -117,9 +120,9 @@ function StretchScreen() {
                   <Slider
                     style={styles.slider}
                     min={0}
-                    max={240}
+                    max={MAX_TIME_PER_STRETCH}
                     values={[stretch.totalStretchTime]}
-                    increment={15}
+                    increment={30}
                     labelStyle={styles.sliderLabel}
                     onChange={async (values: number[]) => {
                       const updatedStretchArray = stretches;
@@ -138,19 +141,14 @@ function StretchScreen() {
               </View>
             ))}
             {!editIsOn && (
-              <View style={styles.enableAll}>
-                <Button
-                  title={buttonEnablesAll ? "Enable All" : "Disable All"}
-                  onPress={() => {
-                    const stretchCopy = [...stretches];
-                    stretchCopy.forEach((stretch) => {
-                      stretch.enabled = buttonEnablesAll;
-                    });
-                    setStretches([...stretchCopy]);
-                    setButtonEnablesAll(!buttonEnablesAll);
-                  }}
-                />
-              </View>
+              <ExtraStretchButtons
+                stretches={stretches}
+                setStretches={setStretches}
+                buttonEnablesAll={buttonEnablesAll}
+                setButtonEnablesAll={setButtonEnablesAll}
+                maxTimePerStretch={MAX_TIME_PER_STRETCH}
+                minTimePerStretchAboveZero={30}
+              />
             )}
           </ScrollView>
         </>
@@ -241,12 +239,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 24,
     marginTop: 24,
-  },
-  enableAll: {
-    width: 150,
-    textAlign: "center",
-    alignSelf: "center",
-    marginVertical: 24,
   },
   editButton: {
     display: "flex",
