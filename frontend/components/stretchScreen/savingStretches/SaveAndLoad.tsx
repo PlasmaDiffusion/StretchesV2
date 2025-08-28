@@ -27,6 +27,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
   const [saveName, setSaveName] = useState("");
   const [saveNamesToRender, setSaveNamesToRender] = useState<string[]>([]);
   const [statusMessage, setStatusMessage] = useState("");
+  const [saveConfirm, setSaveConfirm] = useState(false);
 
   const slots = useMemo(() => [1, 2, 3, 4, 5, 6, 7, 8, 9], []);
   const [currentSlot, setCurrentSlot] = useState(1);
@@ -61,8 +62,14 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
   }, [refreshSaveNames, saveNamesToRender.length]);
 
   const savePressed = useCallback(async () => {
+    if (!saveConfirm) {
+      setSaveConfirm(true);
+      setStatusMessage(""); // Clear any previous status
+      return;
+    }
     if (key.includes("_")) {
       setStatusMessage("Save name should not include underscores.");
+      setSaveConfirm(false);
       return;
     }
     const saveNameToUse =
@@ -74,7 +81,20 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
     } catch (error: any) {
       setStatusMessage(error.message);
     }
-  }, [currentStretches, key, currentSlot, saveNamesToRender, refreshSaveNames]);
+    setSaveConfirm(false); // Reset after saving
+  }, [
+    currentStretches,
+    key,
+    currentSlot,
+    saveNamesToRender,
+    refreshSaveNames,
+    saveConfirm,
+  ]);
+
+  // Reset saveConfirm if slot changes or after a short timeout
+  useEffect(() => {
+    setSaveConfirm(false);
+  }, [key, currentSlot]);
 
   const loadPressed = useCallback(async () => {
     if (key.includes("_")) {
@@ -163,7 +183,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
       </ScrollView>
 
       <View style={styles.buttonContainer}>
-        <Button title="Save" onPress={savePressed} />
+        <Button title={saveConfirm ? "Save?" : "Save"} onPress={savePressed} />
         <Button title="Load" onPress={loadPressed} />
       </View>
     </View>
