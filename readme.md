@@ -20,6 +20,9 @@ APP_VARIANT=dev eas build --profile development --platform android|ios
 ## For a prod build (mac):
 APP_VARIANT=prod eas build --profile production --platform android|ios
 
+## Submitting to app store
+eas submit -p ios
+
 # Running Project
 > npm install
 
