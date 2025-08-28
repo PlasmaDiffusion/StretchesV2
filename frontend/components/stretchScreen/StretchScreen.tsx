@@ -45,7 +45,7 @@ function StretchScreen() {
 
   if (editingStretchIndex >= 0 && stretches.length > 0 && editIsOn) {
     return (
-      <>
+      <View style={styles.container}>
         <StretchEditForm
           stretch={stretches[editingStretchIndex]}
           index={editingStretchIndex}
@@ -55,7 +55,7 @@ function StretchScreen() {
             setEditingStretchIndex(-1);
           }}
         />
-      </>
+      </View>
     );
   }
 
