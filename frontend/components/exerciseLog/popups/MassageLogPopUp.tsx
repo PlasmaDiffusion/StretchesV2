@@ -13,11 +13,13 @@ import { loadSettings } from "../../../utilities/settingsStorage";
 
 interface MassageLogPopUpProps {
   showModalAlways?: boolean;
+  onClose?: () => void;
 }
 
 // Daily pop up for logging massages. Some people manage chronic pain by massaging sore areas or trigger points.
 function MassageLogPopUp({
   showModalAlways: showEvenIfAlreadyLoggedToday = false,
+  onClose,
 }: MassageLogPopUpProps) {
   const [modalVisible, setModalVisible] = useState(false);
   const [hours, setHours] = useState("");
@@ -93,7 +95,10 @@ function MassageLogPopUp({
   return (
     <GeneralModal
       visible={modalVisible}
-      onClose={() => setModalVisible(false)}
+      onClose={() => {
+        setModalVisible(false);
+        onClose && onClose();
+      }}
       onConfirm={handleConfirm}
       text={`Did you do any extra massages this morning or last night?\n\nIf so, you can log roughly how long you did in minutes and/or hours.`}
       confirmText="Yes, Log It"

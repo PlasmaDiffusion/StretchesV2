@@ -56,7 +56,12 @@ export default function Settings() {
         <Ionicons name="hand-left-outline" size={24} color="#AAAAFF" />
       </TouchableOpacity>
       {showMassagesPopUp && !showSettings && (
-        <MassageLogPopUp showModalAlways />
+        <MassageLogPopUp
+          showModalAlways
+          onClose={() => {
+            setShowMassagesPopUp(false);
+          }}
+        />
       )}
       {showSettings && !showMassagesPopUp && (
         <GeneralModal
@@ -80,7 +85,7 @@ export default function Settings() {
                 }));
               }}
               title={
-                "Daily prompt to record time spent massaging every morning"
+                "Daily prompt in the morning to record time spent massaging"
               }
               checkedColor={"#333"}
               uncheckedColor={"#333"}
