@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import {
   View,
   Button,
@@ -28,7 +28,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
   const [saveNamesToRender, setSaveNamesToRender] = useState<string[]>([]);
   const [statusMessage, setStatusMessage] = useState("");
 
-  const slots = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const slots = useMemo(() => [1, 2, 3, 4, 5, 6, 7, 8, 9], []);
   const [currentSlot, setCurrentSlot] = useState(1);
 
   const [showSaveNameInput, setShowSaveNameInput] = useState(false);
@@ -41,7 +41,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
       setSaveNamesToRender([...names]);
       setSaveName(names[0] || currentSlot.toString());
     }
-  }, [currentSlot, slots]);
+  }, [currentSlot, saveNamesToRender.length, slots]);
 
   //Hide status message after it's shown for a while
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
     if (saveNamesToRender.length === 0) {
       refreshSaveNames();
     }
-  }, [refreshSaveNames]);
+  }, [refreshSaveNames, saveNamesToRender.length]);
 
   const savePressed = useCallback(async () => {
     if (key.includes("_")) {
@@ -98,7 +98,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
           break;
       }
     }
-  }, [currentStretches, key, setStretches, saveNamesToRender, currentSlot]);
+  }, [key, setStretches, saveNamesToRender, currentSlot]);
 
   return (
     <View style={styles.roundedBorder}>
