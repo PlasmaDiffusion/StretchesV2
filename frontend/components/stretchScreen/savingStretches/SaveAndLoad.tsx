@@ -155,6 +155,8 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
           <TouchableOpacity
             onPress={() => {
               const now = Date.now();
+
+              //Double tap to rename
               if (
                 lastTapRef.current &&
                 now - lastTapRef.current < 300 &&
@@ -162,6 +164,7 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
               ) {
                 setShowSaveNameInput(true);
               } else {
+                //On tap, load from that slot
                 setShowSaveNameInput(false);
                 setKey(`save${slot}`);
                 setCurrentSlot(slot);
@@ -195,7 +198,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#888",
     borderRadius: 32,
-    borderStyle: "solid", // Use solid for a classic border, or "dotted" if you prefer
+    borderStyle: "solid",
     marginTop: 4,
     backgroundColor: "#fff",
   },

@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { Stretch } from "../../interfaces/stretchList";
 import { useEffect, useState } from "react";
+import React from "react";
 
 interface Props {
   stretch: Stretch;
@@ -44,6 +45,7 @@ export function CurrentStretchData({ stretch, time }: Props) {
                   await Linking.openURL(link);
                 }
               }}
+              key={link+index}
             >
               <Text style={styles.link}>
                 Reference {index > 0 && index + 1}
