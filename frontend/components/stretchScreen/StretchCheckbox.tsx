@@ -34,8 +34,7 @@ export function StretchCheckbox({ stretch, editing, setCheckbox }: Props) {
 const styles = StyleSheet.create({
   checkboxContainer: {
     borderWidth: 1,
-    borderStyle: "dashed",
-    minWidth: 170,
+    width: 180,
   },
   pencilIcon: {
     marginLeft: 8,
