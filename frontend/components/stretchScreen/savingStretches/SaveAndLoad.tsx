@@ -19,7 +19,7 @@ import {
 
 interface Props {
   currentStretches: Stretch[];
-  setStretches: (newStretches: Stretch[]) => any;
+  setStretches: (newStretches: Stretch[], presetName: string) => any;
 }
 
 export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
@@ -103,8 +103,13 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
     }
     try {
       const ret = await loadStretchesFromSlot(key);
-      setStretches(ret.stretches);
-      setStatusMessage(`Loaded ${saveNamesToRender[currentSlot - 1]}`); // (${key})
+      setStretches(
+        ret.stretches,
+        saveNamesToRender[currentSlot - 1] || "Slot " + currentSlot
+      );
+      setStatusMessage(
+        `Loaded ${saveNamesToRender[currentSlot - 1] || "Slot " + currentSlot}`
+      );
     } catch (error: any) {
       switch (error.name) {
         case "NotFoundError":
@@ -178,7 +183,11 @@ export default function SaveAndLoad({ currentStretches, setStretches }: Props) {
             ]}
             key={`saveOpacityKey${slot}`}
           >
-            <Text style={styles.slotButtonText}>
+            <Text
+              style={styles.slotButtonText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {saveNamesToRender[slot - 1] || `Slot ${slot}`}
             </Text>
           </TouchableOpacity>
@@ -234,6 +243,7 @@ const styles = StyleSheet.create({
   },
   slotButtonText: {
     fontSize: 14,
+    textAlign: "center",
   },
   selectSlot: {
     backgroundColor: "#ffeaea",

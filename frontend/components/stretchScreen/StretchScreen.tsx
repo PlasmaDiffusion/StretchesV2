@@ -28,6 +28,8 @@ function StretchScreen() {
   const [currentStretchIndex, setCurrentStretchIndex] = useState(-1);
   const [isStretching, setIsStretching] = useState(false);
   const [stretches, setStretches] = useState<Stretch[]>(stretchList);
+  const [loadedPresetName, setLoadedPresetName] = useState("");
+
   const [buttonEnablesAll, setButtonEnablesAll] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
 
@@ -67,15 +69,16 @@ function StretchScreen() {
             contentContainerStyle={styles.scrollViewContent}
             scrollEnabled={scrollEnabled}
           >
-            <HeadingText>Stretches List</HeadingText>
+            <HeadingText>{`${loadedPresetName} Stretches`}</HeadingText>
             <SaveAndLoad
               currentStretches={stretches}
-              setStretches={(loadedStretches) => {
+              setStretches={(loadedStretches, presetName) => {
                 setStretches([...loadedStretches]);
+                setLoadedPresetName(presetName);
               }}
             />
             <HeadingText size="small" verticalSpacing={16}>
-              {editIsOn ? "Edit Stretches" : "Stretch Select"}
+              {editIsOn ? "Edit Stretches" : 'Select Stretches'}
             </HeadingText>
 
             <View style={styles.editButton}>
