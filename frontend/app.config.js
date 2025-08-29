@@ -2,7 +2,7 @@ export default ({ config }) => ({
   ...config,
   name: process.env.APP_VARIANT === "dev" ? "Stretches V2 Dev" : "StretchesV2",
   slug: "stretches",
-  version: "1.3.1",
+  version: "1.3.2",
   orientation: "portrait",
   icon: "./assets/icon.png",
   userInterfaceStyle: "light",
@@ -18,7 +18,7 @@ export default ({ config }) => ({
       process.env.APP_VARIANT === "dev"
         ? "com.plasmadiffusion.stretchesdev"
         : "com.plasmadiffusion.stretches",
-    buildNumber: process.env.BUILD_NUMBER || "2",
+    buildNumber: process.env.BUILD_NUMBER || "1",
   },
   android: {
     adaptiveIcon: {

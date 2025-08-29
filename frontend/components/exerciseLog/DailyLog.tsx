@@ -4,6 +4,7 @@ import { useState } from "react";
 import { PrimaryButton } from "../commonComponents/CustomButton";
 import DailyHealthLog from "./painAndMentalHealthLogs/DailyHealthLog";
 import React from "react";
+import { TimeOutput } from "./TimeOutput";
 
 interface Props {
   exercises: ExerciseLog[];
@@ -62,9 +63,7 @@ function DailyLog({ dayKey, month, exercises, healthLog }: Props) {
             <Text style={{ color: log.color, ...styles.logText }}>
               {log.stretch}
             </Text>
-            <Text style={styles.logText}>
-              {log.secondsSpentDoingStretch} seconds
-            </Text>
+              <TimeOutput seconds={log.secondsSpentDoingStretch} />
           </View>
         ))}
     </View>
