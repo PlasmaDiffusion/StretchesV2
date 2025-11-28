@@ -13,7 +13,7 @@ export default ({ config }) => ({
   },
   assetBundlePatterns: ["**/*"],
   ios: {
-    supportsTablet: true,
+    supportsTablet: false,
     bundleIdentifier:
       process.env.APP_VARIANT === "dev"
         ? "com.plasmadiffusion.stretchesdev"
