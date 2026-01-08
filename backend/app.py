@@ -2,10 +2,15 @@ import os
 from flask import Flask, request
 from openai import OpenAI
 from dotenv import load_dotenv
+from flask_cors import CORS
+
 
 load_dotenv()
 
 app = Flask(__name__)
+
+# For React Native app - allow all origins during development
+CORS(app)
 
 client = OpenAI(
     # This is the default and can be omitted
