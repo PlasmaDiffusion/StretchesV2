@@ -36,4 +36,10 @@ eas submit -p ios
 # BACK END
 =========
 
-It is planned this project will have a backend that lets you save stretch and log data to the cloud rather than save locally.
+A backend that uses openAI for the user to ask any pain management and physiotherapy related questions, responding with recommendations (with the disclaimer that it's not a doctor or physiotherapist of course).
+
+# Run Virtual Environment
+. .venv/bin/activate
+
+# Run app
+python3 app.py 
