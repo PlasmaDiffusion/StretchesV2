@@ -43,13 +43,16 @@ def physiotherapy_advice():
     instructions_map = {
         'stretches': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Recommend stretches and exercises based on user input.",
         'mental': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Recommend ways to cope with the pain mentally.",
-        'physiotherapy': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Talk about what physiotherapists could do aside from assigning you stretches based on user input.", 
+        'misc_physiotherapy': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Talk about what physiotherapists could do aside from assigning you stretches based on user input.", 
 
     }
-    
+
+
+    extra_instructions = "At the end of your response, provide a JSON block enclosed in json tags containing: pain_intensity (1-10), primary_location, recommended_actions, and red_flag_status (boolean)."
+
     response = client.responses.create(
         model="gpt-5-nano",
-        instructions=instructions_map.get(adviceType, instructions_map['stretches']),
+        instructions=instructions_map.get(adviceType, 'stretches') + " " + extra_instructions,
         input=message,
     )
     
