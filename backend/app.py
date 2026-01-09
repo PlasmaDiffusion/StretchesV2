@@ -56,7 +56,10 @@ def physiotherapy_advice():
         input=message,
     )
     
-    return {"response": response.output_text}
+    responseWithDataSplit = response.output_text.split('<json>');
+    
+    
+    return {"message": responseWithDataSplit[0], 'extra_data': responseWithDataSplit[1] if len(responseWithDataSplit) > 1 else ""}
 
 
 if __name__ == '__main__':
