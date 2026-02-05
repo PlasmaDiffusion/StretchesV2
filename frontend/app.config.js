@@ -2,7 +2,7 @@ export default ({ config }) => ({
   ...config,
   name: process.env.APP_VARIANT === "dev" ? "Stretches V2 Dev" : "StretchesV2",
   slug: "stretches",
-  version: "1.3.0",
+  version: "1.3.1",
   orientation: "portrait",
   icon: "./assets/icon.png",
   userInterfaceStyle: "light",
