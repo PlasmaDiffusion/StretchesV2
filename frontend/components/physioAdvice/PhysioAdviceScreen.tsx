@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Text, TextInput } from "react-nativ
 import { Ionicons } from "@expo/vector-icons";
 import { useFetchPhysioAdvice } from "../../hooks/useFetchPhysioAdvice";
 import PhysioAdviceCategory from "./PhysioAdviceCategory";
+import { HeadingText } from "../commonComponents/HeadingText";
 
 type AdviceType = "stretches" | "mental" | "misc_physiotherapy";
 
@@ -25,8 +26,8 @@ export default function PhysioAdviceScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Physiotherapy Advice</Text>
-      
+      <HeadingText>Physiotherapy Advice</HeadingText>
+
       {error && <Text style={styles.error}>Error: {error}</Text>}
       
       <TextInput
