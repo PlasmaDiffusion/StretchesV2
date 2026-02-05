@@ -1,6 +1,11 @@
 import React from "react";
 import { Views } from "../../interfaces/views";
-import { View, StyleSheet, StatusBar, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  StatusBar,
+  ScrollView,
+} from "react-native";
 import NavButton from "./NavButton";
 import { useNavBarStore } from "../../stores/navBarStore";
 import Settings from "../settingsScreen/Settings";
@@ -18,7 +23,6 @@ const statusBarColours = [
 function NavBar({ currentView, setCurrentView }: Props) {
   const showNavBar = useNavBarStore((state) => state.showNavBar);
 
-
   return (
     <View style={styles.container}>
       <StatusBar
@@ -27,21 +31,30 @@ function NavBar({ currentView, setCurrentView }: Props) {
       />
       {showNavBar && (
         <>
-          <NavButton
-            text={"Stretch Screen"}
-            isCurrentView={currentView === Views.STRETCH_SCREEN}
-            onPress={() => {
-              setCurrentView(Views.STRETCH_SCREEN);
-            }}
-          />
-          <NavButton
-            text={"Exercise Log"}
-            isCurrentView={currentView === Views.EXERCISE_LOG}
-            onPress={() => {
-              setCurrentView(Views.EXERCISE_LOG);
-            }}
-          />
-        <Settings />
+        <ScrollView horizontal={true} showsHorizontalScrollIndicator={true} contentContainerStyle={styles.horizontalScroll}>
+            <NavButton
+              text={"Advice"}
+              isCurrentView={currentView === Views.ADVICE_SCREEN}
+              onPress={() => {
+                setCurrentView(Views.ADVICE_SCREEN);
+              }}
+            />
+            <NavButton
+              text={"Stretch Screen"}
+              isCurrentView={currentView === Views.STRETCH_SCREEN}
+              onPress={() => {
+                setCurrentView(Views.STRETCH_SCREEN);
+              }}
+            />
+            <NavButton
+              text={"Exercise Log"}
+              isCurrentView={currentView === Views.EXERCISE_LOG}
+              onPress={() => {
+                setCurrentView(Views.EXERCISE_LOG);
+              }}
+            />
+          </ScrollView>
+          <Settings />
         </>
       )}
     </View>
@@ -52,6 +65,10 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
     flexDirection: "row",
+  },
+  horizontalScroll: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   gearButton: {
     justifyContent: "center",

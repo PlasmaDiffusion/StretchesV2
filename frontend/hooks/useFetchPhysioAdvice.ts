@@ -10,7 +10,7 @@ export const useFetchPhysioAdvice = () => {
     
     try {
       const response = await fetch(
-        "https://api.example.com/physiotherapy_advice", // Fixed double slash
+        "https://api.example.com/physiotherapy_advice",
         {
           method: "POST",
           headers: {

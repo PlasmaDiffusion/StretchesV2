@@ -6,7 +6,7 @@ import PhysioAdviceCategory from "./PhysioAdviceCategory";
 
 type AdviceType = "stretches" | "mental" | "misc_physiotherapy";
 
-export default function PhysioAdvice() {
+export default function PhysioAdviceScreen() {
   const { fetchAdvice, loading, error } = useFetchPhysioAdvice();
   const [advice, setAdvice] = useState<string>("");
   const [message, setMessage] = useState<string>("");
