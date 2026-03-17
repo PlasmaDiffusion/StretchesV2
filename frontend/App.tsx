@@ -7,6 +7,7 @@ import NavBar from "./components/navBar/NavBar";
 import StretchScreen from "./components/stretchScreen/StretchScreen";
 import MassageLogPopUp from "./components/exerciseLog/popups/MassageLogPopUp";
 import PhysioAdviceScreen from "./components/physioAdvice/PhysioAdviceScreen";
+import ThreeCanvas from "./components/threeJS/ThreeCanvas";
 
 export default function App() {
   const [currentView, setCurrentView] = useState(Views.STRETCH_SCREEN);
@@ -19,12 +20,11 @@ export default function App() {
           {currentView === Views.EXERCISE_LOG && <ExerciseLogsScreen />}
           {currentView === Views.ADVICE_SCREEN && <PhysioAdviceScreen />}
         </ScrollView>
+        <ThreeCanvas style={styles.canvas} />
       </SafeAreaView>
     );
   }
-  
 
-  //Stretch screen is the default view that has a daily pop up to log any general massages you did for the day
   return (
     <SafeAreaView style={styles.container}>
       <NavBar currentView={currentView} setCurrentView={setCurrentView} />
@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     margin: 8,
     borderColor: "#aaa",
-
     borderWidth: 1,
     borderRadius: 8,
   },
@@ -51,8 +50,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fee",
     margin: 8,
     borderColor: "#aaa",
-
     borderWidth: 1,
     borderRadius: 8,
+  },
+  canvas: {
+    height: 200,
   },
 });
