@@ -3,7 +3,8 @@ from flask import Flask, request
 from openai import OpenAI
 from dotenv import load_dotenv
 from flask_cors import CORS
-
+from classes.PMCDataRetriever import PMCDataRetriever
+from pathlib import Path
 
 load_dotenv()
 
@@ -16,6 +17,17 @@ client = OpenAI(
     # This is the default and can be omitted
     api_key=os.environ.get("OPENAI_API_KEY"),
 )
+
+retriever = PMCDataRetriever(client, ncbi_api_key=os.environ.get("NCBI_API_KEY"))
+
+# On startup — saves $$ by caching embeddings
+INDEX_PATH = "pmc_index.json"
+if Path(INDEX_PATH).exists():
+    retriever.load_index(INDEX_PATH)
+else:
+    retriever.search_and_index("shoulder rehabilitation stretches", max_articles=20)
+    retriever.search_and_index("lower back pain physiotherapy exercises", max_articles=20)
+    retriever.save_index(INDEX_PATH)
 
 
 @app.route("/")
@@ -39,6 +51,7 @@ def physiotherapy_advice():
     data = request.get_json()  
     message = data.get('message', '')
     adviceType = data.get('advice_type', 'stretches')
+    use_rag = data.get('use_rag', True)
     
     instructions_map = {
         'stretches': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Recommend stretches and exercises based on user input.",
@@ -50,9 +63,12 @@ def physiotherapy_advice():
 
     extra_instructions = "At the end of your response, provide a JSON block enclosed in json tags containing: pain_intensity (1-10), primary_location, recommended_actions, and red_flag_status (boolean)."
 
+    rag_context = retriever.build_context(message) if use_rag else ""
+    full_instructions = instructions_map.get(adviceType) + (f"\n\n{rag_context}" if rag_context else "")
+
     response = client.responses.create(
         model="gpt-5-nano",
-        instructions=instructions_map.get(adviceType, 'stretches') + " " + extra_instructions,
+        instructions=full_instructions + " " + extra_instructions,
         input=message,
     )
     

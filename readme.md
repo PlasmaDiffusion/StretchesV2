@@ -38,6 +38,8 @@ eas submit -p ios
 
 A backend that uses openAI for the user to ask any pain management and physiotherapy related questions, responding with recommendations (with the disclaimer that it's not a doctor or physiotherapist of course).
 
+It uses RAG to fetch articles from PubMed Central — the free full-text archive of biomedical and life sciences literature maintained by the U.S. National Institutes of Health (NIH).
+
 # Run Virtual Environment
 . .venv/bin/activate
 
