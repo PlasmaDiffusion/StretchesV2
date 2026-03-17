@@ -4,6 +4,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from flask_cors import CORS
 from classes.PMCDataRetriever import PMCDataRetriever
+from classes.TopicIndexer import TopicIndexer
 from pathlib import Path
 
 load_dotenv()
@@ -24,15 +25,13 @@ retriever = PMCDataRetriever(client, ncbi_api_key=os.environ.get("NCBI_API_KEY")
 INDEX_PATH = "pmc_index.json"
 if Path(INDEX_PATH).exists():
     retriever.load_index(INDEX_PATH)
-else:
+else: # Initial indexing of example topics (only needs to be done once, then the index is saved and loaded on future runs)
     retriever.search_and_index("shoulder rehabilitation stretches", max_articles=20)
     retriever.search_and_index("lower back pain physiotherapy exercises", max_articles=20)
     retriever.save_index(INDEX_PATH)
 
+topic_indexer = TopicIndexer(retriever, INDEX_PATH)
 
-@app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
 
 # Test route to verify AI model and key works
 @app.route("/ai-test")
@@ -63,6 +62,8 @@ def physiotherapy_advice():
 
     extra_instructions = "At the end of your response, provide a JSON block enclosed in json tags containing: pain_intensity (1-10), primary_location, recommended_actions, and red_flag_status (boolean)."
 
+    if use_rag:
+        topic_indexer.ensure_indexed(message)
     rag_context = retriever.build_context(message) if use_rag else ""
     full_instructions = instructions_map.get(adviceType) + (f"\n\n{rag_context}" if rag_context else "")
 
