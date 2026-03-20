@@ -347,16 +347,27 @@ class PMCDataRetriever:
 
         for node in article_nodes:
 
-            # --- PMCID ---
+            # --- PMCID (PubMed Central ID — the unique article identifier assigned by PMC) ---
             pmcid = ""
+            # PubmedArticleSet format: <ArticleId IdType="pmc">...</ArticleId>
             for id_node in node.findall(".//ArticleId"):
                 if id_node.get("IdType") == "pmc":
                     pmcid = f"PMC{id_node.text}"
                     break
             if not pmcid:
+                # pmc-articleset format: <article-id pub-id-type="pmcid">PMC123</article-id>
+                for id_node in node.findall(".//*[@pub-id-type='pmcid']"):
+                    text = (id_node.text or "").strip()
+                    if text:
+                        pmcid = text if text.startswith("PMC") else f"PMC{text}"
+                        break
+            if not pmcid:
+                # fallback: pub-id-type="pmc"
                 for id_node in node.findall(".//*[@pub-id-type='pmc']"):
-                    pmcid = f"PMC{id_node.text}"
-                    break
+                    text = (id_node.text or "").strip()
+                    if text:
+                        pmcid = text if text.startswith("PMC") else f"PMC{text}"
+                        break
 
             # --- Title ---
             title_node = node.find(".//ArticleTitle") or node.find(".//article-title")

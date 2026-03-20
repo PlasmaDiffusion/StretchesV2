@@ -15,7 +15,6 @@ app = Flask(__name__)
 CORS(app)
 
 client = OpenAI(
-    # This is the default and can be omitted
     api_key=os.environ.get("OPENAI_API_KEY"),
 )
 

@@ -6,6 +6,7 @@ This way we can keep the index focused and efficient, only adding articles when 
 The mapping of keywords to search queries is defined in TOPIC_QUERIES, which can be easily extended with more topics as needed.
 """
 
+from typing import Optional
 from classes.PMCDataRetriever import PMCDataRetriever
 
 
@@ -34,7 +35,7 @@ class TopicIndexer:
         self,
         retriever: PMCDataRetriever,
         index_path: str,
-        seeded_topics: set[str] | None = None,
+        seeded_topics: Optional[set[str]] = None,
     ):
         """
         Args:
