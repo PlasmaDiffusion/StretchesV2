@@ -1,5 +1,12 @@
 import React, { useState, useCallback } from "react";
-import { View, StyleSheet, TouchableOpacity, Text, TextInput } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  TextInput,
+  Switch,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFetchPhysioAdvice } from "../../hooks/useFetchPhysioAdvice";
 import PhysioAdviceCategory from "./PhysioAdviceCategory";
@@ -12,24 +19,25 @@ export default function PhysioAdviceScreen() {
   const [advice, setAdvice] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [adviceType, setAdviceType] = useState<AdviceType>("stretches");
+  const [useRag, setUseRag] = useState(true);
 
   const handleGetAdvice = useCallback(async () => {
     if (!message.trim()) return;
-    
+
     try {
-      const advice = await fetchAdvice(message, adviceType);
+      const advice = await fetchAdvice(message, adviceType, useRag);
       setAdvice(advice);
     } catch (err) {
       console.error("Failed:", err);
     }
-  }, [fetchAdvice, message, adviceType]);
+  }, [fetchAdvice, message, adviceType, useRag]);
 
   return (
     <View style={styles.container}>
       <HeadingText>Physiotherapy Advice</HeadingText>
 
       {error && <Text style={styles.error}>Error: {error}</Text>}
-      
+
       <TextInput
         style={styles.input}
         placeholder="Describe your pain or concern..."
@@ -39,14 +47,24 @@ export default function PhysioAdviceScreen() {
         numberOfLines={3}
       />
 
-      <PhysioAdviceCategory 
+      <PhysioAdviceCategory
         adviceType={adviceType}
         onAdviceTypeChange={setAdviceType}
       />
 
-      <TouchableOpacity 
-        style={[styles.submitButton, (!message.trim() || loading) && styles.disabledButton]}
-        onPress={handleGetAdvice} 
+      <View style={styles.ragToggleRow}>
+        <Switch value={useRag} onValueChange={setUseRag} />
+        <Text style={styles.ragToggleLabel}>
+          Use physiotherapy research articles
+        </Text>
+      </View>
+
+      <TouchableOpacity
+        style={[
+          styles.submitButton,
+          (!message.trim() || loading) && styles.disabledButton,
+        ]}
+        onPress={handleGetAdvice}
         disabled={!message.trim() || loading}
       >
         <Text style={styles.submitButtonText}>
@@ -105,5 +123,15 @@ const styles = StyleSheet.create({
   },
   adviceText: {
     lineHeight: 20,
+  },
+  ragToggleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    gap: 10,
+  },
+  ragToggleLabel: {
+    color: "#333",
+    fontSize: 14,
   },
 });

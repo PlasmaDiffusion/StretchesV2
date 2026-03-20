@@ -37,6 +37,7 @@ export default ({ config }) => ({
     eas: {
       projectId: "5963bd8b-f61b-4bd8-98e3-2b51802d5c48",
     },
+    physioAdviceUrl: process.env.PHYSIO_ADVICE_API_URL ?? "http://localhost:8000",
   },
   owner: "plasmadiffusion",
   runtimeVersion: {

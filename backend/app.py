@@ -79,5 +79,6 @@ def physiotherapy_advice():
     return {"message": responseWithDataSplit[0], 'extra_data': responseWithDataSplit[1] if len(responseWithDataSplit) > 1 else ""}
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    # Bind to 0.0.0.0 so physical devices on the LAN can reach this server.
+    app.run(host="0.0.0.0", port=8000, debug=True)

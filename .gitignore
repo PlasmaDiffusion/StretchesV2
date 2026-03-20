@@ -35,5 +35,6 @@ yarn-error.*
 *.tsbuildinfo
 /backend/.venv
 backend/.env
+frontend/.env
 /backend/venv
 backend/pmc_index.json
