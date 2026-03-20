@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 from classes.PMCDataRetriever import PMCDataRetriever
 from classes.TopicIndexer import TopicIndexer
+from classes.RAGPipeline import RAGPipeline
 from pathlib import Path
 
 load_dotenv()
@@ -30,6 +31,7 @@ else: # Initial indexing of example topics (only needs to be done once, then the
     retriever.save_index(INDEX_PATH)
 
 topic_indexer = TopicIndexer(retriever, INDEX_PATH)
+rag_pipeline = RAGPipeline(retriever, topic_indexer)
 
 
 # Test route to verify AI model and key works
@@ -54,16 +56,15 @@ def physiotherapy_advice():
     instructions_map = {
         'stretches': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Recommend stretches and exercises based on user input.",
         'mental': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Recommend ways to cope with the pain mentally.",
-        'misc_physiotherapy': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Talk about what physiotherapists could do aside from assigning you stretches based on user input.", 
-
+        'misc_physiotherapy': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Talk about what physiotherapists could do aside from assigning you stretches based on user input.",
     }
 
-
+    # Extra instructions to record data that could be useful for physiotherapists to have in the response for better understanding of the patient's condition and to make more informed decisions. The JSON block will be separated from the main response by a <json> tag, which can be easily parsed on the frontend.
     extra_instructions = "At the end of your response, provide a JSON block enclosed in json tags containing: pain_intensity (1-10), primary_location, recommended_actions, and red_flag_status (boolean)."
 
-    if use_rag:
-        topic_indexer.ensure_indexed(message)
-    rag_context = retriever.build_context(message) if use_rag else ""
+    #Fetch RAG context of physiotherapy related articles and inject into instructions if enabled. Also ensure the message is indexed for future retrieval.
+    rag_context = rag_pipeline.fetch_context(message) if use_rag else ""
+    
     full_instructions = instructions_map.get(adviceType) + (f"\n\n{rag_context}" if rag_context else "")
 
     response = client.responses.create(
