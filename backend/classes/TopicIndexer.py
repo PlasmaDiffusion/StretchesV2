@@ -73,10 +73,12 @@ class TopicIndexer:
 
         for topic, query in TOPIC_QUERIES.items():
             if topic not in self._indexed and topic in msg_lower:
+                print(f"[TopicIndexer] New topic detected: '{topic}' — fetching PMC articles for: '{query}'")
                 added += self._retriever.search_and_index(query, max_articles=20)
                 self._indexed.add(topic)
 
         if added:
+            print(f"[TopicIndexer] Indexed {added} new chunks — saving index to '{self._index_path}'")
             self._retriever.save_index(self._index_path)
 
         return added
