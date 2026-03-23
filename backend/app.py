@@ -60,7 +60,11 @@ def physiotherapy_advice():
     }
 
     # Extra instructions to record data that could be useful for physiotherapists to have in the response for better understanding of the patient's condition and to make more informed decisions. The JSON block will be separated from the main response by a <json> tag, which can be easily parsed on the frontend.
-    extra_instructions = "At the end of your response, provide a JSON block enclosed in json tags containing: pain_intensity (1-10), primary_location, recommended_actions, and red_flag_status (boolean)."
+    extra_instructions = (
+        "At the end of your response, you MUST append a JSON block using exactly this format — "
+        "no markdown, no code fences, just the raw tags: "
+        "<json>{ \"pain_intensity\": ..., \"primary_location\": ..., \"recommended_actions\": [...], \"red_flag_status\": ... }</json>"
+    )
 
     #Fetch RAG context of physiotherapy related articles and inject into instructions if enabled. Also ensure the message is indexed for future retrieval.
     rag_context = rag_pipeline.fetch_context(message) if use_rag else ""
@@ -73,10 +77,12 @@ def physiotherapy_advice():
         input=message,
     )
     
-    responseWithDataSplit = response.output_text.split('<json>');
+    responseWithDataSplit = response.output_text.split('<json>')
     
-    
-    return {"message": responseWithDataSplit[0], 'extra_data': responseWithDataSplit[1] if len(responseWithDataSplit) > 1 else ""}
+    return {
+        "message": responseWithDataSplit[0].strip(), 
+        'extra_data': responseWithDataSplit[1].replace('</json>', '').strip() if len(responseWithDataSplit) > 1 else ""
+    }
 
 
 if __name__ == "__main__":

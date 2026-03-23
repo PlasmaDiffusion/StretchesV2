@@ -14,23 +14,32 @@ import { HeadingText } from "../commonComponents/HeadingText";
 
 type AdviceType = "stretches" | "mental" | "misc_physiotherapy";
 
+interface PhysioAdviceResponse {
+  message: string;
+  extra_data: string;
+}
+
 export default function PhysioAdviceScreen() {
   const { fetchAdvice, loading, error } = useFetchPhysioAdvice();
-  const [advice, setAdvice] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
+  const [advice, setAdvice] = useState<PhysioAdviceResponse | null>(null);
+  const [inputMessage, setInputMessage] = useState<string>("");
   const [adviceType, setAdviceType] = useState<AdviceType>("stretches");
   const [useRag, setUseRag] = useState(true);
 
   const handleGetAdvice = useCallback(async () => {
-    if (!message.trim()) return;
+    if (!inputMessage.trim()) return;
 
     try {
-      const advice = await fetchAdvice(message, adviceType, useRag);
+      const advice: PhysioAdviceResponse = await fetchAdvice(
+        inputMessage,
+        adviceType,
+        useRag
+      );
       setAdvice(advice);
     } catch (err) {
       console.error("Failed:", err);
     }
-  }, [fetchAdvice, message, adviceType, useRag]);
+  }, [fetchAdvice, inputMessage, adviceType, useRag]);
 
   return (
     <View style={styles.container}>
@@ -41,12 +50,13 @@ export default function PhysioAdviceScreen() {
       <TextInput
         style={styles.input}
         placeholder="Describe your pain or concern..."
-        value={message}
-        onChangeText={setMessage}
+        value={inputMessage}
+        onChangeText={setInputMessage}
         multiline
         numberOfLines={3}
       />
 
+      <Text>Select what type of advice you'd like:</Text>
       <PhysioAdviceCategory
         adviceType={adviceType}
         onAdviceTypeChange={setAdviceType}
@@ -62,10 +72,10 @@ export default function PhysioAdviceScreen() {
       <TouchableOpacity
         style={[
           styles.submitButton,
-          (!message.trim() || loading) && styles.disabledButton,
+          (!inputMessage.trim() || loading) && styles.disabledButton,
         ]}
         onPress={handleGetAdvice}
-        disabled={!message.trim() || loading}
+        disabled={!inputMessage.trim() || loading}
       >
         <Text style={styles.submitButtonText}>
           {loading ? "Loading..." : "Get Advice"}
@@ -73,9 +83,15 @@ export default function PhysioAdviceScreen() {
       </TouchableOpacity>
 
       {advice && (
-        <View style={styles.adviceContainer}>
-          <Text style={styles.adviceText}>{advice}</Text>
-        </View>
+        <>
+          <View style={styles.adviceContainer}>
+            <Text style={styles.adviceText}>{advice.message}</Text>
+          </View>
+
+          <View style={[styles.extraDataContainer, styles.adviceContainer]}>
+            <Text style={styles.adviceText}>{advice.extra_data}</Text>
+          </View>
+        </>
       )}
     </View>
   );
@@ -120,6 +136,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
     padding: 12,
     borderRadius: 8,
+  },
+  extraDataContainer: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderWidth: 1,
+    borderColor: "#aaa",
   },
   adviceText: {
     lineHeight: 20,
