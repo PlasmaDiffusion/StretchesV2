@@ -1,8 +1,6 @@
-import { useState, useCallback } from "react";
-import Constants from "expo-constants";
+import { useState, useCallback } from "react"
 
-const PHYSIO_ADVICE_API_URL =
-  Constants.expoConfig?.extra?.physioAdviceUrl ?? "http://localhost:8000";
+const PHYSIO_ADVICE_API_URL = process.env.EXPO_PUBLIC_PHYSIO_ADVICE_API_URL ?? "http://localhost:8000";
 
 export const useFetchPhysioAdvice = () => {
   const [loading, setLoading] = useState(false);

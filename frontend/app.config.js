@@ -40,9 +40,7 @@ export default ({ config }) => ({
     physioAdviceUrl: process.env.PHYSIO_ADVICE_API_URL ?? "http://localhost:8000",
   },
   owner: "plasmadiffusion",
-  runtimeVersion: {
-    policy: "appVersion",
-  },
+  runtimeVersion: "1.3.2",
   updates: {
     url: "https://u.expo.dev/5963bd8b-f61b-4bd8-98e3-2b51802d5c48",
   },
