@@ -1,85 +1,86 @@
 """
-TopicIndexer — expands the PMCDataRetriever index when new body part
-topics are detected in a user message. Anything in here like "knee" or "neck" that isn't already indexed will trigger a search
-for relevant PMC articles, which are then embedded and added to the index on demand.
-This way we can keep the index focused and efficient, only adding articles when the user shows interest in a specific topic.
-The mapping of keywords to search queries is defined in TOPIC_QUERIES, which can be easily extended with more topics as needed.
+TopicIndexer — dynamically expands the PMCDataRetriever index when new
+physiotherapy topics are detected in a user message.
+
+Rather than a hardcoded keyword→query map, a lightweight LLM call extracts
+canonical topic names (e.g. "rotator cuff", "plantar fasciitis") from the
+free-form user message, then constructs a PMC search query for each new topic.
+Already-indexed topics are cached and persisted to avoid redundant API calls.
 """
 
+import json
+from pathlib import Path
 from typing import Optional
+
 from classes.PMCDataRetriever import PMCDataRetriever
 
 
-# Maps a keyword (checked against the user message) to a PMC search query
-TOPIC_QUERIES: dict[str, str] = {
-    "neck":      "neck pain cervical rehabilitation",
-    "knee":      "knee pain physiotherapy exercises",
-    "hip":       "hip mobility rehabilitation stretches",
-    "ankle":     "ankle sprain recovery exercises",
-    "wrist":     "wrist pain rehabilitation exercises",
-    "elbow":     "elbow tendonitis physiotherapy",
-    "sciatica":  "sciatica nerve pain treatment",
-    "posture":   "posture correction exercises",
-    "hamstring": "hamstring strain rehabilitation",
-    "calf":      "calf muscle strain physiotherapy",
-}
+_EXTRACT_SYSTEM_PROMPT = (
+    "You are a physiotherapy triage assistant. "
+    "Extract all distinct body parts or musculoskeletal conditions mentioned in the user's message. "
+    "Return them as a JSON array of short lowercase strings, e.g. [\"rotator cuff\", \"knee\"]. "
+    "If nothing relevant is found, return []. "
+    "Return ONLY the JSON array, no other text."
+)
 
 
 class TopicIndexer:
     """
-    Detects unindexed topics in a user message and fetches + embeds
-    the relevant PMC articles on demand, then persists the updated index.
+    Detects unindexed physiotherapy topics in a user message via LLM extraction,
+    then fetches, embeds, and persists PMC articles for each new topic.
     """
 
     def __init__(
         self,
         retriever: PMCDataRetriever,
+        openai_client,
         index_path: str,
+        model: str = "gpt-4o-mini",
         seeded_topics: Optional[set[str]] = None,
     ):
         """
         Args:
             retriever:      The shared PMCDataRetriever instance.
+            openai_client:  The shared OpenAI client (used for topic extraction).
             index_path:     Path to the JSON index file (for persistence).
-            seeded_topics:  Topics already present in the index at startup.
+            model:          Model used for topic extraction — should be cheap and fast.
+            seeded_topics:  Topics to treat as already indexed (e.g. for testing).
         """
-        self._retriever  = retriever
-        self._index_path = index_path
-        # Start from any explicitly seeded topics, then scan existing chunks
-        # so topics loaded from a saved index are not re-fetched
+        self._retriever   = retriever
+        self._client      = openai_client
+        self._index_path  = index_path
+        self._model       = model
+        # Derived path for persisting the indexed topic set
+        self._topics_path = str(Path(index_path).with_suffix("")) + ".topics.json"
         self._indexed: set[str] = seeded_topics or set()
-        self._indexed |= self._detect_indexed_topics()
+        self._indexed |= self._load_indexed_topics()
 
-    def _detect_indexed_topics(self) -> set[str]:
-        """
-        Scan the existing chunk texts to infer which topics are already indexed.
-        Avoids re-fetching articles that were loaded from a saved index file.
-        """
-        if not self._retriever.chunk_count:
-            return set()
-
-        all_text = " ".join(c.text.lower() for c in self._retriever._chunks)
-        return {topic for topic in TOPIC_QUERIES if topic in all_text}
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
     def ensure_indexed(self, message: str) -> int:
         """
-        Check the message for any topic keywords not yet in the index.
-        Fetches, embeds, and persists articles for any new topics found.
+        Extract physiotherapy topics from the message and index any that are new.
+        Fetches, embeds, and persists PMC articles for each new topic.
 
         Returns the total number of new chunks added.
         """
-        msg_lower = message.lower()
+        topics = self._extract_topics(message)
         added = 0
 
-        for topic, query in TOPIC_QUERIES.items():
-            if topic not in self._indexed and topic in msg_lower:
-                print(f"[TopicIndexer] New topic detected: '{topic}' — fetching PMC articles for: '{query}'")
-                added += self._retriever.search_and_index(query, max_articles=20)
-                self._indexed.add(topic)
+        for topic in topics:
+            if topic in self._indexed:
+                continue
+            query = f"{topic} rehabilitation physiotherapy exercises"
+            print(f"[TopicIndexer] New topic detected: '{topic}' — fetching PMC articles for: '{query}'")
+            added += self._retriever.search_and_index(query, max_articles=20)
+            self._indexed.add(topic)
 
         if added:
             print(f"[TopicIndexer] Indexed {added} new chunks — saving index to '{self._index_path}'")
             self._retriever.save_index(self._index_path)
+            self._save_indexed_topics()
 
         return added
 
@@ -87,3 +88,45 @@ class TopicIndexer:
     def indexed_topics(self) -> set[str]:
         """Read-only view of all topics currently in the index."""
         return frozenset(self._indexed)
+
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
+
+    def _extract_topics(self, message: str) -> list[str]:
+        """
+        Use a lightweight LLM call to extract canonical physiotherapy topic names
+        from the user message. Returns a list of lowercase strings.
+        """
+        response = self._client.chat.completions.create(
+            model=self._model,
+            messages=[
+                {"role": "system", "content": _EXTRACT_SYSTEM_PROMPT},
+                {"role": "user",   "content": message},
+            ],
+            temperature=0,
+            max_tokens=100,
+        )
+        raw = response.choices[0].message.content.strip()
+        try:
+            topics = json.loads(raw)
+            return [t.lower().strip() for t in topics if isinstance(t, str) and t.strip()]
+        except (json.JSONDecodeError, ValueError):
+            print(f"[TopicIndexer] Failed to parse topic extraction response: {raw!r}")
+            return []
+
+    def _load_indexed_topics(self) -> set[str]:
+        """Load the persisted set of already-indexed topic names from disk."""
+        path = Path(self._topics_path)
+        if not path.exists():
+            return set()
+        try:
+            return set(json.loads(path.read_text(encoding="utf-8")))
+        except (json.JSONDecodeError, ValueError):
+            return set()
+
+    def _save_indexed_topics(self) -> None:
+        """Persist the current indexed topic set to disk."""
+        Path(self._topics_path).write_text(
+            json.dumps(sorted(self._indexed), indent=2), encoding="utf-8"
+        )

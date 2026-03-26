@@ -38,10 +38,16 @@ eas submit -p ios
 
 A backend that uses openAI for the user to ask any pain management and physiotherapy related questions, responding with recommendations (with the disclaimer that it's not a doctor or physiotherapist of course).
 
-It uses RAG to fetch articles from PubMed Central — the free full-text archive of biomedical and life sciences literature maintained by the U.S. National Institutes of Health (NIH).
+It uses RAG to fetch articles from PubMed Central (PMC) — the free full-text archive of biomedical and life sciences literature maintained by the U.S. National Institutes of Health (NIH).
+
 
 # Run Virtual Environment
 . .venv/bin/activate
 
 # Run app
 python3 app.py 
+
+
+# Indexing Topics
+
+Topic indexing is dynamic: when a user message mentions a physiotherapy topic (e.g. "rotator cuff", "plantar fasciitis"), a lightweight LLM call extracts the canonical topic name and fetches relevant PMC articles on demand. Indexed topics are cached in `pmc_index.topics.json` so articles are never re-fetched between restarts. The article embeddings themselves are cached in `pmc_index.json`.

@@ -41,3 +41,4 @@ backend/.env
 frontend/.env
 /backend/venv
 backend/pmc_index.json
+backend/pmc_index.topics.json

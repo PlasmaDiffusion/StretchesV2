@@ -30,7 +30,7 @@ else: # Initial indexing of example topics (only needs to be done once, then the
     retriever.search_and_index("lower back pain physiotherapy exercises", max_articles=20)
     retriever.save_index(INDEX_PATH)
 
-topic_indexer = TopicIndexer(retriever, INDEX_PATH)
+topic_indexer = TopicIndexer(retriever, client, INDEX_PATH)
 rag_pipeline = RAGPipeline(retriever, topic_indexer)
 
 
