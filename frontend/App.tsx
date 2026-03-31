@@ -1,58 +1,59 @@
 import React from "react";
-import { StyleSheet, ScrollView, SafeAreaView, Text } from "react-native";
-import { useState } from "react";
+import { ScrollView, View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import ExerciseLogsScreen from "./components/exerciseLog/ExerciseLogsScreen";
-import { Views } from "./interfaces/views";
-import NavBar from "./components/navBar/NavBar";
 import StretchScreen from "./components/stretchScreen/StretchScreen";
 import MassageLogPopUp from "./components/exerciseLog/popups/MassageLogPopUp";
 import PhysioAdviceScreen from "./components/physioAdvice/PhysioAdviceScreen";
+import Settings from "./components/settingsScreen/Settings";
+import { useNavBarStore } from "./stores/navBarStore";
 
-export default function App() {
-  const [currentView, setCurrentView] = useState(Views.STRETCH_SCREEN);
+const Tab = createBottomTabNavigator();
 
-  if (currentView !== Views.STRETCH_SCREEN) {
-    return (
-      <SafeAreaView style={styles.scrollViewContainer}>
-        <NavBar currentView={currentView} setCurrentView={setCurrentView} />
-        <ScrollView>
-          {currentView === Views.EXERCISE_LOG && <ExerciseLogsScreen />}
-          {currentView === Views.ADVICE_SCREEN && <PhysioAdviceScreen />}
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
-  
-
-  //Stretch screen is the default view that has a daily pop up to log any general massages you did for the day
+function StretchTab() {
   return (
-    <SafeAreaView style={styles.container}>
-      <NavBar currentView={currentView} setCurrentView={setCurrentView} />
+    <View style={{ flex: 1 }}>
       <StretchScreen />
       <MassageLogPopUp />
-    </SafeAreaView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: 8,
-    borderColor: "#aaa",
+function ExerciseLogTab() {
+  return (
+    <ScrollView>
+      <ExerciseLogsScreen />
+    </ScrollView>
+  );
+}
 
-    borderWidth: 1,
-    borderRadius: 8,
-  },
-  scrollViewContainer: {
-    flex: 1,
-    backgroundColor: "#fee",
-    margin: 8,
-    borderColor: "#aaa",
+function AdviceTab() {
+  return (
+    <ScrollView>
+      <PhysioAdviceScreen />
+    </ScrollView>
+  );
+}
 
-    borderWidth: 1,
-    borderRadius: 8,
-  },
-});
+export default function App() {
+  const showNavBar = useNavBarStore((state) => state.showNavBar);
+
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={{
+            tabBarStyle: showNavBar ? undefined : { display: "none" },
+            headerRight: () => <Settings />,
+          }}
+        >
+          <Tab.Screen name="Stretch" component={StretchTab} />
+          <Tab.Screen name="Exercise Log" component={ExerciseLogTab} />
+          <Tab.Screen name="Advice" component={AdviceTab} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
+  );
+}
