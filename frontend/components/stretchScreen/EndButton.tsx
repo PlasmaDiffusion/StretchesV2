@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, StyleSheet, View } from "react-native";
 import { GeneralModal } from "../commonComponents/GeneralModal";
+import React from "react";
 
 interface Props {
   onPress: () => any;
@@ -33,8 +34,8 @@ export function EndButton({ onPress }: Props) {
 
 const styles = StyleSheet.create({
   buttonContainer: {
-    width: 32,
-    height: 32,
+    width: 48,
+    height: 48,
     display: "flex",
     alignSelf: "flex-end",
     top: -120,

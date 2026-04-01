@@ -153,7 +153,7 @@ function StretchScreen() {
           </ScrollView>
         </>
       ) : (
-        <View>
+        <View style={styles.stretchingContainer}>
           <EndButton onPress={endStretchSession} />
           <CurrentStretchData
             stretch={stretches[currentStretchIndex]}
@@ -239,6 +239,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 24,
     marginTop: 24,
+  },
+  stretchingContainer: {
+    flex: 1,
+    justifyContent: "center",
   },
   editButton: {
     display: "flex",

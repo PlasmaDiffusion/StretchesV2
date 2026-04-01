@@ -46,7 +46,7 @@ export function StartButtonAndTimer({
   }
 
   return (
-    <View style={styles.buttonContainer}>
+    <View style={[styles.buttonContainer, { marginBottom: started ? 48 : 0 }]}>
       <Button
         onPress={() => {
           setShowNavBar(false);
@@ -63,6 +63,7 @@ export function StartButtonAndTimer({
 
 const styles = StyleSheet.create({
   buttonContainer: {
-    width: 200,
+    width: 100,
+    alignSelf: "center",
   },
 });
