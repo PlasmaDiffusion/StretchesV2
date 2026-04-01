@@ -53,7 +53,7 @@ export default function Settings() {
         }}
         accessibilityLabel="Settings"
       >
-        <Ionicons name="hand-left-outline" size={24} color="#AAAAFF" />
+        <Ionicons name="barbell-outline" size={24} color="#AAAAFF" />
       </TouchableOpacity>
       {showMassagesPopUp && !showSettings && (
         <MassageLogPopUp
@@ -85,7 +85,7 @@ export default function Settings() {
                 }));
               }}
               title={
-                "Daily prompt in the morning to record time spent massaging"
+                "Daily prompt in the morning to record time spent doing other general exercises"
               }
               checkedColor={"#333"}
               uncheckedColor={"#333"}
@@ -110,7 +110,8 @@ const styles = StyleSheet.create({
   settingsButton: {
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 8,
+    marginHorizontal: 4,
+    marginRight: 24,
   },
   massageButton: {
     color: "#AAAAFF",

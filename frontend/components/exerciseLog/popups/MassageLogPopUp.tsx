@@ -61,10 +61,10 @@ function MassageLogPopUp({
     checkLogs();
   }, [showEvenIfAlreadyLoggedToday]);
 
-  const recordMassages = useCallback((minutes: number, hours: number) => {
+  const recordExtraExercises = useCallback((minutes: number, hours: number) => {
     const stretches: Stretch[] = [
       {
-        name: "Extra Massages",
+        name: "Extra Exercises",
         color: "#5555FF",
         totalStretchTime: hours * 60 * 60 + minutes * 60,
       },
@@ -88,7 +88,7 @@ function MassageLogPopUp({
 
     if (!valid) return;
 
-    recordMassages(minuteNum, hourNum);
+    recordExtraExercises(minuteNum, hourNum);
     setModalVisible(false);
   };
 
@@ -100,7 +100,7 @@ function MassageLogPopUp({
         onClose && onClose();
       }}
       onConfirm={handleConfirm}
-      text={`Did you do any extra massages this morning or last night?\n\nIf so, you can log roughly how long you did in minutes and/or hours.`}
+      text={`Did you do any additional general exercises recently?\n\nIf so, you can log roughly how long you did in minutes and/or hours.`}
       confirmText="Yes, Log It"
       cancelText="No"
     >
