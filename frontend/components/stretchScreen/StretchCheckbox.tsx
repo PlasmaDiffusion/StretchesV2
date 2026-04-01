@@ -35,6 +35,8 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     borderWidth: 1,
     width: 180,
+    backgroundColor: "#F2F2F7",
+    borderColor: "#F2F2F7",
   },
   pencilIcon: {
     marginLeft: 8,
