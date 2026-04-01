@@ -99,7 +99,7 @@ function IntensityPicker({
 }
 
 const styles = StyleSheet.create({
-  rowOfButtons: { display: "flex", flexDirection: "row" },
+  rowOfButtons: { display: "flex", flexDirection: "row", justifyContent: "center" },
 });
 
 export default IntensityPicker;

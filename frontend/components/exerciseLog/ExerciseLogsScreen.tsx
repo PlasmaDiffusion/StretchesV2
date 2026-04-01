@@ -106,7 +106,7 @@ function ExerciseLogsScreen() {
   }, []);
 
   return (
-    <>
+    <View style={styles.container}>
       <HeadingText>Daily Log</HeadingText>
       <Dropdown
         onChange={(item) => {
@@ -149,7 +149,7 @@ function ExerciseLogsScreen() {
             />
           </View>
         ))}
-    </>
+    </View>
   );
 }
 
@@ -158,6 +158,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     marginVertical: 8,
+  },
+  container: {
+    marginHorizontal: 24,
   },
 });
 

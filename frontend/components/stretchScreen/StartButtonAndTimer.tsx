@@ -39,20 +39,22 @@ export function StartButtonAndTimer({
         clearInterval(interval);
       };
     }
-  }, [started, currentStretch, currentTime, paused]);
+  }, [started, currentStretch, currentTime, paused, goToNextStretch, incrementTime]);
 
   function getButtonPauseText() {
     return paused ? "Unpause" : "Pause";
   }
 
   return (
-    <View style={[styles.buttonContainer, { marginBottom: started ? 48 : 0 }]}>
+    <View style={[styles.buttonContainer, { marginBottom: started ? 128 : 0 }]}>
       <Button
         onPress={() => {
           setShowNavBar(false);
-          setPaused(!paused);
           if (!currentStretch || currentTime === 0) {
+            setPaused(false);
             goToNextStretch();
+          } else {
+            setPaused(!paused);
           }
         }}
         title={currentStretch ? getButtonPauseText() : "Start"}

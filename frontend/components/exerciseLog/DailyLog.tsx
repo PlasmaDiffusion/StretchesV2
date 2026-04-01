@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   outerContainer: {
     backgroundColor: "#11ddff",
     borderRadius: 4,
-    padding: 5,
+    padding: 10,
     marginVertical: 5,
   },
   bold: { fontWeight: "bold" },
