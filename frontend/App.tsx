@@ -8,6 +8,7 @@ import StretchScreen from "./components/stretchScreen/StretchScreen";
 import MassageLogPopUp from "./components/exerciseLog/popups/MassageLogPopUp";
 import PhysioAdviceScreen from "./components/physioAdvice/PhysioAdviceScreen";
 import Settings from "./components/settingsScreen/Settings";
+import ModelViewerScreen from "./components/modelViewer/ModelViewerScreen";
 import { useNavBarStore } from "./stores/navBarStore";
 
 const Tab = createBottomTabNavigator();
@@ -52,6 +53,7 @@ export default function App() {
           <Tab.Screen name="Stretch" component={StretchTab} />
           <Tab.Screen name="Exercise Log" component={ExerciseLogTab} />
           <Tab.Screen name="Advice" component={AdviceTab} />
+          <Tab.Screen name="3D Viewer" component={ModelViewerScreen} />
         </Tab.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
