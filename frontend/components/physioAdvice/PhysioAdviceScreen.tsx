@@ -10,6 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useFetchPhysioAdvice } from "../../hooks/useFetchPhysioAdvice";
 import PhysioAdviceCategory from "./PhysioAdviceCategory";
+import PhysioAdviceSummary from "./PhysioAdviceSummary";
 import { HeadingText } from "../commonComponents/HeadingText";
 import { saveAdviceSession, generateTitleFromPrompt } from "../../utilities/adviceStorage";
 
@@ -94,7 +95,7 @@ export default function PhysioAdviceScreen() {
           </View>
 
           <View style={[styles.extraDataContainer, styles.adviceContainer]}>
-            <Text style={styles.adviceText}>{advice.extra_data}</Text>
+            <PhysioAdviceSummary extra_data={advice.extra_data} />
           </View>
         </>
       )}
