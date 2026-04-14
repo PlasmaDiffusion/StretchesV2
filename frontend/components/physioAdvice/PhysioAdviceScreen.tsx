@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFetchPhysioAdvice } from "../../hooks/useFetchPhysioAdvice";
 import PhysioAdviceCategory from "./PhysioAdviceCategory";
 import { HeadingText } from "../commonComponents/HeadingText";
+import { saveAdviceSession, generateTitleFromPrompt } from "../../utilities/adviceStorage";
 
 type AdviceType = "stretches" | "mental" | "misc_physiotherapy";
 
@@ -36,6 +37,10 @@ export default function PhysioAdviceScreen() {
         useRag
       );
       setAdvice(advice);
+      await saveAdviceSession({
+        title: generateTitleFromPrompt(inputMessage),
+        advice: [{ message: advice.message, extra_data: advice.extra_data }],
+      });
     } catch (err) {
       console.error("Failed:", err);
     }
