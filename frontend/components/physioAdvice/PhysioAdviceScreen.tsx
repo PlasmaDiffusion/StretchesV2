@@ -7,12 +7,12 @@ import {
   TextInput,
   Switch,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useFetchPhysioAdvice } from "../../hooks/useFetchPhysioAdvice";
 import PhysioAdviceCategory from "./PhysioAdviceCategory";
 import PhysioAdviceSummary from "./PhysioAdviceSummary";
+import PreviousPhysioAdvice from "./PreviousPhysioAdvice";
 import { HeadingText } from "../commonComponents/HeadingText";
-import { saveAdviceSession, generateTitleFromPrompt } from "../../utilities/adviceStorage";
+import { saveAdviceSession, generateTitleFromPrompt, AdviceItem } from "../../utilities/adviceStorage";
 
 type AdviceType = "stretches" | "mental" | "misc_physiotherapy";
 
@@ -99,6 +99,8 @@ export default function PhysioAdviceScreen() {
           </View>
         </>
       )}
+
+      <PreviousPhysioAdvice onLoad={(item: AdviceItem) => setAdvice(item)} />
     </View>
   );
 }
@@ -106,11 +108,6 @@ export default function PhysioAdviceScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
   },
   error: {
     color: "red",
