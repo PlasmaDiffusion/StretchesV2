@@ -21,8 +21,8 @@ class RAGPipeline:
         self._topic_indexer = topic_indexer
 
     def fetch_context(self, message: str) -> str:
-        self._topic_indexer.ensure_indexed(message)
-        context = self._retriever.build_context(message)
+        self._topic_indexer.ensure_indexed(message) # Index topics so they are available for retrieval in the same RAG turn
+        context = self._retriever.build_context(message) # Fetch and build the RAG context based on the message (which is now indexed)
         self._print_context_preview(context)
         return context
 
