@@ -48,11 +48,13 @@ def ai_test():
 # Gets JSON body of prompt of something stretching, physiotherapy, or pain related, depending on response_type. Returns AI response.
 @app.route("/physiotherapy_advice", methods=['POST'])
 def physiotherapy_advice():
-    data = request.get_json()  
+    data = request.get_json()
     message = data.get('message', '')
     adviceType = data.get('advice_type', 'stretches')
     use_rag = data.get('use_rag', True)
-    
+    # Optional list of {"role": "user"|"assistant", "content": str} for multi-turn context
+    conversation_history = data.get('conversation_history', [])
+
     instructions_map = {
         'stretches': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Recommend stretches and exercises based on user input.",
         'mental': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Recommend ways to cope with the pain mentally.",
@@ -68,19 +70,30 @@ def physiotherapy_advice():
 
     #Fetch RAG context of physiotherapy related articles and inject into instructions if enabled. Also ensure the message is indexed for future retrieval.
     rag_context = rag_pipeline.fetch_context(message) if use_rag else ""
-    
+
     full_instructions = instructions_map.get(adviceType) + (f"\n\n{rag_context}" if rag_context else "")
+
+    # Build input: include prior conversation turns when provided for better contextual responses
+    if conversation_history:
+        input_items = [
+            {"role": turn["role"], "content": turn["content"]}
+            for turn in conversation_history
+            if turn.get("role") in ("user", "assistant") and turn.get("content")
+        ]
+        input_items.append({"role": "user", "content": message})
+    else:
+        input_items = message
 
     response = client.responses.create(
         model="gpt-5-nano",
         instructions=full_instructions + " " + extra_instructions,
-        input=message,
+        input=input_items,
     )
-    
+
     responseWithDataSplit = response.output_text.split('<json>')
-    
+
     return {
-        "message": responseWithDataSplit[0].strip(), 
+        "message": responseWithDataSplit[0].strip(),
         'extra_data': responseWithDataSplit[1].replace('</json>', '').strip() if len(responseWithDataSplit) > 1 else ""
     }
 

@@ -2,12 +2,22 @@ import { useState, useCallback } from "react"
 
 const PHYSIO_ADVICE_API_URL = process.env.EXPO_PUBLIC_PHYSIO_ADVICE_API_URL ?? "http://localhost:8000";
 
+export interface ConversationTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export const useFetchPhysioAdvice = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchAdvice = useCallback(
-    async (message: string, adviceType = "stretches", useRag = true) => {
+    async (
+      message: string,
+      adviceType = "stretches",
+      useRag = true,
+      conversationHistory?: ConversationTurn[]
+    ) => {
       setLoading(true);
       setError(null);
 
@@ -23,6 +33,7 @@ export const useFetchPhysioAdvice = () => {
               message,
               advice_type: adviceType,
               use_rag: useRag,
+              ...(conversationHistory?.length ? { conversation_history: conversationHistory } : {}),
             }),
           }
         );

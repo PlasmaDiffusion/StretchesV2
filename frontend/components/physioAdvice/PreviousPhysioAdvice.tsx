@@ -1,74 +1,70 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
-import { HeadingText } from "../commonComponents/HeadingText";
-import { PrimaryButton, SecondaryButton } from "../commonComponents/CustomButton";
+import { SecondaryButton } from "../commonComponents/CustomButton";
 import { GeneralModal } from "../commonComponents/GeneralModal";
-import {
-  loadAdviceSessions,
-  deleteAdviceSession,
-  AdviceSession,
-  AdviceItem,
-} from "../../utilities/adviceStorage";
+import { deleteAdviceSession, AdviceSession } from "../../utilities/adviceStorage";
 
 interface Props {
-  onLoad: (item: AdviceItem) => void;
+  sessions: AdviceSession[];
+  currentSessionIndex: number | null;
+  onLoad: (session: AdviceSession, index: number) => void;
+  onNewChat: () => void;
+  onSessionDeleted: (index: number) => void;
 }
 
-export default function PreviousPhysioAdvice({ onLoad }: Props) {
-  const [sessions, setSessions] = useState<AdviceSession[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+export default function PreviousPhysioAdvice({
+  sessions,
+  currentSessionIndex,
+  onLoad,
+  onNewChat,
+  onSessionDeleted,
+}: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const refreshSessions = useCallback(async () => {
-    const loaded = await loadAdviceSessions();
-    setSessions(loaded);
-  }, []);
-
-  useEffect(() => {
-    refreshSessions();
-  }, [refreshSessions]);
-
-  const handleLoad = useCallback(() => {
-    if (selectedIndex === null) return;
-    const session = sessions[selectedIndex];
-    if (!session.advice.length) return;
-    onLoad(session.advice[0]);
-  }, [selectedIndex, sessions, onLoad]);
+  const handleSelect = useCallback(
+    (index: number) => {
+      onLoad(sessions[index], index);
+    },
+    [sessions, onLoad]
+  );
 
   const handleDelete = useCallback(async () => {
-    if (selectedIndex === null) return;
-    await deleteAdviceSession(selectedIndex);
-    setSelectedIndex(null);
+    if (currentSessionIndex === null) return;
+    await deleteAdviceSession(currentSessionIndex);
     setShowConfirm(false);
-    await refreshSessions();
-  }, [selectedIndex, refreshSessions]);
+    onSessionDeleted(currentSessionIndex);
+  }, [currentSessionIndex, onSessionDeleted]);
 
-  if (sessions.length === 0) return null;
+  const dropdownData = sessions.map((s, i) => ({ label: s.title, value: i }));
 
   return (
     <View style={styles.container}>
-      <HeadingText size="small" verticalSpacing={8}>Previous Responses</HeadingText>
-      <Dropdown
-        style={styles.dropdown}
-        data={sessions.map((s, i) => ({ label: s.title, value: i }))}
-        labelField="label"
-        valueField="value"
-        placeholder="Select a previous response..."
-        value={selectedIndex}
-        onChange={(item) => setSelectedIndex(item.value)}
-      />
-      <View style={styles.buttons}>
-        <View style={styles.buttonWrapper}>
-          <PrimaryButton text="Load" onPress={handleLoad} color="#007AFF" />
-        </View>
-        <View style={styles.buttonWrapper}>
+      <View style={styles.row}>
+        <Dropdown
+          style={styles.dropdown}
+          containerStyle={styles.dropdownContainer}
+          data={dropdownData}
+          labelField="label"
+          valueField="value"
+          placeholder={sessions.length === 0 ? "No saved sessions" : "Load a previous session..."}
+          value={currentSessionIndex}
+          onChange={(item) => handleSelect(item.value)}
+          disable={sessions.length === 0}
+        />
+
+        <TouchableOpacity style={styles.newChatButton} onPress={onNewChat}>
+          <Text style={styles.newChatText}>+ New</Text>
+        </TouchableOpacity>
+
+        {currentSessionIndex !== null && (
           <SecondaryButton text="Delete" onPress={() => setShowConfirm(true)} />
-        </View>
+        )}
       </View>
+
       <GeneralModal
         visible={showConfirm}
-        text="Are you sure you want to delete this response?"
+        text="Are you sure you want to delete this session?"
         onConfirm={handleDelete}
         onClose={() => setShowConfirm(false)}
       />
@@ -78,20 +74,37 @@ export default function PreviousPhysioAdvice({ onLoad }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 24,
+    marginBottom: 4,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   dropdown: {
+    flex: 1,
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
-    padding: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: "#fafafa",
   },
-  buttons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 12,
+  dropdownContainer: {
+    borderRadius: 8,
   },
-  buttonWrapper: {
-    flex: 1,
+  newChatButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: "#e8f4ff",
+    borderWidth: 1,
+    borderColor: "#007AFF",
+    flexShrink: 0,
+  },
+  newChatText: {
+    color: "#007AFF",
+    fontWeight: "600",
+    fontSize: 13,
   },
 });
