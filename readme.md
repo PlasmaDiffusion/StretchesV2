@@ -35,6 +35,8 @@ eas submit -p ios
 # Other Commands
 > npm run lint
 
+<br><br><br><br><br>
+
 ---
 # BACK END
 
