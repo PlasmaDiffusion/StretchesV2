@@ -1,5 +1,5 @@
 # FRONT END
-==========
+
 
 This is an app for listing and timing your own custom stretches / exercises. It also has a daily log tracking for what stretches you did and for how long.
 Additionally the logging is used for chronic pain, letting you log how in pain you were each day or how you felt mentally.
@@ -34,7 +34,6 @@ eas submit -p ios
 > npm run lint
 
 # BACK END
-=========
 
 A backend that uses openAI for the user to ask any pain management and physiotherapy related questions, responding with recommendations (with the disclaimer that it's not a doctor or physiotherapist of course).
 
