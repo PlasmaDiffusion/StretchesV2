@@ -7,6 +7,7 @@ interface Props {
   message: ChatMessage;
 }
 
+// A chat bubble for the Phsyio Advice screen (user's prompt and LLM's response)
 export default function ChatBubble({ message }: Props) {
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const isUser = message.role === "user";
@@ -25,7 +26,7 @@ export default function ChatBubble({ message }: Props) {
         </Text>
 
         {!isUser && message.extra_data && (
-          <>
+          <> {/* Show a short summary of what the LLM recommends or any info that could be useful to a physiotherapist */}
             <TouchableOpacity
               onPress={() => setSummaryExpanded((v) => !v)}
               style={styles.summaryToggle}
