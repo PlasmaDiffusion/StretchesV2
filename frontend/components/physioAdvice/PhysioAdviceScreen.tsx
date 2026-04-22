@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -6,157 +6,363 @@ import {
   Text,
   TextInput,
   Switch,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
 } from "react-native";
-import { useFetchPhysioAdvice } from "../../hooks/useFetchPhysioAdvice";
+import { useFetchPhysioAdvice, ConversationTurn } from "../../hooks/useFetchPhysioAdvice";
 import PhysioAdviceCategory from "./PhysioAdviceCategory";
-import PhysioAdviceSummary from "./PhysioAdviceSummary";
-import PreviousPhysioAdvice from "./PreviousPhysioAdvice";
+import PhysioAdviceSessions from "./PhysioAdviceSessions";
+import ChatBubble from "./ChatBubble";
 import { HeadingText } from "../commonComponents/HeadingText";
-import { saveAdviceSession, generateTitleFromPrompt, AdviceItem } from "../../utilities/adviceStorage";
+import {
+  saveAdviceSession,
+  updateAdviceSession,
+  loadAdviceSessions,
+  generateTitleFromPrompt,
+  ChatMessage,
+  AdviceSession,
+} from "../../utilities/adviceStorage";
 
 type AdviceType = "stretches" | "mental" | "misc_physiotherapy";
 
-interface PhysioAdviceResponse {
-  message: string;
-  extra_data: string;
-}
-
 export default function PhysioAdviceScreen() {
   const { fetchAdvice, loading, error } = useFetchPhysioAdvice();
-  const [advice, setAdvice] = useState<PhysioAdviceResponse | null>(null);
-  const [inputMessage, setInputMessage] = useState<string>("");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputMessage, setInputMessage] = useState("");
   const [adviceType, setAdviceType] = useState<AdviceType>("stretches");
   const [useRag, setUseRag] = useState(true);
+  const [currentSessionIndex, setCurrentSessionIndex] = useState<number | null>(null);
+  const [sessions, setSessions] = useState<AdviceSession[]>([]);
+  const [bubblesHidden, setBubblesHidden] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  const handleGetAdvice = useCallback(async () => {
-    if (!inputMessage.trim()) return;
+  const refreshSessions = useCallback(async () => {
+    const loaded = await loadAdviceSessions();
+    setSessions(loaded);
+  }, []);
+
+  useEffect(() => {
+    refreshSessions();
+  }, [refreshSessions]);
+
+  useEffect(() => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  }, [messages, loading]);
+
+  const handleLoadSession = useCallback(
+    (session: AdviceSession, index: number) => {
+      setMessages(session.messages);
+      setCurrentSessionIndex(index);
+    },
+    []
+  );
+
+  const handleNewChat = useCallback(() => {
+    setMessages([]);
+    setCurrentSessionIndex(null);
+  }, []);
+
+  const handleSessionDeleted = useCallback(
+    async (deletedIndex: number) => {
+      await refreshSessions();
+      if (currentSessionIndex === deletedIndex) {
+        setMessages([]);
+        setCurrentSessionIndex(null);
+      } else if (currentSessionIndex !== null && currentSessionIndex > deletedIndex) {
+        setCurrentSessionIndex(currentSessionIndex - 1);
+      }
+    },
+    [currentSessionIndex, refreshSessions]
+  );
+
+  const handleSend = useCallback(async () => {
+    const trimmed = inputMessage.trim();
+    if (!trimmed || loading) return;
+
+    const userMsg: ChatMessage = { role: "user", content: trimmed };
+    const optimisticMessages = [...messages, userMsg];
+    setMessages(optimisticMessages);
+    setInputMessage("");
+
+    const history: ConversationTurn[] = messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    }));
 
     try {
-      const advice: PhysioAdviceResponse = await fetchAdvice(
-        inputMessage,
-        adviceType,
-        useRag
-      );
-      setAdvice(advice);
-      await saveAdviceSession({
-        title: generateTitleFromPrompt(inputMessage),
-        advice: [{ message: advice.message, extra_data: advice.extra_data }],
-      });
-    } catch (err) {
-      console.error("Failed:", err);
+      const response = await fetchAdvice(trimmed, adviceType, useRag, history);
+      const aiMsg: ChatMessage = {
+        role: "assistant",
+        content: response.message,
+        extra_data: response.extra_data,
+      };
+      const finalMessages = [...optimisticMessages, aiMsg];
+      setMessages(finalMessages);
+
+      if (currentSessionIndex !== null) {
+        const updatedSession: AdviceSession = {
+          title: sessions[currentSessionIndex]?.title ?? generateTitleFromPrompt(trimmed),
+          messages: finalMessages,
+        };
+        await updateAdviceSession(currentSessionIndex, updatedSession);
+        await refreshSessions();
+      } else {
+        const newSession: AdviceSession = {
+          title: generateTitleFromPrompt(trimmed),
+          messages: finalMessages,
+        };
+        await saveAdviceSession(newSession);
+        const updated = await loadAdviceSessions();
+        setSessions(updated);
+        setCurrentSessionIndex(updated.length - 1);
+      }
+    } catch {
+      // Revert optimistic user message on error
+      setMessages(messages);
     }
-  }, [fetchAdvice, inputMessage, adviceType, useRag]);
+  }, [
+    inputMessage,
+    loading,
+    messages,
+    adviceType,
+    useRag,
+    fetchAdvice,
+    currentSessionIndex,
+    sessions,
+    refreshSessions,
+  ]);
 
   return (
-    <View style={styles.container}>
-      <HeadingText>Physiotherapy Advice</HeadingText>
-
-      {error && <Text style={styles.error}>Error: {error}</Text>}
-
-      <TextInput
-        style={styles.input}
-        placeholder="Describe your pain or concern..."
-        value={inputMessage}
-        onChangeText={setInputMessage}
-        multiline
-        numberOfLines={3}
-      />
-
-      <Text>Select what type of advice you'd like:</Text>
-      <PhysioAdviceCategory
-        adviceType={adviceType}
-        onAdviceTypeChange={setAdviceType}
-      />
-
-      <View style={styles.ragToggleRow}>
-        <Switch value={useRag} onValueChange={setUseRag} />
-        <Text style={styles.ragToggleLabel}>
-          Use physiotherapy research articles
-        </Text>
+    <KeyboardAvoidingView
+      style={styles.root}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 88 : 0}
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <HeadingText>Physiotherapy Advice</HeadingText>
+        <View style={styles.headerActions}>
+          <PhysioAdviceSessions
+            sessions={sessions}
+            currentSessionIndex={currentSessionIndex}
+            onLoad={handleLoadSession}
+            onNewChat={handleNewChat}
+            onSessionDeleted={handleSessionDeleted}
+            onSessionRenamed={refreshSessions}
+          />
+        </View>
       </View>
 
-      <TouchableOpacity
-        style={[
-          styles.submitButton,
-          (!inputMessage.trim() || loading) && styles.disabledButton,
-        ]}
-        onPress={handleGetAdvice}
-        disabled={!inputMessage.trim() || loading}
+      {/* Chat messages */}
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.chatArea}
+        contentContainerStyle={styles.chatContent}
+        keyboardShouldPersistTaps="handled"
+        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
       >
-        <Text style={styles.submitButtonText}>
-          {loading ? "Loading..." : "Get Advice"}
-        </Text>
-      </TouchableOpacity>
-
-      {advice && (
-        <>
-          <View style={styles.adviceContainer}>
-            <Text style={styles.adviceText}>{advice.message}</Text>
+        {messages.length === 0 && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>
+              Ask a physiotherapy question below to get started.
+            </Text>
           </View>
-
-          <View style={[styles.extraDataContainer, styles.adviceContainer]}>
-            <PhysioAdviceSummary extra_data={advice.extra_data} />
+        )}
+        {!bubblesHidden && messages.map((msg, i) => (
+          <ChatBubble key={i} message={msg} />
+        ))}
+        {loading && (
+          <View style={styles.loadingRow}>
+            <View style={styles.loadingBubble}>
+              <ActivityIndicator size="small" color="#007AFF" />
+              <Text style={styles.loadingText}>Thinking...</Text>
+            </View>
           </View>
-        </>
-      )}
+        )}
+        {error && !loading && (
+          <View style={styles.errorRow}>
+            <Text style={styles.errorText}>Error: {error}</Text>
+          </View>
+        )}
+        {messages.length > 0 && (
+          <TouchableOpacity
+            style={styles.scrollToTopButton}
+            onPress={() => setBubblesHidden((v) => !v)}
+          >
+            <Text style={styles.scrollToTopText}>
+              {bubblesHidden ? "Show Chat" : "Show Session Drop Down"}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
 
-      <PreviousPhysioAdvice onLoad={(item: AdviceItem) => setAdvice(item)} />
-    </View>
+      {/* Input area */}
+      <View style={styles.inputArea}>
+        <PhysioAdviceCategory
+          adviceType={adviceType}
+          onAdviceTypeChange={setAdviceType}
+        />
+
+        <View style={styles.ragToggleRow}>
+          <Switch value={useRag} onValueChange={setUseRag} />
+          <Text style={styles.ragToggleLabel}>Use research articles</Text>
+        </View>
+
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Ask a physio question..."
+            value={inputMessage}
+            onChangeText={setInputMessage}
+            multiline
+            onSubmitEditing={handleSend}
+            blurOnSubmit={false}
+          />
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              (!inputMessage.trim() || loading) && styles.sendButtonDisabled,
+            ]}
+            onPress={handleSend}
+            disabled={!inputMessage.trim() || loading}
+          >
+            <Text style={styles.sendButtonText}>↑</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
+  root: {
+    flex: 1,
+    backgroundColor: "#fff",
   },
-  error: {
-    color: "red",
-    marginBottom: 12,
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 4,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#ddd",
   },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    textAlignVertical: "top",
+  headerActions: {
+    marginBottom: 8,
   },
-  submitButton: {
-    backgroundColor: "#007AFF",
+  chatArea: {
+    flex: 1,
+  },
+  chatContent: {
     paddingVertical: 12,
-    borderRadius: 8,
-    marginBottom: 16,
+    flexGrow: 1,
   },
-  disabledButton: {
-    backgroundColor: "#ccc",
+  emptyState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+    paddingTop: 60,
   },
-  submitButtonText: {
-    color: "white",
+  emptyStateText: {
+    color: "#999",
     textAlign: "center",
-    fontWeight: "bold",
+    fontSize: 15,
+    lineHeight: 22,
   },
-  adviceContainer: {
-    backgroundColor: "#f9f9f9",
-    padding: 12,
-    borderRadius: 8,
+  loadingRow: {
+    paddingHorizontal: 12,
+    marginVertical: 6,
+    flexDirection: "row",
+    alignItems: "center",
   },
-  extraDataContainer: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderWidth: 1,
-    borderColor: "#aaa",
+  loadingBubble: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 16,
+    borderBottomLeftRadius: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
-  adviceText: {
-    lineHeight: 20,
+  loadingText: {
+    color: "#666",
+    fontSize: 14,
+  },
+  errorRow: {
+    marginHorizontal: 12,
+    marginVertical: 6,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 13,
+  },
+  inputArea: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "#ddd",
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: Platform.OS === "ios" ? 24 : 12,
+    backgroundColor: "#fff",
   },
   ragToggleRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
-    gap: 10,
+    marginBottom: 10,
+    gap: 8,
   },
   ragToggleLabel: {
-    color: "#333",
+    color: "#555",
     fontSize: 14,
+  },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 8,
+  },
+  textInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    fontSize: 15,
+    backgroundColor: "#fafafa",
+    textAlignVertical: "top",
+    maxHeight: 100,
+  },
+  sendButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#007AFF",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  sendButtonDisabled: {
+    backgroundColor: "#ccc",
+  },
+  sendButtonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+    lineHeight: 22,
+  },
+  scrollToTopButton: {
+    alignSelf: "center",
+    marginVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: "#f0f0f0",
+  },
+  scrollToTopText: {
+    color: "#007AFF",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });
