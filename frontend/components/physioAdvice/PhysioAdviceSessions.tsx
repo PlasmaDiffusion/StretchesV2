@@ -13,7 +13,7 @@ interface Props {
   onSessionDeleted: (index: number) => void;
 }
 
-export default function PreviousPhysioAdvice({
+export default function PhysioAdviceSessions({
   sessions,
   currentSessionIndex,
   onLoad,

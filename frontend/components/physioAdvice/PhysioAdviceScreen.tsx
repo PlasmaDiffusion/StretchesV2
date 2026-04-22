@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { useFetchPhysioAdvice, ConversationTurn } from "../../hooks/useFetchPhysioAdvice";
 import PhysioAdviceCategory from "./PhysioAdviceCategory";
-import PreviousPhysioAdvice from "./PreviousPhysioAdvice";
+import PhysioAdviceSessions from "./PhysioAdviceSessions";
 import ChatBubble from "./ChatBubble";
 import { HeadingText } from "../commonComponents/HeadingText";
 import {
@@ -35,6 +35,7 @@ export default function PhysioAdviceScreen() {
   const [useRag, setUseRag] = useState(true);
   const [currentSessionIndex, setCurrentSessionIndex] = useState<number | null>(null);
   const [sessions, setSessions] = useState<AdviceSession[]>([]);
+  const [bubblesHidden, setBubblesHidden] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const refreshSessions = useCallback(async () => {
@@ -143,7 +144,7 @@ export default function PhysioAdviceScreen() {
       <View style={styles.header}>
         <HeadingText>Physiotherapy Advice</HeadingText>
         <View style={styles.headerActions}>
-          <PreviousPhysioAdvice
+          <PhysioAdviceSessions
             sessions={sessions}
             currentSessionIndex={currentSessionIndex}
             onLoad={handleLoadSession}
@@ -168,7 +169,7 @@ export default function PhysioAdviceScreen() {
             </Text>
           </View>
         )}
-        {messages.map((msg, i) => (
+        {!bubblesHidden && messages.map((msg, i) => (
           <ChatBubble key={i} message={msg} />
         ))}
         {loading && (
@@ -183,6 +184,16 @@ export default function PhysioAdviceScreen() {
           <View style={styles.errorRow}>
             <Text style={styles.errorText}>Error: {error}</Text>
           </View>
+        )}
+        {messages.length > 0 && (
+          <TouchableOpacity
+            style={styles.scrollToTopButton}
+            onPress={() => setBubblesHidden((v) => !v)}
+          >
+            <Text style={styles.scrollToTopText}>
+              {bubblesHidden ? "Show Chat" : "Show Session Drop Down"}
+            </Text>
+          </TouchableOpacity>
         )}
       </ScrollView>
 
@@ -205,7 +216,6 @@ export default function PhysioAdviceScreen() {
             value={inputMessage}
             onChangeText={setInputMessage}
             multiline
-            maxHeight={100}
             onSubmitEditing={handleSend}
             blurOnSubmit={false}
           />
@@ -321,6 +331,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     backgroundColor: "#fafafa",
     textAlignVertical: "top",
+    maxHeight: 100,
   },
   sendButton: {
     width: 40,
@@ -339,5 +350,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     lineHeight: 22,
+  },
+  scrollToTopButton: {
+    alignSelf: "center",
+    marginVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: "#f0f0f0",
+  },
+  scrollToTopText: {
+    color: "#007AFF",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

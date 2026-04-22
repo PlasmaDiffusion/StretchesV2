@@ -7,7 +7,7 @@ interface Props {
   message: ChatMessage;
 }
 
-// A chat bubble for the Phsyio Advice screen (user's prompt and LLM's response)
+// A chat bubble for the Physio Advice screen (user's prompt and LLM's response)
 export default function ChatBubble({ message }: Props) {
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const isUser = message.role === "user";
@@ -20,13 +20,24 @@ export default function ChatBubble({ message }: Props) {
         </View>
       )}
 
-      <View style={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}>
-        <Text style={[styles.messageText, isUser ? styles.userText : styles.assistantText]}>
+      <View
+        style={[
+          styles.bubble,
+          isUser ? styles.userBubble : styles.assistantBubble,
+        ]}
+      >
+        <Text
+          style={[
+            styles.messageText,
+            isUser ? styles.userText : styles.assistantText,
+          ]}
+        >
           {message.content}
         </Text>
 
         {!isUser && message.extra_data && (
-          <> {/* Show a short summary of what the LLM recommends or any info that could be useful to a physiotherapist */}
+          <>
+            {/* Show a short summary of what the LLM recommends or any info that could be useful to a physiotherapist */}
             <TouchableOpacity
               onPress={() => setSummaryExpanded((v) => !v)}
               style={styles.summaryToggle}
@@ -35,7 +46,6 @@ export default function ChatBubble({ message }: Props) {
                 {summaryExpanded ? "Hide summary ▲" : "Show summary ▼"}
               </Text>
             </TouchableOpacity>
-
             {summaryExpanded && (
               <View style={styles.summaryContainer}>
                 <PhysioAdviceSummary extra_data={message.extra_data} />
