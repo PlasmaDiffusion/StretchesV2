@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity, TextInput } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { SecondaryButton } from "../commonComponents/CustomButton";
 import { GeneralModal } from "../commonComponents/GeneralModal";
-import { deleteAdviceSession, AdviceSession } from "../../utilities/adviceStorage";
+import { deleteAdviceSession, updateAdviceSession, loadAdviceSessions, AdviceSession } from "../../utilities/adviceStorage";
 
 interface Props {
   sessions: AdviceSession[];
@@ -11,6 +11,7 @@ interface Props {
   onLoad: (session: AdviceSession, index: number) => void;
   onNewChat: () => void;
   onSessionDeleted: (index: number) => void;
+  onSessionRenamed: () => void;
 }
 
 export default function PhysioAdviceSessions({
@@ -19,11 +20,16 @@ export default function PhysioAdviceSessions({
   onLoad,
   onNewChat,
   onSessionDeleted,
+  onSessionRenamed,
 }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
+  const [renameVisible, setRenameVisible] = useState(false);
+  const [renameInput, setRenameInput] = useState("");
 
   const handleSelect = useCallback(
     (index: number) => {
+      setRenameVisible(false);
+      setRenameInput("");
       onLoad(sessions[index], index);
     },
     [sessions, onLoad]
@@ -35,6 +41,20 @@ export default function PhysioAdviceSessions({
     setShowConfirm(false);
     onSessionDeleted(currentSessionIndex);
   }, [currentSessionIndex, onSessionDeleted]);
+
+  const handleRename = useCallback(async () => {
+    if (currentSessionIndex === null) return;
+    if (!renameVisible) {
+      setRenameVisible(true);
+      return;
+    }
+    if (!renameInput.trim()) return;
+    const session = sessions[currentSessionIndex];
+    await updateAdviceSession(currentSessionIndex, { ...session, title: renameInput.trim() });
+    setRenameVisible(false);
+    setRenameInput("");
+    onSessionRenamed();
+  }, [currentSessionIndex, renameVisible, renameInput, sessions, onSessionRenamed]);
 
   const dropdownData = sessions.map((s, i) => ({ label: s.title, value: i }));
 
@@ -58,9 +78,22 @@ export default function PhysioAdviceSessions({
         </TouchableOpacity>
 
         {currentSessionIndex !== null && (
-          <SecondaryButton text="Delete" onPress={() => setShowConfirm(true)} />
+          <View style={styles.sessionActions}>
+            <SecondaryButton text="Rename" onPress={handleRename} />
+            <SecondaryButton text="Delete" onPress={() => setShowConfirm(true)} />
+          </View>
         )}
       </View>
+
+      {renameVisible && currentSessionIndex !== null && (
+        <TextInput
+          style={styles.renameInput}
+          placeholder="New session name..."
+          value={renameInput}
+          onChangeText={setRenameInput}
+          autoFocus
+        />
+      )}
 
       <GeneralModal
         visible={showConfirm}
@@ -106,5 +139,19 @@ const styles = StyleSheet.create({
     color: "#007AFF",
     fontWeight: "600",
     fontSize: 13,
+  },
+  sessionActions: {
+    flexDirection: "column",
+    gap: 4,
+  },
+  renameInput: {
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    fontSize: 14,
+    backgroundColor: "#fafafa",
   },
 });

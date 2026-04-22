@@ -150,6 +150,7 @@ export default function PhysioAdviceScreen() {
             onLoad={handleLoadSession}
             onNewChat={handleNewChat}
             onSessionDeleted={handleSessionDeleted}
+            onSessionRenamed={refreshSessions}
           />
         </View>
       </View>
