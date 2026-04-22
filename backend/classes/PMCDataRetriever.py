@@ -86,7 +86,7 @@ class PMCDataRetriever:
 
     ESEARCH_URL     = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
     EFETCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
-    EMBEDDING_MODEL = "text-embedding-3-small"
+    EMBEDDING_MODEL = "text-embedding-3-large"
 
     # NCBI rate limit: 3 req/s without API key, 10 req/s with one
     _REQUEST_DELAY = 0.34  # seconds between NCBI HTTP calls
