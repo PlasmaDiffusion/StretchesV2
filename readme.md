@@ -1,3 +1,4 @@
+---
 # FRONT END
 
 
@@ -33,6 +34,7 @@ eas submit -p ios
 # Other Commands
 > npm run lint
 
+---
 # BACK END
 
 A backend that uses openAI for the user to ask any pain management and physiotherapy related questions, responding with recommendations (with the disclaimer that it's not a doctor or physiotherapist of course).
