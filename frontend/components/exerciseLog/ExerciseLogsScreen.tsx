@@ -79,12 +79,10 @@ function ExerciseLogsScreen() {
           syncInBackground: true,
         })
         .then((ret) => {
-          console.log("ret healthLog", ret);
           const healthLogsMap = new Map<string, HealthLog>(
             Object.entries(ret.logs)
           );
           setHealthLogs(healthLogsMap);
-          console.log("health logs", healthLogsMap);
         })
         .catch((error: Error) => {
           console.warn(error.message);
@@ -135,7 +133,7 @@ function ExerciseLogsScreen() {
       {loading && <Text>Loading...</Text>}
       {notFound && <Text>No logs found for this month.</Text>}
       {exerciseLogs &&
-        Array.from(exerciseLogs.entries()).map(([key, logs]) => (
+        Array.from(exerciseLogs.entries()).reverse().map(([key, logs]) => (
           <View key={key}>
             <DailyLog
               exercises={logs}
