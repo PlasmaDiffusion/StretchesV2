@@ -91,11 +91,11 @@ export function StreamingProgressBar({
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     backgroundColor: "#f9f9f9",
-    borderRadius: 8,
-    marginBottom: 16,
+    borderRadius: 6,
+    marginBottom: 10,
   },
   progressContainer: {
     height: 6,

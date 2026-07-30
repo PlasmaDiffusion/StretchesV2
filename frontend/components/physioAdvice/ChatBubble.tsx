@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   bubble: {
     maxWidth: "78%",
     borderRadius: 16,
-    paddingHorizontal: 14,
+    paddingHorizontal: 4,
     paddingVertical: 10,
   },
   userBubble: {
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
   },
   messageText: {
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 21,
   },
   userText: {
