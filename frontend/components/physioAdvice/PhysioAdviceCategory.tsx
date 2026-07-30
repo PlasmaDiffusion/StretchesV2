@@ -8,38 +8,65 @@ interface PhysioAdviceCategoryProps {
   onAdviceTypeChange: (type: AdviceType) => void;
 }
 
-export default function PhysioAdviceCategory({ 
-  adviceType, 
-  onAdviceTypeChange 
+export default function PhysioAdviceCategory({
+  adviceType,
+  onAdviceTypeChange,
 }: PhysioAdviceCategoryProps) {
   return (
-    <View style={styles.buttonGroup}>
-      <TouchableOpacity
-        style={[styles.typeButton, adviceType === "stretches" && styles.activeButton]}
-        onPress={() => onAdviceTypeChange("stretches")}
-      >
-        <Text style={[styles.buttonText, adviceType === "stretches" && styles.activeButtonText]}>
-          Stretches
-        </Text>
-      </TouchableOpacity>
+    <View>
+      <Text style={styles.padding}>Ask for stretch recommendations, mental health advice for managing pain, or something else?</Text>
+      <View style={styles.buttonGroup}>
+        <TouchableOpacity
+          style={[
+            styles.typeButton,
+            adviceType === "stretches" && styles.activeButton,
+          ]}
+          onPress={() => onAdviceTypeChange("stretches")}
+        >
+          <Text
+            style={[
+              styles.buttonText,
+              adviceType === "stretches" && styles.activeButtonText,
+            ]}
+          >
+            Stretches
+          </Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.typeButton, adviceType === "mental" && styles.activeButton]}
-        onPress={() => onAdviceTypeChange("mental")}
-      >
-        <Text style={[styles.buttonText, adviceType === "mental" && styles.activeButtonText]}>
-          Mental
-        </Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.typeButton,
+            adviceType === "mental" && styles.activeButton,
+          ]}
+          onPress={() => onAdviceTypeChange("mental")}
+        >
+          <Text
+            style={[
+              styles.buttonText,
+              adviceType === "mental" && styles.activeButtonText,
+            ]}
+          >
+            Mental
+          </Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.typeButton, adviceType === "misc_physiotherapy" && styles.activeButton]}
-        onPress={() => onAdviceTypeChange("misc_physiotherapy")}
-      >
-        <Text style={[styles.buttonText, adviceType === "misc_physiotherapy" && styles.activeButtonText]}>
-          Other
-        </Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.typeButton,
+            adviceType === "misc_physiotherapy" && styles.activeButton,
+          ]}
+          onPress={() => onAdviceTypeChange("misc_physiotherapy")}
+        >
+          <Text
+            style={[
+              styles.buttonText,
+              adviceType === "misc_physiotherapy" && styles.activeButtonText,
+            ]}
+          >
+            Other
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -71,4 +98,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
   },
+  padding: {
+    paddingVertical: 8,
+  }
 });

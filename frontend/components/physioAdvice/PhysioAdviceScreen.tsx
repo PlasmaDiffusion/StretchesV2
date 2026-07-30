@@ -142,7 +142,7 @@ export default function PhysioAdviceScreen() {
     >
       {/* Header */}
       <View style={styles.header}>
-        <HeadingText>Physiotherapy Advice</HeadingText>
+        {/* <HeadingText>Physiotherapy Advice</HeadingText> */}
         <View style={styles.headerActions}>
           <PhysioAdviceSessions
             sessions={sessions}
@@ -166,7 +166,7 @@ export default function PhysioAdviceScreen() {
         {messages.length === 0 && (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
-              Ask a physiotherapy question below to get started.
+              {/* Ask a physiotherapy question below to get started. */}
             </Text>
           </View>
         )}
@@ -192,7 +192,7 @@ export default function PhysioAdviceScreen() {
             onPress={() => setBubblesHidden((v) => !v)}
           >
             <Text style={styles.scrollToTopText}>
-              {bubblesHidden ? "Show Chat" : "Show Session Drop Down"}
+              {bubblesHidden ? "Show Chat" : "Back To Session Drop Down"}
             </Text>
           </TouchableOpacity>
         )}
@@ -207,7 +207,7 @@ export default function PhysioAdviceScreen() {
 
         <View style={styles.ragToggleRow}>
           <Switch value={useRag} onValueChange={setUseRag} />
-          <Text style={styles.ragToggleLabel}>Use research articles</Text>
+          <Text style={styles.ragToggleLabel}>Use research articles to support answers</Text>
         </View>
 
         <View style={styles.inputRow}>

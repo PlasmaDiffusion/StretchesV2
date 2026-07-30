@@ -69,7 +69,7 @@ export default function App() {
             }}
           />
           <Tab.Screen
-            name="Advice"
+            name="Phsyio Advice"
             component={AdviceTab}
             options={{
               tabBarIcon: ({ color, size }) => (
