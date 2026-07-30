@@ -244,7 +244,15 @@ def physiotherapy_advice_stream():
             logger.error(traceback.format_exc())
             yield f'data: {{"status": "error", "message": "{str(e)}"}}\n\n'
 
-    return Response(stream_with_context(generate()), mimetype='text/event-stream')
+    return Response(
+        stream_with_context(generate()),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',
+            'Connection': 'keep-alive',
+        }
+    )
 
 
 @app.errorhandler(Exception)

@@ -77,7 +77,7 @@ export const useStreamPhysioAdvice = (onStatusChange?: (status: StreamStatus) =>
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchAdviceStream = useCallback(
-    async (
+    (
       message: string,
       adviceType = "stretches",
       useRag = true,
@@ -89,82 +89,68 @@ export const useStreamPhysioAdvice = (onStatusChange?: (status: StreamStatus) =>
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
 
-      try {
-        const response = await fetch(
-          `${PHYSIO_ADVICE_API_URL}/physiotherapy_advice_stream`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              message,
-              advice_type: adviceType,
-              use_rag: useRag,
-              ...(conversationHistory?.length ? { conversation_history: conversationHistory } : {}),
-            }),
-            signal: abortController.signal,
-          }
-        );
+      return new Promise((resolve, reject) => {
+        fetch(`${PHYSIO_ADVICE_API_URL}/physiotherapy_advice_stream`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message,
+            advice_type: adviceType,
+            use_rag: useRag,
+            ...(conversationHistory?.length ? { conversation_history: conversationHistory } : {}),
+          }),
+          signal: abortController.signal,
+        })
+          .then(async (response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+            const text = await response.text();
+            const lines = text.split("\n");
+            let result = null;
 
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  const status = data.status as StreamStatus;
 
-        if (!reader) {
-          throw new Error("No response body");
-        }
+                  onStatusChange?.(status);
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
-
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                const status = data.status as StreamStatus;
-
-                onStatusChange?.(status);
-
-                if (status === "done") {
-                  setLoading(false);
-                  return data.result;
-                } else if (status === "error") {
-                  const errorMsg = data.message || "Unknown error";
-                  setError(errorMsg);
-                  setLoading(false);
-                  throw new Error(errorMsg);
-                }
-              } catch (err) {
-                if (err instanceof Error && !err.message.includes("Unknown error")) {
+                  if (status === "done") {
+                    result = data.result;
+                  } else if (status === "error") {
+                    const errorMsg = data.message || "Unknown error";
+                    setError(errorMsg);
+                    setLoading(false);
+                    reject(new Error(errorMsg));
+                    return;
+                  }
+                } catch (err) {
                   console.error("Error parsing stream data:", err);
                 }
               }
             }
-          }
-        }
 
-        setLoading(false);
-        return null;
-      } catch (err: any) {
-        if (err.name === "AbortError") {
-          setLoading(false);
-          return null;
-        }
-        console.warn("PHYSIO_ADVICE_API_URL:", PHYSIO_ADVICE_API_URL);
-        setError(err.message);
-        setLoading(false);
-        throw err;
-      }
+            setLoading(false);
+            resolve(result);
+          })
+          .catch((err: any) => {
+            if (err.name === "AbortError") {
+              setLoading(false);
+              resolve(null);
+              return;
+            }
+            console.warn("PHYSIO_ADVICE_API_URL:", PHYSIO_ADVICE_API_URL);
+            console.error("Fetch error:", err);
+            setError(err.message);
+            setLoading(false);
+            reject(err);
+          });
+      });
     },
     [onStatusChange]
   );
