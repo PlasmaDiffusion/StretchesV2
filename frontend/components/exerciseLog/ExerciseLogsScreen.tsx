@@ -105,7 +105,6 @@ function ExerciseLogsScreen() {
 
   return (
     <View style={styles.container}>
-      <HeadingText>Daily Log</HeadingText>
       <Dropdown
         onChange={(item) => {
           setYear(item.value);
@@ -156,6 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     marginVertical: 8,
+    minHeight: 40,
   },
   container: {
     marginHorizontal: 24,
