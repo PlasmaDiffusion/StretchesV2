@@ -20,6 +20,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# Decorator to handle errors in endpoint functions and log them
 def handle_endpoint_errors(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -32,57 +33,58 @@ def handle_endpoint_errors(f):
     return wrapper
 
 
+def initialize_component(name, init_func):
+    try:
+        logger.info(f"Initializing {name}...")
+        result = init_func()
+        logger.info(f"{name} initialized successfully")
+        return result
+    except Exception as e:
+        logger.error(f"Failed to initialize {name}: {e}")
+        logger.error(traceback.format_exc())
+        raise
+
+
 app = Flask(__name__)
 
 # For React Native app - allow all origins during development
 CORS(app)
 
-try:
-    logger.info("Initializing OpenAI client...")
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY environment variable not set")
-    client = OpenAI(api_key=api_key)
-    logger.info("OpenAI client initialized successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize OpenAI client: {e}")
-    raise
+# Initialize OpenAI client with API key
+api_key = os.environ.get("OPENAI_API_KEY")
+if not api_key:
+    raise ValueError("OPENAI_API_KEY environment variable not set")
+client = initialize_component("OpenAI client", lambda: OpenAI(api_key=api_key))
 
-try:
-    logger.info("Initializing PMCDataRetriever...")
-    ncbi_key = os.environ.get("NCBI_API_KEY")
-    retriever = PMCDataRetriever(client, ncbi_api_key=ncbi_key)
-    logger.info("PMCDataRetriever initialized successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize PMCDataRetriever: {e}")
-    raise
+# Initialize PMCDataRetriever with NCBI API key (PMC stands for PubMed Central)
+retriever = initialize_component(
+    "PMCDataRetriever",
+    lambda: PMCDataRetriever(client, ncbi_api_key=os.environ.get("NCBI_API_KEY"))
+)
 
-try:
-    logger.info("Loading or creating article index...")
-    INDEX_PATH = "pmc_index.json"
+INDEX_PATH = "pmc_index.json"
+
+
+def load_or_create_index():
     if Path(INDEX_PATH).exists():
-        logger.info(f"Loading existing index from {INDEX_PATH}")
         retriever.load_index(INDEX_PATH)
-        logger.info("Index loaded successfully")
     else:
-        logger.info("Creating new index with example topics...")
         retriever.search_and_index("shoulder rehabilitation stretches", max_articles=20)
         retriever.search_and_index("lower back pain physiotherapy exercises", max_articles=20)
         retriever.save_index(INDEX_PATH)
-        logger.info("Index created and saved successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize article index: {e}")
-    logger.error(traceback.format_exc())
-    raise
 
-try:
-    logger.info("Initializing RAG pipeline...")
-    topic_indexer = TopicIndexer(retriever, client, INDEX_PATH)
-    rag_pipeline = RAGPipeline(retriever, topic_indexer)
-    logger.info("RAG pipeline initialized successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize RAG pipeline: {e}")
-    raise
+
+initialize_component("Article index", load_or_create_index)
+
+topic_indexer = initialize_component(
+    "TopicIndexer",
+    lambda: TopicIndexer(retriever, client, INDEX_PATH)
+)
+
+rag_pipeline = initialize_component(
+    "RAG pipeline",
+    lambda: RAGPipeline(retriever, topic_indexer)
+)
 
 
 # Test route to verify AI model and key works
