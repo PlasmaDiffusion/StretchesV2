@@ -14,11 +14,6 @@ export default function ChatBubble({ message }: Props) {
 
   return (
     <View style={[styles.row, isUser ? styles.userRow : styles.assistantRow]}>
-      {!isUser && (
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>AI</Text>
-        </View>
-      )}
 
       <View
         style={[
