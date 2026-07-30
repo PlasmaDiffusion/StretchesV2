@@ -48,6 +48,32 @@ function StretchScreen() {
     setShowNavBar(true);
   }
 
+  function continueToNextStretchOrEndSession() {
+    Vibration.vibrate();
+
+    // If the current stretch is the last one in the list, end the session
+    if (currentStretchIndex + 1 >= stretches.length) {
+      endStretchSession();
+    } else {
+
+      // Find the next enabled stretch in the list, otherwise if all future stretches are disabled, end the session
+      let continuing = false;
+
+      for (let i = currentStretchIndex + 1; i < stretches.length; i++) {
+        if (stretches[i].enabled) {
+          setIsStretching(true);
+          setTime(stretches[i].totalStretchTime);
+          setCurrentStretchIndex(i);
+          continuing = true;
+          break;
+        }
+      }
+      if (!continuing) {
+        endStretchSession();
+      }
+    }
+  }
+
   if (editingStretchIndex >= 0 && stretches.length > 0 && editIsOn) {
     return (
       <View style={styles.container}>
@@ -125,6 +151,7 @@ function StretchScreen() {
                     increment={30}
                     labelStyle={styles.sliderLabel}
                     onChange={async (values: number[]) => {
+                      // Update the totalStretchTime for the specific stretch
                       const updatedStretchArray = stretches;
                       updatedStretchArray[index].totalStretchTime = values[0];
                       setStretches([...updatedStretchArray]);
@@ -169,32 +196,18 @@ function StretchScreen() {
           setTime(time - 1);
         }}
         goToNextStretch={async () => {
-          // Stretch complete! Save the stretch you just completed to the log.
+
+          // Save the current stretch to the log if it's valid
           if (currentStretchIndex >= 0) {
             await saveExercisesForCurrentDayToLog(
               stretches,
               currentStretchIndex
             );
           }
-          Vibration.vibrate();
-          if (currentStretchIndex + 1 >= stretches.length) {
-            endStretchSession();
-          } else {
-            // Go to next enabled stretch
-            let continuing = false;
-            for (let i = currentStretchIndex + 1; i < stretches.length; i++) {
-              if (stretches[i].enabled) {
-                setIsStretching(true);
-                setTime(stretches[i].totalStretchTime);
-                setCurrentStretchIndex(i);
-                continuing = true;
-                break;
-              }
-            }
-            if (!continuing) {
-              endStretchSession();
-            }
-          }
+          continueToNextStretchOrEndSession();
+        }}
+        skipStretch={() => {
+          continueToNextStretchOrEndSession();
         }}
       />
     </>
