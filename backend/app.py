@@ -1,5 +1,8 @@
 import os
-from flask import Flask, request
+import logging
+import traceback
+from functools import wraps
+from flask import Flask, request, jsonify
 from openai import OpenAI
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -10,49 +13,103 @@ from pathlib import Path
 
 load_dotenv()
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+def handle_endpoint_errors(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"{f.__name__} failed: {e}")
+            logger.error(traceback.format_exc())
+            return jsonify({"error": str(e)}), 500
+    return wrapper
+
+
 app = Flask(__name__)
 
 # For React Native app - allow all origins during development
 CORS(app)
 
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
-)
+try:
+    logger.info("Initializing OpenAI client...")
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY environment variable not set")
+    client = OpenAI(api_key=api_key)
+    logger.info("OpenAI client initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize OpenAI client: {e}")
+    raise
 
-retriever = PMCDataRetriever(client, ncbi_api_key=os.environ.get("NCBI_API_KEY"))
+try:
+    logger.info("Initializing PMCDataRetriever...")
+    ncbi_key = os.environ.get("NCBI_API_KEY")
+    retriever = PMCDataRetriever(client, ncbi_api_key=ncbi_key)
+    logger.info("PMCDataRetriever initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize PMCDataRetriever: {e}")
+    raise
 
-# On startup — saves $$ by caching embeddings
-INDEX_PATH = "pmc_index.json"
-if Path(INDEX_PATH).exists():
-    retriever.load_index(INDEX_PATH)
-else: # Initial indexing of example topics (only needs to be done once, then the index is saved and loaded on future runs)
-    retriever.search_and_index("shoulder rehabilitation stretches", max_articles=20)
-    retriever.search_and_index("lower back pain physiotherapy exercises", max_articles=20)
-    retriever.save_index(INDEX_PATH)
+try:
+    logger.info("Loading or creating article index...")
+    INDEX_PATH = "pmc_index.json"
+    if Path(INDEX_PATH).exists():
+        logger.info(f"Loading existing index from {INDEX_PATH}")
+        retriever.load_index(INDEX_PATH)
+        logger.info("Index loaded successfully")
+    else:
+        logger.info("Creating new index with example topics...")
+        retriever.search_and_index("shoulder rehabilitation stretches", max_articles=20)
+        retriever.search_and_index("lower back pain physiotherapy exercises", max_articles=20)
+        retriever.save_index(INDEX_PATH)
+        logger.info("Index created and saved successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize article index: {e}")
+    logger.error(traceback.format_exc())
+    raise
 
-topic_indexer = TopicIndexer(retriever, client, INDEX_PATH)
-rag_pipeline = RAGPipeline(retriever, topic_indexer)
+try:
+    logger.info("Initializing RAG pipeline...")
+    topic_indexer = TopicIndexer(retriever, client, INDEX_PATH)
+    rag_pipeline = RAGPipeline(retriever, topic_indexer)
+    logger.info("RAG pipeline initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize RAG pipeline: {e}")
+    raise
 
 
 # Test route to verify AI model and key works
 @app.route("/ai-test")
+@handle_endpoint_errors
 def ai_test():
     response = client.responses.create(
         model="gpt-5-nano",
         instructions="You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Recommend stretches and exercises based on user input. Make sure responses are separated in paragraphs and easy to read.",
         input="I have a sore back. What should I do?",
     )
-
     return f"<p>{response.output_text}</p>"
 
 # Gets JSON body of prompt of something stretching, physiotherapy, or pain related, depending on response_type. Returns AI response.
 @app.route("/physiotherapy_advice", methods=['POST'])
+@handle_endpoint_errors
 def physiotherapy_advice():
+    if not request.is_json:
+        return jsonify({"error": "Request must be JSON"}), 400
+
     data = request.get_json()
-    message = data.get('message', '')
+    message = data.get('message', '').strip()
+    if not message:
+        return jsonify({"error": "Message cannot be empty"}), 400
+
     adviceType = data.get('advice_type', 'stretches')
     use_rag = data.get('use_rag', True)
-    # Optional list of {"role": "user"|"assistant", "content": str} for multi-turn context
     conversation_history = data.get('conversation_history', [])
 
     instructions_map = {
@@ -61,19 +118,25 @@ def physiotherapy_advice():
         'misc_physiotherapy': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Talk about what physiotherapists could do aside from assigning you stretches based on user input.",
     }
 
-    # Extra instructions to record data that could be useful for physiotherapists to have in the response for better understanding of the patient's condition and to make more informed decisions. The JSON block will be separated from the main response by a <json> tag, which can be easily parsed on the frontend.
+    if adviceType not in instructions_map:
+        return jsonify({"error": f"Invalid advice_type: {adviceType}"}), 400
+
     extra_instructions = (
         "At the end of your response, you MUST append a JSON block using exactly this format — "
         "no markdown, no code fences, just the raw tags: "
         "<json>{ \"pain_intensity\": ..., \"primary_location\": ..., \"recommended_actions\": [...], \"red_flag_status\": ... }</json>"
     )
 
-    #Fetch RAG context of physiotherapy related articles and inject into instructions if enabled. Also ensure the message is indexed for future retrieval.
-    rag_context = rag_pipeline.fetch_context(message) if use_rag else ""
+    rag_context = ""
+    if use_rag:
+        try:
+            rag_context = rag_pipeline.fetch_context(message)
+        except Exception as e:
+            logger.warning(f"RAG context fetch failed: {e}")
 
     full_instructions = instructions_map.get(adviceType) + (f"\n\n{rag_context}" if rag_context else "")
 
-    # Build input: include prior conversation turns when provided for better contextual responses
+    # Build input: include prior conversation turns when provided
     if conversation_history:
         input_items = [
             {"role": turn["role"], "content": turn["content"]}
@@ -98,6 +161,20 @@ def physiotherapy_advice():
     }
 
 
+@app.errorhandler(Exception)
+def handle_error(error):
+    logger.error(f"Unhandled exception: {error}")
+    logger.error(traceback.format_exc())
+    return jsonify({"error": "Internal server error"}), 500
+
+
 if __name__ == "__main__":
-    # Bind to 0.0.0.0 so physical devices on the LAN can reach this server.
+    logger.info("=" * 50)
+    logger.info("Starting Physiotherapy AI Backend Server")
+    logger.info("=" * 50)
+    logger.info(f"Server running on http://0.0.0.0:8000")
+    logger.info("Endpoints:")
+    logger.info("  GET  /ai-test - Test the AI model")
+    logger.info("  POST /physiotherapy_advice - Get physiotherapy advice")
+    logger.info("=" * 50)
     app.run(host="0.0.0.0", port=8000, debug=True)
