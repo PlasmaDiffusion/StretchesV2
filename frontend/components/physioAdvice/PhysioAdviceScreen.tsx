@@ -9,9 +9,9 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
 } from "react-native";
-import { useFetchPhysioAdvice, ConversationTurn } from "../../hooks/useFetchPhysioAdvice";
+import { useStreamPhysioAdvice, ConversationTurn, StreamStatus } from "../../hooks/useFetchPhysioAdvice";
+import { StreamingProgressBar } from "./StreamingProgressBar";
 import PhysioAdviceCategory from "./PhysioAdviceCategory";
 import PhysioAdviceSessions from "./PhysioAdviceSessions";
 import ChatBubble from "./ChatBubble";
@@ -28,7 +28,8 @@ import {
 type AdviceType = "stretches" | "mental" | "misc_physiotherapy";
 
 export default function PhysioAdviceScreen() {
-  const { fetchAdvice, loading, error } = useFetchPhysioAdvice();
+  const [streamStatus, setStreamStatus] = useState<StreamStatus | null>(null);
+  const { fetchAdviceStream, loading, error, cancel } = useStreamPhysioAdvice(setStreamStatus);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [adviceType, setAdviceType] = useState<AdviceType>("stretches");
@@ -92,7 +93,9 @@ export default function PhysioAdviceScreen() {
     }));
 
     try {
-      const response = await fetchAdvice(trimmed, adviceType, useRag, history);
+      const response = await fetchAdviceStream(trimmed, adviceType, useRag, history);
+      if (!response) return;
+
       const aiMsg: ChatMessage = {
         role: "assistant",
         content: response.message,
@@ -128,7 +131,7 @@ export default function PhysioAdviceScreen() {
     messages,
     adviceType,
     useRag,
-    fetchAdvice,
+    fetchAdviceStream,
     currentSessionIndex,
     sessions,
     refreshSessions,
@@ -170,22 +173,17 @@ export default function PhysioAdviceScreen() {
             </Text>
           </View>
         )}
+        <View style={styles.progressBarContainer}>
+          <StreamingProgressBar
+            status={streamStatus}
+            error={error}
+            onCancel={cancel}
+            isLoading={loading}
+          />
+        </View>
         {!bubblesHidden && messages.map((msg, i) => (
           <ChatBubble key={i} message={msg} />
         ))}
-        {loading && (
-          <View style={styles.loadingRow}>
-            <View style={styles.loadingBubble}>
-              <ActivityIndicator size="small" color="#007AFF" />
-              <Text style={styles.loadingText}>Thinking...</Text>
-            </View>
-          </View>
-        )}
-        {error && !loading && (
-          <View style={styles.errorRow}>
-            <Text style={styles.errorText}>Error: {error}</Text>
-          </View>
-        )}
         {messages.length > 0 && (
           <TouchableOpacity
             style={styles.scrollToTopButton}
@@ -256,7 +254,11 @@ const styles = StyleSheet.create({
   },
   chatContent: {
     paddingVertical: 12,
+    paddingHorizontal: 12,
     flexGrow: 1,
+  },
+  progressBarContainer: {
+    marginBottom: 8,
   },
   emptyState: {
     flex: 1,
@@ -270,34 +272,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 15,
     lineHeight: 22,
-  },
-  loadingRow: {
-    paddingHorizontal: 12,
-    marginVertical: 6,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  loadingBubble: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 16,
-    borderBottomLeftRadius: 4,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  loadingText: {
-    color: "#666",
-    fontSize: 14,
-  },
-  errorRow: {
-    marginHorizontal: 12,
-    marginVertical: 6,
-  },
-  errorText: {
-    color: "red",
-    fontSize: 13,
   },
   inputArea: {
     borderTopWidth: StyleSheet.hairlineWidth,

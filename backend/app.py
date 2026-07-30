@@ -2,7 +2,7 @@ import os
 import logging
 import traceback
 from functools import wraps
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response, stream_with_context
 from openai import OpenAI
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -161,6 +161,90 @@ def physiotherapy_advice():
         "message": responseWithDataSplit[0].strip(),
         'extra_data': responseWithDataSplit[1].replace('</json>', '').strip() if len(responseWithDataSplit) > 1 else ""
     }
+
+
+@app.route("/physiotherapy_advice_stream", methods=['POST'])
+def physiotherapy_advice_stream():
+    def generate():
+        try:
+            if not request.is_json:
+                yield f'data: {{"status": "error", "message": "Request must be JSON"}}\n\n'
+                return
+
+            data = request.get_json()
+            message = data.get('message', '').strip()
+            if not message:
+                yield f'data: {{"status": "error", "message": "Message cannot be empty"}}\n\n'
+                return
+
+            adviceType = data.get('advice_type', 'stretches')
+            use_rag = data.get('use_rag', True)
+            conversation_history = data.get('conversation_history', [])
+
+            instructions_map = {
+                'stretches': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Recommend stretches and exercises based on user input.",
+                'mental': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Recommend ways to cope with the pain mentally.",
+                'misc_physiotherapy': "You are a specialized Physiotherapy Assistant. Your goal is to provide evidence-based pain management education. Talk about what physiotherapists could do aside from assigning you stretches based on user input.",
+            }
+
+            if adviceType not in instructions_map:
+                yield f'data: {{"status": "error", "message": "Invalid advice_type: {adviceType}"}}\n\n'
+                return
+
+            yield f'data: {{"status": "validating_request"}}\n\n'
+
+            extra_instructions = (
+                "At the end of your response, you MUST append a JSON block using exactly this format — "
+                "no markdown, no code fences, just the raw tags: "
+                "<json>{ \"pain_intensity\": ..., \"primary_location\": ..., \"recommended_actions\": [...], \"red_flag_status\": ... }</json>"
+            )
+
+            rag_context = ""
+            if use_rag:
+                yield f'data: {{"status": "fetching_rag_context"}}\n\n'
+                try:
+                    rag_context = rag_pipeline.fetch_context(message)
+                except Exception as e:
+                    logger.warning(f"RAG context fetch failed: {e}")
+                    yield f'data: {{"status": "rag_context_failed"}}\n\n'
+
+            full_instructions = instructions_map.get(adviceType) + (f"\n\n{rag_context}" if rag_context else "")
+
+            # Build input: include prior conversation turns when provided
+            if conversation_history:
+                input_items = [
+                    {"role": turn["role"], "content": turn["content"]}
+                    for turn in conversation_history
+                    if turn.get("role") in ("user", "assistant") and turn.get("content")
+                ]
+                input_items.append({"role": "user", "content": message})
+            else:
+                input_items = message
+
+            yield f'data: {{"status": "calling_openai"}}\n\n'
+
+            response = client.responses.create(
+                model="gpt-5-nano",
+                instructions=full_instructions + " " + extra_instructions,
+                input=input_items,
+            )
+
+            responseWithDataSplit = response.output_text.split('<json>')
+
+            result = {
+                "message": responseWithDataSplit[0].strip(),
+                'extra_data': responseWithDataSplit[1].replace('</json>', '').strip() if len(responseWithDataSplit) > 1 else ""
+            }
+
+            import json
+            yield f'data: {{"status": "done", "result": {json.dumps(result)}}}\n\n'
+
+        except Exception as e:
+            logger.error(f"Stream error: {e}")
+            logger.error(traceback.format_exc())
+            yield f'data: {{"status": "error", "message": "{str(e)}"}}\n\n'
+
+    return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
 
 @app.errorhandler(Exception)
