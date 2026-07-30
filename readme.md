@@ -29,7 +29,12 @@ Additionally the logging is used for chronic pain, letting you log how in pain y
 
 > npm run start
 
-(Make an expo dev build and install it on your phone. Expo Go also works. Then run npm install, then npm run start.)
+(Make an expo dev build and install it on your phone. Expo Go also should work unless any major package is added to this project. Then run npm install, then npm run start.)
+
+If connecting to expo doesn't work try
+> npm run start -- --tunnel
+or in your mobile safari browser go to exp://192.168.2.27:8081
+
 
 # Other Commands
 > npm run lint
