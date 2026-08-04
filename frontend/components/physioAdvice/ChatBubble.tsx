@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   bubble: {
-    maxWidth: "78%",
+    maxWidth: "95%",
     borderRadius: 16,
     paddingHorizontal: 4,
     paddingVertical: 10,
