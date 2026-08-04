@@ -44,6 +44,7 @@ export default function PhysioAdviceScreen() {
   const [sessions, setSessions] = useState<AdviceSession[]>([]);
   const [bubblesHidden, setBubblesHidden] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
+  const [inputFocused, setInputFocused] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const refreshSessions = useCallback(async () => {
@@ -175,7 +176,7 @@ export default function PhysioAdviceScreen() {
     <View style={styles.root}>
       <ScrollView
         ref={scrollViewRef}
-        style={styles.chatArea}
+        style={[styles.chatArea, inputFocused && { maxHeight: "40%" }]}
         contentContainerStyle={styles.chatContent}
         keyboardShouldPersistTaps="handled"
         scrollEnabled={true}
@@ -235,17 +236,21 @@ export default function PhysioAdviceScreen() {
           isLoading={loading}
         />
 
-        <PhysioAdviceCategory
-          adviceType={adviceType}
-          onAdviceTypeChange={setAdviceType}
-        />
+        {!inputFocused && (
+          <>
+            <PhysioAdviceCategory
+              adviceType={adviceType}
+              onAdviceTypeChange={setAdviceType}
+            />
 
-        <View style={styles.ragToggleRow}>
-          <Switch value={useRag} onValueChange={setUseRag} />
-          <Text style={styles.ragToggleLabel}>
-            Use research articles to support answers
-          </Text>
-        </View>
+            <View style={styles.ragToggleRow}>
+              <Switch value={useRag} onValueChange={setUseRag} />
+              <Text style={styles.ragToggleLabel}>
+                Use research articles to support answers
+              </Text>
+            </View>
+          </>
+        )}
 
         <View style={styles.inputRow}>
           <TextInput
@@ -256,7 +261,10 @@ export default function PhysioAdviceScreen() {
             multiline
             onSubmitEditing={handleSend}
             blurOnSubmit={false}
-            onFocus={() => setBubblesHidden(true)}
+            onFocus={() => {
+              setInputFocused(true);
+            }}
+            onBlur={() => setInputFocused(false)}
           />
           <TouchableOpacity
             style={[
