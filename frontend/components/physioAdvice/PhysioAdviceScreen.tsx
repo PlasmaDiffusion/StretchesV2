@@ -103,6 +103,9 @@ export default function PhysioAdviceScreen() {
     const trimmed = inputMessage.trim();
     if (!trimmed || loading) return;
 
+    setBubblesHidden(false);
+    setStreamStatus(null);
+
     const userMsg: ChatMessage = { role: "user", content: trimmed };
     const optimisticMessages = [...messages, userMsg];
     setMessages(optimisticMessages);
@@ -163,6 +166,8 @@ export default function PhysioAdviceScreen() {
     currentSessionIndex,
     sessions,
     refreshSessions,
+    setBubblesHidden,
+    setStreamStatus,
   ]);
 
   return (
