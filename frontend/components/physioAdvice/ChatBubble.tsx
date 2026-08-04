@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     marginVertical: 6,
-    paddingHorizontal: 12,
     alignItems: "flex-end",
   },
   userRow: {
@@ -82,10 +81,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   bubble: {
-    maxWidth: "95%",
+    maxWidth: "100%",
     borderRadius: 16,
     paddingHorizontal: 4,
     paddingVertical: 10,
+    marginVertical: 4,
   },
   userBubble: {
     backgroundColor: "#007AFF",

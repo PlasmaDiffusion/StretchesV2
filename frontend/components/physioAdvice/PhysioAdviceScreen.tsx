@@ -19,7 +19,6 @@ import { StreamingProgressBar } from "./StreamingProgressBar";
 import PhysioAdviceCategory from "./PhysioAdviceCategory";
 import PhysioAdviceSessions from "./PhysioAdviceSessions";
 import ChatBubble from "./ChatBubble";
-import { HeadingText } from "../commonComponents/HeadingText";
 import {
   saveAdviceSession,
   updateAdviceSession,
@@ -57,16 +56,18 @@ export default function PhysioAdviceScreen() {
   }, [refreshSessions]);
 
   useEffect(() => {
-    scrollViewRef.current?.scrollToEnd({ animated: true });
+    if (messages.length > 0) {
+      requestAnimationFrame(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      });
+    }
   }, [messages, loading]);
 
   useEffect(() => {
     if (!bubblesHidden && contentHeight > 0) {
-      console.log("Scrolling to:", contentHeight);
-      // Give the view time to layout after becoming visible
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         scrollViewRef.current?.scrollToEnd({ animated: false });
-      }, 500);
+      });
     }
   }, [bubblesHidden, contentHeight]);
 
@@ -172,45 +173,44 @@ export default function PhysioAdviceScreen() {
 
   return (
     <View style={styles.root}>
-      {/* Header */}
-      <View style={styles.header}>
-        {/* <HeadingText>Physiotherapy Advice</HeadingText> */}
-        <View style={styles.headerActions}>
-          <PhysioAdviceSessions
-            sessions={sessions}
-            currentSessionIndex={currentSessionIndex}
-            onLoad={handleLoadSession}
-            onNewChat={handleNewChat}
-            onSessionDeleted={handleSessionDeleted}
-            onSessionRenamed={refreshSessions}
-          />
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.chatArea}
+        contentContainerStyle={styles.chatContent}
+        keyboardShouldPersistTaps="handled"
+        scrollEnabled={true}
+        maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
+        onContentSizeChange={(_, height) => {
+          setContentHeight(height);
+        }}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          {/* <HeadingText>Physiotherapy Advice</HeadingText> */}
+          <View style={styles.headerActions}>
+            <PhysioAdviceSessions
+              sessions={sessions}
+              currentSessionIndex={currentSessionIndex}
+              onLoad={handleLoadSession}
+              onNewChat={handleNewChat}
+              onSessionDeleted={handleSessionDeleted}
+              onSessionRenamed={refreshSessions}
+            />
+          </View>
         </View>
-      </View>
 
-      {/* Chat messages */}
-      {!bubblesHidden && (
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.chatArea}
-          contentContainerStyle={styles.chatContent}
-          keyboardShouldPersistTaps="handled"
-          scrollEnabled={true}
-          onContentSizeChange={(width, height) => {
-            setContentHeight(height);
-            scrollViewRef.current?.scrollToEnd({ animated: true });
-          }}
-        >
-          {messages.length === 0 && (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>
-                {/* Ask a physiotherapy question below to get started. */}
-              </Text>
-            </View>
-          )}
-          {!bubblesHidden &&
-            messages.map((msg, i) => <ChatBubble key={i} message={msg} />)}
-        </ScrollView>
-      )}
+        {/* Chat messages */}
+        {!bubblesHidden && messages.length > 0 && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>
+              {/* Ask a physiotherapy question below to get started. */}
+              {messages.map((msg, i) => (
+                <ChatBubble key={i} message={msg} />
+              ))}
+            </Text>
+          </View>
+        )}
+      </ScrollView>
 
       {messages.length > 0 && (
         <TouchableOpacity
@@ -218,13 +218,16 @@ export default function PhysioAdviceScreen() {
           onPress={() => setBubblesHidden((v) => !v)}
         >
           <Text style={styles.scrollToTopText}>
-            {bubblesHidden ? "Show Chat" : "Hide Chat"}
+            {bubblesHidden ? "Show Chat" : "Hide Chat / Show Topic Dropdown"}
           </Text>
         </TouchableOpacity>
       )}
 
       {/* Input area */}
-      <View style={styles.inputArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.inputArea}
+      >
         <StreamingProgressBar
           status={streamStatus}
           error={error}
@@ -244,33 +247,29 @@ export default function PhysioAdviceScreen() {
           </Text>
         </View>
 
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <View style={styles.inputRow}>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Ask a physio question..."
-              value={inputMessage}
-              onChangeText={setInputMessage}
-              multiline
-              onSubmitEditing={handleSend}
-              blurOnSubmit={false}
-              onFocus={() => setBubblesHidden(true)}
-            />
-            <TouchableOpacity
-              style={[
-                styles.sendButton,
-                (!inputMessage.trim() || loading) && styles.sendButtonDisabled,
-              ]}
-              onPress={handleSend}
-              disabled={!inputMessage.trim() || loading}
-            >
-              <Text style={styles.sendButtonText}>↑</Text>
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
-      </View>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Ask a physio question..."
+            value={inputMessage}
+            onChangeText={setInputMessage}
+            multiline
+            onSubmitEditing={handleSend}
+            blurOnSubmit={false}
+            onFocus={() => setBubblesHidden(true)}
+          />
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              (!inputMessage.trim() || loading) && styles.sendButtonDisabled,
+            ]}
+            onPress={handleSend}
+            disabled={!inputMessage.trim() || loading}
+          >
+            <Text style={styles.sendButtonText}>↑</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -295,7 +294,6 @@ const styles = StyleSheet.create({
   },
   chatContent: {
     paddingVertical: 12,
-    flexGrow: 1,
   },
   emptyState: {
     flex: 1,

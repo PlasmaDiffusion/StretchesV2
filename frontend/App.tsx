@@ -32,9 +32,7 @@ function ExerciseLogTab() {
 
 function AdviceTab() {
   return (
-    <ScrollView>
       <PhysioAdviceScreen />
-    </ScrollView>
   );
 }
 
