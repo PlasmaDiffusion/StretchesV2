@@ -45,6 +45,7 @@ export default ({ config }) => ({
       {
         ios: {
           useFrameworks: "static",
+          enablePrecompiledModules: false,
         },
       },
     ],
