@@ -18,7 +18,7 @@ export default ({ config }) => ({
       process.env.APP_VARIANT === "dev"
         ? "com.plasmadiffusion.stretchesdev"
         : "com.plasmadiffusion.stretches",
-    buildNumber: "2",
+    buildNumber: "3",
   },
   android: {
     adaptiveIcon: {
@@ -51,7 +51,7 @@ export default ({ config }) => ({
     ],
   ],
   owner: "plasmadiffusion",
-  runtimeVersion: "1.3.2",
+  runtimeVersion: "1.4.0",
   updates: {
     url: "https://u.expo.dev/5963bd8b-f61b-4bd8-98e3-2b51802d5c48",
   },
