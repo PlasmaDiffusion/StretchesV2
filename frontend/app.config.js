@@ -39,6 +39,16 @@ export default ({ config }) => ({
     },
     physioAdviceUrl: process.env.PHYSIO_ADVICE_API_URL ?? "http://localhost:8000",
   },
+  plugins: [
+    [
+      "expo-build-properties",
+      {
+        ios: {
+          useFrameworks: "static",
+        },
+      },
+    ],
+  ],
   owner: "plasmadiffusion",
   runtimeVersion: "1.3.2",
   updates: {
