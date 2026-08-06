@@ -181,7 +181,10 @@ function StretchScreen() {
         </>
       ) : (
         <View style={styles.stretchingContainer}>
-          <EndButton onPress={endStretchSession} />
+          <EndButton
+            onPress={endStretchSession}
+            hasReferenceLinks={!!stretches[currentStretchIndex]?.links?.length}
+          />
           <CurrentStretchData
             stretch={stretches[currentStretchIndex]}
             time={time}

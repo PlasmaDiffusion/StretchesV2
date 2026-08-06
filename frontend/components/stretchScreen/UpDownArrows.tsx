@@ -36,7 +36,7 @@ export default function UpDownArrows({
         }}
       >
         <AntDesign
-          name="arrowup"
+          name="arrow-up"
           size={24}
           color={index === 0 ? "#ccc" : "#333"}
         />
@@ -55,7 +55,7 @@ export default function UpDownArrows({
         }}
       >
         <AntDesign
-          name="arrowdown"
+          name="arrow-down"
           size={24}
           color={index === stretches.length - 1 ? "#ccc" : "#333"}
         />

@@ -5,9 +5,10 @@ import React from "react";
 
 interface Props {
   onPress: () => any;
+  hasReferenceLinks?: boolean;
 }
 
-export function EndButton({ onPress }: Props) {
+export function EndButton({ onPress, hasReferenceLinks }: Props) {
   const [showEndModal, setShowEndModal] = useState(false);
 
   return (
@@ -20,7 +21,7 @@ export function EndButton({ onPress }: Props) {
           setShowEndModal(false);
         }}
       />
-      <View style={styles.buttonContainer}>
+      <View style={[styles.buttonContainer, hasReferenceLinks && { top: -88 }]}>
         <Button
           onPress={() => {
             setShowEndModal(true);
