@@ -108,29 +108,41 @@ export const useStreamPhysioAdvice = (onStatusChange?: (status: StreamStatus) =>
               throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const text = await response.text();
-            const lines = text.split("\n");
+            const reader = response.body?.getReader();
+            if (!reader) throw new Error("Response body not readable");
+
+            const decoder = new TextDecoder();
+            let buffer = "";
             let result = null;
 
-            for (const line of lines) {
-              if (line.startsWith("data: ")) {
-                try {
-                  const data = JSON.parse(line.slice(6));
-                  const status = data.status as StreamStatus;
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
 
-                  onStatusChange?.(status);
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop() || "";
 
-                  if (status === "done") {
-                    result = data.result;
-                  } else if (status === "error") {
-                    const errorMsg = data.message || "Unknown error";
-                    setError(errorMsg);
-                    setLoading(false);
-                    reject(new Error(errorMsg));
-                    return;
+              for (const line of lines) {
+                if (line.startsWith("data: ")) {
+                  try {
+                    const data = JSON.parse(line.slice(6));
+                    const status = data.status as StreamStatus;
+
+                    onStatusChange?.(status);
+
+                    if (status === "done") {
+                      result = data.result;
+                    } else if (status === "error") {
+                      const errorMsg = data.message || "Unknown error";
+                      setError(errorMsg);
+                      setLoading(false);
+                      reject(new Error(errorMsg));
+                      return;
+                    }
+                  } catch (err) {
+                    console.error("Error parsing stream data:", err);
                   }
-                } catch (err) {
-                  console.error("Error parsing stream data:", err);
                 }
               }
             }
