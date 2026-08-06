@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Text,
   TextInput,
-  Switch,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -15,8 +14,7 @@ import {
   ConversationTurn,
   StreamStatus,
 } from "../../hooks/useFetchPhysioAdvice";
-import { StreamingProgressBar } from "./StreamingProgressBar";
-import PhysioAdviceCategory from "./PhysioAdviceCategory";
+import { StreamingProgressBar } from "./extras/StreamingProgressBar";
 import PhysioAdviceSessions from "./PhysioAdviceSessions";
 import ChatBubble from "./ChatBubble";
 import {
@@ -27,6 +25,7 @@ import {
   ChatMessage,
   AdviceSession,
 } from "../../utilities/adviceStorage";
+import PhysioAdviceQuestionSettings from "./extras/PhysioAdviceQuestionSettings";
 
 type AdviceType = "stretches" | "mental" | "misc_physiotherapy";
 
@@ -234,19 +233,12 @@ export default function PhysioAdviceScreen() {
         />
 
         {!inputFocused && (
-          <>
-            <PhysioAdviceCategory
-              adviceType={adviceType}
-              onAdviceTypeChange={setAdviceType}
-            />
-
-            <View style={styles.ragToggleRow}>
-              <Switch value={useRag} onValueChange={setUseRag} />
-              <Text style={styles.ragToggleLabel}>
-                Use research articles to support answers
-              </Text>
-            </View>
-          </>
+          <PhysioAdviceQuestionSettings
+            adviceType={adviceType}
+            onAdviceTypeChange={setAdviceType}
+            useRag={useRag}
+            onRagChange={setUseRag}
+          />
         )}
 
         <View style={styles.inputRow}>
@@ -325,16 +317,6 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === "ios" ? 24 : 12,
     backgroundColor: "#fff",
   },
-  ragToggleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-    gap: 8,
-  },
-  ragToggleLabel: {
-    color: "#555",
-    fontSize: 14,
-  },
   inputRow: {
     flexDirection: "row",
     alignItems: "flex-end",
@@ -372,7 +354,7 @@ const styles = StyleSheet.create({
   },
   scrollToTopButton: {
     alignSelf: "center",
-    marginVertical: 12,
+    marginVertical: 4,
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 16,

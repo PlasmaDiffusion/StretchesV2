@@ -1,6 +1,12 @@
-import React from "react";
-import { View, Text, StyleSheet, Pressable, ActivityIndicator } from "react-native";
-import { StreamStatus } from "../../hooks/useFetchPhysioAdvice";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
+import { StreamStatus } from "../../../hooks/useFetchPhysioAdvice";
 
 interface Props {
   status: StreamStatus | null;
@@ -10,7 +16,7 @@ interface Props {
 }
 
 const statusMessages: Record<StreamStatus, string> = {
-  validating_request: "Validating request...",
+  validating_request: "Awaiting Response...",
   fetching_rag_context: "Fetching medical context...",
   rag_context_failed: "Proceeding without context...",
   calling_openai: "Getting AI response...",
@@ -41,12 +47,43 @@ export function StreamingProgressBar({
   onCancel,
   isLoading,
 }: Props) {
+  const [animatedProgress, setAnimatedProgress] = useState(0);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setAnimatedProgress(0);
+      return;
+    }
+
+    // Start with the status-based progress
+    const statusProgress = getProgressPercentage(status);
+    setAnimatedProgress(statusProgress);
+
+    // Animate progress incrementally if still loading
+    if (status !== "done" && status !== "error") {
+      const interval = setInterval(() => {
+        setAnimatedProgress((prev) => {
+          // Don't go past 90% until done
+          if (prev >= 90) return prev;
+          return prev + Math.random() * 10;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isLoading, status]);
+
   if (!isLoading && !error) {
     return null;
   }
 
-  const progress = getProgressPercentage(status);
-  const message = error ? "Error" : statusMessages[status || "validating_request"];
+  const progress =
+    status === "done"
+      ? 100
+      : Math.max(animatedProgress, getProgressPercentage(status));
+  const message = error
+    ? "Error"
+    : statusMessages[status || "validating_request"];
 
   return (
     <View style={styles.container}>
@@ -82,9 +119,7 @@ export function StreamingProgressBar({
         )}
       </View>
 
-      {error && (
-        <Text style={styles.errorText}>{error}</Text>
-      )}
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 }

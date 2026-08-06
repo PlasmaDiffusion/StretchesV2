@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react"
 
 const PHYSIO_ADVICE_API_URL = process.env.EXPO_PUBLIC_PHYSIO_ADVICE_API_URL ?? "http://localhost:8000";
+console.log("PHYSIO_ADVICE_API_URL:", PHYSIO_ADVICE_API_URL);
 
 export interface ConversationTurn {
   role: "user" | "assistant";
@@ -108,41 +109,31 @@ export const useStreamPhysioAdvice = (onStatusChange?: (status: StreamStatus) =>
               throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const reader = response.body?.getReader();
-            if (!reader) throw new Error("Response body not readable");
-
-            const decoder = new TextDecoder();
-            let buffer = "";
+            // React Native fallback: always use text parsing
+            console.log("Reading response as text");
+            const text = await response.text();
+            const lines = text.split("\n");
             let result = null;
 
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  const status = data.status as StreamStatus;
 
-              buffer += decoder.decode(value, { stream: true });
-              const lines = buffer.split("\n");
-              buffer = lines.pop() || "";
+                  onStatusChange?.(status);
 
-              for (const line of lines) {
-                if (line.startsWith("data: ")) {
-                  try {
-                    const data = JSON.parse(line.slice(6));
-                    const status = data.status as StreamStatus;
-
-                    onStatusChange?.(status);
-
-                    if (status === "done") {
-                      result = data.result;
-                    } else if (status === "error") {
-                      const errorMsg = data.message || "Unknown error";
-                      setError(errorMsg);
-                      setLoading(false);
-                      reject(new Error(errorMsg));
-                      return;
-                    }
-                  } catch (err) {
-                    console.error("Error parsing stream data:", err);
+                  if (status === "done") {
+                    result = data.result;
+                  } else if (status === "error") {
+                    const errorMsg = data.message || "Unknown error";
+                    setError(errorMsg);
+                    setLoading(false);
+                    reject(new Error(errorMsg));
+                    return;
                   }
+                } catch (err) {
+                  console.error("Error parsing stream data:", err);
                 }
               }
             }
@@ -152,13 +143,15 @@ export const useStreamPhysioAdvice = (onStatusChange?: (status: StreamStatus) =>
           })
           .catch((err: any) => {
             if (err.name === "AbortError") {
+              console.log("Stream cancelled by user");
               setLoading(false);
               resolve(null);
               return;
             }
             console.warn("PHYSIO_ADVICE_API_URL:", PHYSIO_ADVICE_API_URL);
-            console.error("Fetch error:", err);
-            setError(err.message);
+            console.error("Fetch error:", err.message || err);
+            console.error("Full error:", err);
+            setError(err.message || "Unknown error");
             setLoading(false);
             reject(err);
           });
