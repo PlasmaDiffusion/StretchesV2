@@ -28,7 +28,8 @@
       "channel": "production",
       "env": {
         "APP_VARIANT": "prod",
-        "EXPO_PRECOMPILED_MODULES_ENABLED": "0"
+        "EXPO_PRECOMPILED_MODULES_ENABLED": "0",
+        "EXPO_PUBLIC_PHYSIO_ADVICE_API_URL": "https://phsyio-advice-e0aacb36a364.herokuapp.com"
       }
     }
   },
