@@ -166,8 +166,10 @@ def physiotherapy_advice():
 
 @app.route("/physiotherapy_advice_stream", methods=['POST'])
 def physiotherapy_advice_stream():
+    logger.info("Stream endpoint called")
     def generate():
         try:
+            logger.info("Generator started")
             if not request.is_json:
                 yield f'data: {{"status": "error", "message": "Request must be JSON"}}\n\n'
                 return
@@ -192,6 +194,7 @@ def physiotherapy_advice_stream():
                 yield f'data: {{"status": "error", "message": "Invalid advice_type: {adviceType}"}}\n\n'
                 return
 
+            logger.info("Sending: validating_request")
             yield f'data: {{"status": "validating_request"}}\n\n'
             sys.stdout.flush()
 
@@ -203,6 +206,7 @@ def physiotherapy_advice_stream():
 
             rag_context = ""
             if use_rag:
+                logger.info("Sending: fetching_rag_context")
                 yield f'data: {{"status": "fetching_rag_context"}}\n\n'
                 sys.stdout.flush()
                 try:
@@ -224,9 +228,11 @@ def physiotherapy_advice_stream():
             else:
                 input_items = message
 
+            logger.info("Sending: calling_openai")
             yield f'data: {{"status": "calling_openai"}}\n\n'
             sys.stdout.flush()
 
+            logger.info("Calling OpenAI API")
             response = client.responses.create(
                 model="gpt-5-nano",
                 instructions=full_instructions + " " + extra_instructions,
@@ -241,8 +247,10 @@ def physiotherapy_advice_stream():
             }
 
             import json
+            logger.info("Sending: done")
             yield f'data: {{"status": "done", "result": {json.dumps(result)}}}\n\n'
             sys.stdout.flush()
+            logger.info("Stream complete")
 
         except Exception as e:
             logger.error(f"Stream error: {e}")
