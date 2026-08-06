@@ -18,7 +18,7 @@ export default ({ config }) => ({
       process.env.APP_VARIANT === "dev"
         ? "com.plasmadiffusion.stretchesdev"
         : "com.plasmadiffusion.stretches",
-    buildNumber: "4",
+    buildNumber: "5",
   },
   android: {
     adaptiveIcon: {
