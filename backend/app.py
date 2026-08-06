@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import traceback
 from functools import wraps
@@ -192,6 +193,7 @@ def physiotherapy_advice_stream():
                 return
 
             yield f'data: {{"status": "validating_request"}}\n\n'
+            sys.stdout.flush()
 
             extra_instructions = (
                 "At the end of your response, you MUST append a JSON block using exactly this format — "
@@ -202,6 +204,7 @@ def physiotherapy_advice_stream():
             rag_context = ""
             if use_rag:
                 yield f'data: {{"status": "fetching_rag_context"}}\n\n'
+                sys.stdout.flush()
                 try:
                     rag_context = rag_pipeline.fetch_context(message)
                 except Exception as e:
@@ -222,6 +225,7 @@ def physiotherapy_advice_stream():
                 input_items = message
 
             yield f'data: {{"status": "calling_openai"}}\n\n'
+            sys.stdout.flush()
 
             response = client.responses.create(
                 model="gpt-5-nano",
@@ -238,6 +242,7 @@ def physiotherapy_advice_stream():
 
             import json
             yield f'data: {{"status": "done", "result": {json.dumps(result)}}}\n\n'
+            sys.stdout.flush()
 
         except Exception as e:
             logger.error(f"Stream error: {e}")
