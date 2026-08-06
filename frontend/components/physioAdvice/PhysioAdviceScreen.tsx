@@ -202,13 +202,10 @@ export default function PhysioAdviceScreen() {
 
         {/* Chat messages */}
         {!bubblesHidden && messages.length > 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>
-              {/* Ask a physiotherapy question below to get started. */}
-              {messages.map((msg, i) => (
-                <ChatBubble key={i} message={msg} />
-              ))}
-            </Text>
+          <View style={styles.messagesContainer}>
+            {messages.map((msg, i) => (
+              <ChatBubble key={i} message={msg} />
+            ))}
           </View>
         )}
       </ScrollView>
@@ -302,6 +299,10 @@ const styles = StyleSheet.create({
   },
   chatContent: {
     paddingVertical: 12,
+  },
+  messagesContainer: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   emptyState: {
     flex: 1,
