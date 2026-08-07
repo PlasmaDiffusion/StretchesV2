@@ -88,6 +88,11 @@ rag_pipeline = initialize_component(
 )
 
 
+def is_flagged(text: str) -> bool:
+    result = client.moderations.create(model="omni-moderation-latest", input=text)
+    return result.results[0].flagged
+
+
 # Test route to verify AI model and key works
 @app.route("/ai-test")
 @handle_endpoint_errors
@@ -110,6 +115,9 @@ def physiotherapy_advice():
     message = data.get('message', '').strip()
     if not message:
         return jsonify({"error": "Message cannot be empty"}), 400
+
+    if is_flagged(message):
+        return jsonify({"error": "Your message was flagged by our content moderation system and cannot be processed."}), 400
 
     adviceType = data.get('advice_type', 'stretches')
     use_rag = data.get('use_rag', True)
@@ -192,6 +200,14 @@ def physiotherapy_advice_stream():
 
             if adviceType not in instructions_map:
                 yield f'data: {{"status": "error", "message": "Invalid advice_type: {adviceType}"}}\n\n'
+                return
+
+            logger.info("Sending: moderating_content")
+            yield f'data: {{"status": "moderating_content"}}\n\n'
+            sys.stdout.flush()
+
+            if is_flagged(message):
+                yield f'data: {{"status": "error", "message": "Your message was flagged by our content moderation system and cannot be processed."}}\n\n'
                 return
 
             logger.info("Sending: validating_request")
