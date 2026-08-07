@@ -7,6 +7,8 @@ interface Props {
   onPress: () => void;
   color?: string;
   italics?: boolean;
+  marginVertical?: number;
+  marginHorizontal?: number;
 }
 
 export function PrimaryButton({
@@ -14,6 +16,8 @@ export function PrimaryButton({
   onPress,
   color = "#aaaaee",
   italics,
+  marginVertical,
+  marginHorizontal,
 }: Props) {
   return (
     <TouchableOpacity
@@ -22,6 +26,8 @@ export function PrimaryButton({
         backgroundColor: color,
         ...styles.button,
         ...styles.primaryButton,
+        ...(marginVertical !== undefined && { marginVertical }),
+        ...(marginHorizontal !== undefined && { marginHorizontal }),
       }}
     >
       <Text
@@ -41,6 +47,8 @@ export function SecondaryButton({
   onPress,
   color = "#aa00ff",
   italics,
+  marginVertical,
+  marginHorizontal,
 }: Props) {
   return (
     <TouchableOpacity
@@ -49,6 +57,8 @@ export function SecondaryButton({
         borderColor: color,
         ...styles.button,
         ...styles.secondaryButton,
+        ...(marginVertical !== undefined && { marginVertical }),
+        ...(marginHorizontal !== undefined && { marginHorizontal }),
       }}
     >
       <Text

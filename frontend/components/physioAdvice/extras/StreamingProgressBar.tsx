@@ -16,6 +16,7 @@ interface Props {
 }
 
 const statusMessages: Record<StreamStatus, string> = {
+  moderating_content: "Checking your message...",
   validating_request: "Awaiting Response...",
   fetching_rag_context: "Fetching medical context...",
   rag_context_failed: "Proceeding without context...",
@@ -26,6 +27,8 @@ const statusMessages: Record<StreamStatus, string> = {
 
 const getProgressPercentage = (status: StreamStatus | null): number => {
   switch (status) {
+    case "moderating_content":
+      return 10;
     case "validating_request":
       return 15;
     case "fetching_rag_context":

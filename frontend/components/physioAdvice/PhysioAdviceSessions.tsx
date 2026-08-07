@@ -14,6 +14,7 @@ interface Props {
   onSessionRenamed: () => void;
 }
 
+// Shows session management UI: load, rename, delete, and create new sessions to ask for advice.
 export default function PhysioAdviceSessions({
   sessions,
   currentSessionIndex,
@@ -79,8 +80,8 @@ export default function PhysioAdviceSessions({
 
         {currentSessionIndex !== null && (
           <View style={styles.sessionActions}>
-            <SecondaryButton text="Rename" onPress={handleRename} />
-            <SecondaryButton text="Delete" onPress={() => setShowConfirm(true)} />
+            <SecondaryButton text="Rename" onPress={handleRename} marginVertical={2} />
+            <SecondaryButton text="Delete" onPress={() => setShowConfirm(true)} marginVertical={2} />
           </View>
         )}
       </View>
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
   },
   sessionActions: {
     flexDirection: "column",
-    gap: 4,
+    gap: 0,
   },
   renameInput: {
     marginTop: 8,

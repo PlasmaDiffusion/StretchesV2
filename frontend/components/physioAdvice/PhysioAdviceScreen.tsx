@@ -207,6 +207,18 @@ export default function PhysioAdviceScreen() {
             ))}
           </View>
         )}
+
+        {/* Empty state disclaimer */}
+        {messages.length === 0 && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>
+              To generate custom stretching advice, your text prompt is sent to OpenAI. Your generated responses and log history are saved locally on your device.
+            </Text>
+            <Text style={styles.emptyStateText}>
+              Note this AI-generated content is for informational and educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.
+            </Text>
+          </View>
+        )}
       </ScrollView>
 
       {messages.length > 0 && (
@@ -308,6 +320,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 15,
     lineHeight: 22,
+    marginVertical: 4,
   },
   inputArea: {
     borderTopWidth: StyleSheet.hairlineWidth,

@@ -24,7 +24,7 @@ export const useFetchPhysioAdvice = () => {
 
       try {
         const response = await fetch(
-          `${PHYSIO_ADVICE_API_URL}/physiotherapy_advice`,
+          `${PHYSIO_ADVICE_API_URL}/physiotherapy_advice_stream`,
           {
             method: "POST",
             headers: {
@@ -65,6 +65,7 @@ export const useFetchPhysioAdvice = () => {
 
 
 export type StreamStatus =
+  | "moderating_content"
   | "validating_request"
   | "fetching_rag_context"
   | "rag_context_failed"
