@@ -1,5 +1,6 @@
 import { Text, StyleSheet, View } from "react-native";
 import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import storage from "../../utilities/storage";
 import { ExerciseLog, HealthLog } from "../../interfaces/exerciseLog";
 import { Dropdown } from "react-native-element-dropdown";
@@ -47,6 +48,29 @@ function ExerciseLogsScreen() {
   //HealthLog on the other hand is only about how you feel in general during that day
   const [healthLogs, setHealthLogs] = useState<Map<string, HealthLog>>();
 
+  const loadHealthLogs = useCallback(() => {
+    const loadHealthLog = async () => {
+      await storage
+        .load({
+          key: `healthLog-${month}-${year}`,
+          autoSync: true,
+          syncInBackground: true,
+        })
+        .then((ret) => {
+          const healthLogsMap = new Map<string, HealthLog>(
+            Object.entries(ret.logs)
+          );
+          setHealthLogs(healthLogsMap);
+        })
+        .catch((error: Error) => {
+          console.warn(error.message);
+          setHealthLogs(undefined);
+        });
+    };
+
+    loadHealthLog();
+  }, [month, year]);
+
   const loadLogsForMonth = useCallback(() => {
     const loadExerciseLog = async () => {
       await storage
@@ -71,37 +95,24 @@ function ExerciseLogsScreen() {
         });
     };
 
-    const loadHealthLog = async () => {
-      await storage
-        .load({
-          key: `healthLog-${month}-${year}`,
-          autoSync: true,
-          syncInBackground: true,
-        })
-        .then((ret) => {
-          const healthLogsMap = new Map<string, HealthLog>(
-            Object.entries(ret.logs)
-          );
-          setHealthLogs(healthLogsMap);
-        })
-        .catch((error: Error) => {
-          console.warn(error.message);
-          setHealthLogs(undefined);
-        });
-    };
-
     setLoading(true);
     setExerciseLogs(undefined);
     setHealthLogs(undefined);
 
     setNotFound(false);
     loadExerciseLog();
-    loadHealthLog();
-  }, [loading, month, year]);
+    loadHealthLogs();
+  }, [month, year, loadHealthLogs]);
 
   useEffect(() => {
     loadLogsForMonth();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadLogsForMonth();
+    }, [loadLogsForMonth])
+  );
 
   return (
     <View style={styles.container}>
@@ -143,6 +154,7 @@ function ExerciseLogsScreen() {
                   ? healthLogs.get(key)
                   : undefined
               }
+              onHealthLogUpdate={loadHealthLogs}
             />
           </View>
         ))}

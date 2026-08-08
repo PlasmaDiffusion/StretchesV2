@@ -11,6 +11,7 @@ interface Props {
   dayKey: string;
   month: number;
   healthLog?: HealthLog;
+  onHealthLogUpdate?: () => void;
 }
 
 const months = [
@@ -37,7 +38,7 @@ const daySuffixes = Array.from({ length: 31 }, (_, i) => {
 });
 
 /** Shows exercise, pain, and mental health records for the day. Also lets you set and save pain & mental health records  */
-function DailyLog({ dayKey, month, exercises, healthLog }: Props) {
+function DailyLog({ dayKey, month, exercises, healthLog, onHealthLogUpdate }: Props) {
   const [showExercises, setShowExercises] = useState(false);
 
   return (
@@ -47,7 +48,7 @@ function DailyLog({ dayKey, month, exercises, healthLog }: Props) {
         {daySuffixes[parseInt(dayKey) - 1]}
       </Text>
 
-      <DailyHealthLog healthLog={healthLog} dayKey={dayKey} />
+      <DailyHealthLog healthLog={healthLog} dayKey={dayKey} onHealthLogUpdate={onHealthLogUpdate} />
 
       <Text style={styles.heading}>Exercises ({exercises.length})</Text>
       <PrimaryButton

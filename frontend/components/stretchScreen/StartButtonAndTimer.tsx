@@ -59,7 +59,14 @@ export function StartButtonAndTimer({
         clearInterval(interval);
       };
     }
-  }, [started, currentStretch, currentTime, paused, goToNextStretch, incrementTime]);
+  }, [
+    started,
+    currentStretch,
+    currentTime,
+    paused,
+    goToNextStretch,
+    incrementTime,
+  ]);
 
   function getButtonPauseText() {
     return paused ? "Unpause" : "Pause";
@@ -92,6 +99,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: 100,
     alignSelf: "center",
+    paddingVertical: 8,
   },
   skipButton: {
     marginTop: 8,

@@ -11,17 +11,18 @@ import { HealthLog } from "../../../interfaces/exerciseLog";
 interface Props {
   healthLog?: HealthLog;
   dayKey: string;
+  onHealthLogUpdate?: () => void;
 }
 
 //** Displays and lets you modify pain + mental health records  */
-function DailyHealthLog({ healthLog, dayKey }: Props) {
+function DailyHealthLog({ healthLog, dayKey, onHealthLogUpdate }: Props) {
   const [painValueToChangeTo, setPainValueToChangeTo] = useState<number>();
   const [mentalHealthValueToChangeTo, setMentalHealthToChangeTo] =
     useState<number>();
   const [showUpdateHealthLogPrompt, setShowUpdateHealthLogPrompt] =
     useState(false);
 
-  const updateHealthLog = useCallback(() => {
+  const updateHealthLog = useCallback(async () => {
     let updatedHealthLog = healthLog
       ? healthLog
       : {
@@ -35,9 +36,10 @@ function DailyHealthLog({ healthLog, dayKey }: Props) {
     updatedHealthLog.mentalHealthLevel =
       mentalHealthValueToChangeTo ?? updatedHealthLog?.mentalHealthLevel ?? -1;
 
-    saveHealthForSpecificDayToLog(updatedHealthLog, dayKey);
+    await saveHealthForSpecificDayToLog(updatedHealthLog, dayKey);
     setShowUpdateHealthLogPrompt(false);
-  }, [painValueToChangeTo, mentalHealthValueToChangeTo, healthLog, dayKey]);
+    onHealthLogUpdate?.();
+  }, [painValueToChangeTo, mentalHealthValueToChangeTo, healthLog, dayKey, onHealthLogUpdate]);
 
   return (
     <View>
